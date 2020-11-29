@@ -3,7 +3,6 @@ package controller
 import (
 	"net/http"
 
-	"github.com/philippecery/maths/webapp/controller/api"
 	"github.com/philippecery/maths/webapp/controller/app"
 )
 
@@ -23,7 +22,7 @@ func SetupRoutes() {
 	http.HandleFunc("/operations", app.Todo)
 	http.HandleFunc("/logout", app.Logout)
 
-	http.HandleFunc("/websocket", api.Endpoints)
+	//http.HandleFunc("/websocket", api.Endpoints)
 }
 
 func handleStatic(path string) {
