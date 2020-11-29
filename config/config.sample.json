@@ -1,0 +1,18 @@
+{
+    "port": 8043,
+    "ssl": {
+        "keystore": "<PEM bundle of certificate and PKCS#8 password-protected private key>",
+        "password": "<private key password>"
+    },
+    "db": {
+        "url": "<mongodb database uri>",
+        "authMechanism": "SCRAM-SHA-256",
+        "authSource": "<mongodb auth source>",
+        "username": "<mongodb username>",
+        "password": "<mongodb password>"
+    },
+    "keys": {
+        "createUserToken": "<password used to generate a HMAC key>",
+        "actionToken": "<password used to generate a HMAC key>"
+    }
+}

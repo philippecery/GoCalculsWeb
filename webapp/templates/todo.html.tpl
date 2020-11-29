@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="fr">
+	{{ template "header.html" . }}
+    <div class="col-sm-12 text-center">
+        <h2><span class="glyphicon glyphicon-road"></span><br/>WORK IN PROGRESS</h2>
+    </div>
+	{{ template "footer.html" . }}
+</html>

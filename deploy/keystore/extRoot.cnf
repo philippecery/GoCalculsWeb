@@ -1,0 +1,7 @@
+[ req ]
+basicConstraints = CA:TRUE, pathlen:2
+keyUsage = critical, cRLSign, keyCertSign
+distinguished_name = req_distinguished_name
+
+[ req_distinguished_name ]
+commonName = CA_ROOT
