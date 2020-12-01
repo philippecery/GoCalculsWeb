@@ -26,11 +26,6 @@ var validPassword = []*regexp.Regexp{
 	regexp.MustCompile("^.*[!@#$%^&*()_\\-+=~`{}\\[\\]|\\:;\"'<>?,./]+.*$"),
 }
 
-type registerViewData struct {
-	basicViewData
-	UserID string
-}
-
 // Register handles requests to /register
 // Only GET and POST requests are allowed.
 //  - a GET request will display the registration form if the submitted token exists and is not expired.
@@ -39,17 +34,15 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if r.Method == "GET" {
 		if userToken := dataaccess.GetUserByToken(r.URL.Query()["token"][0]); userToken != nil {
+			vd := newViewData(r)
 			if userToken.Expires.Before(time.Now()) {
-				httpsession.SetErrorMessage("Registration link is expired. Please contact the administrator.")
+				httpsession.SetErrorMessageID("errorRegistrationTokenExpired")
 			}
-			viewData := &registerViewData{
-				basicViewData: basicViewData{
-					ErrorMessage: httpsession.GetErrorMessage(),
-					Token:        userToken.Token,
-				},
-				UserID: userToken.UserID,
-			}
-			if err := templates.ExecuteTemplate(w, "registration.html.tpl", viewData); err != nil {
+			vd.setUserID(userToken.UserID)
+			vd.setErrorMessage(httpsession.GetErrorMessageID())
+			vd.setToken(userToken.Token)
+			vd.setRegisterPageLocalizedMessages()
+			if err := templates.ExecuteTemplate(w, "registration.html.tpl", vd); err != nil {
 				log.Fatalf("Error while executing template 'registration': %v\n", err)
 			}
 			return
@@ -57,18 +50,18 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	} else {
 		if r.Method == "POST" {
 			token := r.PostFormValue("token")
-			if newUser, errorMessage, err := validateUserInput(r); err == nil {
+			if newUser, errorMessageID, err := validateUserInput(r); err == nil {
 				if err = dataaccess.RegisterUser(newUser, token); err != nil {
 					log.Printf("User creation failed. Cause: %v", err)
-					httpsession.SetErrorMessage("Registration failed due to a technical issue. Please try again later or contact the administrator.")
+					httpsession.SetErrorMessageID("errorRegistrationFailed")
 				} else {
 					http.Redirect(w, r, "/login", http.StatusFound)
 					return
 				}
 			} else {
 				log.Printf("Input validation failed. Cause: %v", err)
-				if errorMessage != "" {
-					httpsession.SetErrorMessage(errorMessage)
+				if errorMessageID != "" {
+					httpsession.SetErrorMessageID(errorMessageID)
 				}
 			}
 			http.Redirect(w, r, "/register?token="+token, http.StatusFound)
@@ -76,6 +69,18 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("Invalid method %s\n", r.Method)
 	}
+}
+
+func (vd viewData) setRegisterPageLocalizedMessages() viewData {
+	return vd.setDefaultLocalizedMessages().
+		addLocalizedMessage("registration").
+		addLocalizedMessage("userid").
+		addLocalizedMessage("firstName").
+		addLocalizedMessage("lastName").
+		addLocalizedMessage("emailAddress").
+		addLocalizedMessage("password").
+		addLocalizedMessage("passwordConfirm").
+		addLocalizedMessage("register")
 }
 
 func validateUserInput(r *http.Request) (*document.RegisteredUser, string, error) {
@@ -92,16 +97,16 @@ func validateUserInput(r *http.Request) (*document.RegisteredUser, string, error
 		return nil, "", err
 	}
 	if newUser.EmailAddress, err = validateEmailAddress(r.PostFormValue("emailAddress")); err != nil {
-		return nil, "Invalid email address", err
+		return nil, "errorInvalidEmailAddress", err
 	}
 	if newUser.Password, err = validatePassword(r.PostFormValue("password"), r.PostFormValue("passwordConfirm")); err != nil {
-		return nil, "Invalid password", err
+		return nil, "errorPassword", err
 	}
 	if newUser.FirstName, err = validateName(r.PostFormValue("firstName")); err != nil {
-		return nil, "Invalid first name", err
+		return nil, "errorInvalidFirstName", err
 	}
 	if newUser.LastName, err = validateName(r.PostFormValue("lastName")); err != nil {
-		return nil, "Invalid last name", err
+		return nil, "errorInvalidLastName", err
 	}
 	newUser.Status = constant.Enabled
 	return &newUser, "", nil

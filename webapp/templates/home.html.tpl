@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ .lang }}">
 	{{ template "header.html" . }}
-	{{ template "logout.html" . }}
 	<div class="text-center col-sm-12">
-		<div><h2>Hi {{ .User.FirstName }}</h2></div>
+		<div><h2>{{ .User.FirstName }}</h2></div>
 		<div class="well well-lg center block">
 			<a class="btn btn-lg btn-success btn-block" href="/operations?category=1" role="button">
-				<span class="glyphicon glyphicon-hourglass"></span>&nbsp;<span>Calculs Mentaux</span>
+				<span class="glyphicon glyphicon-hourglass"></span>&nbsp;<span>{{ .i18n_mentalmath }}</span>
 			</a>
 			<a class="btn btn-lg btn-primary btn-block" href="/operations?category=2" role="button">
-				<span class="glyphicon glyphicon-pencil"></span>&nbsp;<span>Op&eacute;rations Pos&eacute;es</span>
+				<span class="glyphicon glyphicon-pencil"></span>&nbsp;<span>{{ .i18n_columnform }}</span>
 			</a>
 			<a class="btn btn-lg btn-default btn-block" href="/results" role="button">
-				<span class="glyphicon glyphicon-education"></span>&nbsp;<span>R&eacute;sultats</span>
+				<span class="glyphicon glyphicon-education"></span>&nbsp;<span>{{ .i18n_results }}</span>
 			</a>
 		</div>
 	</div>

@@ -5,20 +5,14 @@ import (
 	"crypto/hmac"
 	hash "crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/philippecery/maths/webapp/config"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/session"
 )
-
-type usersViewData struct {
-	UserID            string
-	RegisteredUsers   []*document.User
-	UnregisteredUsers []*document.User
-}
 
 // Users handles requests to /admin/users
 // Only GET requests are allowed. The user must have role Admin to access this page.
@@ -26,17 +20,37 @@ type usersViewData struct {
 func Users(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
-		viewData := &usersViewData{
-			UserID:            user.UserID,
-			RegisteredUsers:   dataaccess.GetAllRegisteredUsers(),
-			UnregisteredUsers: dataaccess.GetAllUnregisteredUsers(),
-		}
-		if err := templates.ExecuteTemplate(w, "users.html.tpl", viewData); err != nil {
-			log.Fatalf("Error while executing template 'home': %v\n", err)
+		vd := newViewData(r)
+		vd.setUser(user)
+		vd.setRegisteredUsers(dataaccess.GetAllRegisteredUsers())
+		vd.setUnregisteredUsers(dataaccess.GetAllUnregisteredUsers())
+		vd.setUsersPageLocalizedMessages()
+		if err := templates.ExecuteTemplate(w, "users.html.tpl", vd); err != nil {
+			log.Fatalf("Error while executing template 'users': %v\n", err)
 		}
 		return
 	}
 	http.Redirect(w, r, "/login", http.StatusFound)
+}
+
+func (vd viewData) setUsersPageLocalizedMessages() viewData {
+	return vd.setDefaultLocalizedMessages().
+		addLocalizedMessage("registeredUsers").
+		addLocalizedMessage("unregisteredUsers").
+		addLocalizedMessage("userid").
+		addLocalizedMessage("firstName").
+		addLocalizedMessage("lastName").
+		addLocalizedMessage("emailAddress").
+		addLocalizedMessage("role").
+		addLocalizedMessage("lastConnection").
+		addLocalizedMessage("disableAccount").
+		addLocalizedMessage("enableAccount").
+		addLocalizedMessage("deleteUser").
+		addLocalizedMessage("token").
+		addLocalizedMessage("expires").
+		addLocalizedMessage("copyRegistrationLink").
+		addLocalizedMessage("addUser").
+		addLocalizedMessage("logout")
 }
 
 // Status handles requests to /admin/status
@@ -45,7 +59,7 @@ func Users(w http.ResponseWriter, r *http.Request) {
 func Status(w http.ResponseWriter, r *http.Request) {
 	executeAction(w, r, func() error {
 		if err := dataaccess.ToggleUserStatus(r.URL.Query()["userid"][0]); err != nil {
-			return err
+			return errors.New("errorUserStatusUpdateFailed")
 		}
 		http.Redirect(w, r, "/admin/users", http.StatusFound)
 		return nil
@@ -58,7 +72,7 @@ func Status(w http.ResponseWriter, r *http.Request) {
 func Delete(w http.ResponseWriter, r *http.Request) {
 	executeAction(w, r, func() error {
 		if err := dataaccess.DeleteUser(r.URL.Query()["userid"][0]); err != nil {
-			return err
+			return errors.New("errorUserDeletionFailed")
 		}
 		http.Redirect(w, r, "/admin/users", http.StatusFound)
 		return nil
@@ -74,7 +88,7 @@ func executeAction(w http.ResponseWriter, r *http.Request, action func() error) 
 			if userID != "" && actionToken != "" && verifyActionToken(userID, actionToken) {
 				var err error
 				if err = action(); err != nil {
-					httpsession.SetErrorMessage(err.Error())
+					httpsession.SetErrorMessageID(err.Error())
 				}
 				return
 			}

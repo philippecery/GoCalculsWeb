@@ -24,16 +24,16 @@ func (s *HTTPSession) GetAuthenticatedUser() *UserInformation {
 	return nil
 }
 
-// SetErrorMessage stores an error message in the user session.
-func (s *HTTPSession) SetErrorMessage(message string) {
-	s.SetAttribute("error", message)
+// SetErrorMessageID stores an error message ID in the user session.
+func (s *HTTPSession) SetErrorMessageID(messageID string) {
+	s.SetAttribute("errorMessageID", messageID)
 }
 
-// GetErrorMessage returns the error message from the session.
-func (s *HTTPSession) GetErrorMessage() string {
-	if message, isString := s.GetAttribute("error").(string); isString {
-		s.RemoveAttribute("error")
-		return message
+// GetErrorMessageID returns the error message ID from the session, if any.
+func (s *HTTPSession) GetErrorMessageID() string {
+	if messageID, isString := s.GetAttribute("errorMessageID").(string); isString {
+		s.RemoveAttribute("errorMessageID")
+		return messageID
 	}
 	return ""
 }

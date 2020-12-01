@@ -4,6 +4,7 @@ import (
 	"bytes"
 	hash "crypto/sha256"
 	"encoding/base64"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -18,13 +19,14 @@ import (
 //  - a GET request will display the Login form. If an error message is available in the session, it will be displayed.
 //  - a POST request will authenticate the user if the submitted credentials are valid.
 func Login(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("/login")
 	httpsession := session.GetSession(w, r)
 	if r.Method == "GET" {
-		viewData := &basicViewData{
-			ErrorMessage: httpsession.GetErrorMessage(),
-			Token:        httpsession.SetCSRFToken(),
-		}
-		if err := templates.ExecuteTemplate(w, "login.html.tpl", viewData); err != nil {
+		vd := newViewData(r)
+		vd.setErrorMessage(httpsession.GetErrorMessageID())
+		vd.setToken(httpsession.SetCSRFToken())
+		vd.setLoginPageLocalizedMessages()
+		if err := templates.ExecuteTemplate(w, "login.html.tpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'login': %v\n", err)
 		}
 	} else {
@@ -50,9 +52,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		} else {
 			log.Printf("Invalid method %s\n", r.Method)
 		}
+		httpsession.SetErrorMessageID("errorAuthenticationFailed")
+		http.Redirect(w, r, "/login", http.StatusFound)
 	}
-	httpsession.SetErrorMessage("Authentication failed")
-	http.Redirect(w, r, "/login", http.StatusFound)
+}
+
+func (vd viewData) setLoginPageLocalizedMessages() viewData {
+	return vd.setDefaultLocalizedMessages().
+		addLocalizedMessage("login").
+		addLocalizedMessage("userid").
+		addLocalizedMessage("password")
 }
 
 func verifyUserIDPassword(userID, password string) *document.User {

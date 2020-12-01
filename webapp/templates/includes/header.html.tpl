@@ -3,11 +3,23 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Math&eacute;matiques - Calculs</title>
+    <title>{{ .i18n_title }}</title>
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/range.css" rel="stylesheet">
   </head>
   <body>
     <div class="container">
-      <h1 class="text-center alert alert-danger"><span class="glyphicon glyphicon-education"></span>&nbsp;Math&eacute;matiques - Calculs</h1>
+      <div class="text-right col-sm-12">
+        {{ if .User }}
+        <a class="btn btn-xs btn-danger" href="/logout" role="button">
+          <span class="glyphicon glyphicon-log-out"></span>&nbsp;<span>{{ .i18n_logout }}</span>
+        </a>
+        {{ end }}
+        <div class="btn-group" role="group">
+            {{ range $key, $value := .langs }}
+              <a class="btn btn-xs btn-default" onclick="language('{{ $key }}');" role="button"><span>{{ $value }}</span></a>
+            {{ end }}
+        </div>
+      </div>
+      <h1 class="text-center alert alert-danger"><span class="glyphicon glyphicon-education"></span>&nbsp;{{ .i18n_title }}</h1>
 {{ end }}

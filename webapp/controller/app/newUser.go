@@ -29,11 +29,12 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
 		if r.Method == "GET" {
-			viewData := &basicViewData{
-				ErrorMessage: httpsession.GetErrorMessage(),
-				Token:        httpsession.SetCSRFToken(),
-			}
-			if err := templates.ExecuteTemplate(w, "newUser.html.tpl", viewData); err != nil {
+			vd := newViewData(r)
+			vd.setUser(user)
+			vd.setErrorMessage(httpsession.GetErrorMessageID())
+			vd.setToken(httpsession.SetCSRFToken())
+			vd.setNewUserPageLocalizedMessages()
+			if err := templates.ExecuteTemplate(w, "newUser.html.tpl", vd); err != nil {
 				log.Fatalf("Error while executing template 'newUser': %v\n", err)
 			}
 			return
@@ -47,16 +48,16 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 						unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: &expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
 						if err := dataaccess.CreateNewUser(unregisteredUser); err != nil {
 							log.Printf("User creation failed. Cause: %v", err)
-							httpsession.SetErrorMessage("User creation failed.")
+							httpsession.SetErrorMessageID("errorUserCreationFailed")
 						}
 						http.Redirect(w, r, "/admin/users", http.StatusFound)
 						return
 					}
 					log.Printf("User %s invalid or already exists\n", userID)
-					httpsession.SetErrorMessage("User ID invalid or already exists")
+					httpsession.SetErrorMessageID("errorInvalidUserID")
 				} else {
 					log.Printf("Invalid role id %d\n", roleID)
-					httpsession.SetErrorMessage("Please select a role.")
+					httpsession.SetErrorMessageID("errorInvalidRoleID")
 				}
 			} else {
 				log.Printf("Invalid CSRF token")
@@ -70,6 +71,20 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)
+}
+
+func (vd viewData) setNewUserPageLocalizedMessages() viewData {
+	return vd.setDefaultLocalizedMessages().
+		addLocalizedMessage("newUser").
+		addLocalizedMessage("userid").
+		addLocalizedMessage("role").
+		addLocalizedMessage("select").
+		addLocalizedMessage("admin").
+		addLocalizedMessage("teacher").
+		addLocalizedMessage("student").
+		addLocalizedMessage("createUser").
+		addLocalizedMessage("cancel").
+		addLocalizedMessage("logout")
 }
 
 func generateUserToken(userID string) (string, time.Time) {
