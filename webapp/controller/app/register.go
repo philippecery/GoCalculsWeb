@@ -16,14 +16,14 @@ import (
 	"github.com/philippecery/maths/webapp/session"
 )
 
-var validEmailAddress = regexp.MustCompile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
+var validEmailAddress = regexp.MustCompile("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$")
 var validName = regexp.MustCompile("([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+")
 
 var validPassword = []*regexp.Regexp{
 	regexp.MustCompile("^.*[0-9]+.*$"),
 	regexp.MustCompile("^.*[a-z]+.*$"),
 	regexp.MustCompile("^.*[A-Z]+.*$"),
-	regexp.MustCompile("^.*[!@#$%^&*()_\\-+=~`{}\\[\\]|\\:;\"'<>?,./]+.*$"),
+	regexp.MustCompile("^.*[^0-9a-zA-Z]+.*$"),
 }
 
 // Register handles requests to /register
@@ -120,7 +120,7 @@ func validateUserID(userID string, userToken *document.User) (string, constant.U
 }
 
 func validateEmailAddress(emailAddress string) (string, error) {
-	if validEmailAddress.MatchString(emailAddress) {
+	if len(emailAddress) <= 254 && validEmailAddress.MatchString(emailAddress) {
 		return emailAddress, nil
 	}
 	return "", fmt.Errorf("Invalid email address")

@@ -19,7 +19,7 @@ import (
 	"github.com/philippecery/maths/webapp/session"
 )
 
-var validID = regexp.MustCompile("^[a-z.]{3,}$")
+var validID = regexp.MustCompile("^[a-z]{2,}(\\.?[a-z]{2,})*$")
 
 // NewUser handles requests to /admin/newUser
 // Only GET and POST requests are allowed. The user must have role Admin to access this page.
@@ -43,7 +43,7 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 			if r.PostFormValue("token") == httpsession.GetCSRFToken() {
 				if roleID, _ := strconv.Atoi(r.PostFormValue("role")); roleID > 0 && constant.UserRole(roleID).IsValid() {
 					userID := strings.ToLower(r.PostFormValue("userId"))
-					if validID.MatchString(userID) && dataaccess.IsUserIDAvailable(userID) {
+					if len(userID) <= 32 && validID.MatchString(userID) && dataaccess.IsUserIDAvailable(userID) {
 						token, expirationTime := generateUserToken(userID)
 						unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: &expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
 						if err := dataaccess.CreateNewUser(unregisteredUser); err != nil {
