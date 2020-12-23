@@ -4,7 +4,6 @@ import (
 	"bytes"
 	hash "crypto/sha256"
 	"encoding/base64"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -19,7 +18,7 @@ import (
 //  - a GET request will display the Login form. If an error message is available in the session, it will be displayed.
 //  - a POST request will authenticate the user if the submitted credentials are valid.
 func Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("/login")
+	//fmt.Println("/login")
 	httpsession := session.GetSession(w, r)
 	if r.Method == "GET" {
 		vd := newViewData(w, r)
