@@ -38,7 +38,7 @@ func securityHeaders(h func(http.ResponseWriter, *http.Request)) func(http.Respo
 	return func(w http.ResponseWriter, r *http.Request) {
 		token := session.GetSession(w, r).SetCSPNonce()
 		w.Header().Set("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains")
-		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'; block-all-mixed-content; default-src 'none'; connect-src 'self'; font-src 'self'; img-src 'self'; style-src 'self'; base-uri 'self'; script-src 'nonce-"+token+"' 'unsafe-inline'")
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'; block-all-mixed-content; default-src 'none'; connect-src 'self'; font-src 'self'; img-src 'self'; style-src 'self'; form-action 'self'; base-uri 'self'; script-src 'nonce-"+token+"' 'unsafe-inline'")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
 		w.Header().Set("Referrer-Policy", "no-referrer")
