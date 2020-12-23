@@ -14,7 +14,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil {
 		if r.Method == "GET" {
-			vd := newViewData(r)
+			vd := newViewData(w, r)
 			vd.setUser(user)
 			vd.setHomePageLocalizedMessages()
 			if err := templates.ExecuteTemplate(w, "home.html.tpl", vd); err != nil {

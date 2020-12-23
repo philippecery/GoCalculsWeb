@@ -34,7 +34,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if r.Method == "GET" {
 		if userToken := dataaccess.GetUserByToken(r.URL.Query()["token"][0]); userToken != nil {
-			vd := newViewData(r)
+			vd := newViewData(w, r)
 			if userToken.Expires.Before(time.Now()) {
 				httpsession.SetErrorMessageID("errorRegistrationTokenExpired")
 			}

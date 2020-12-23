@@ -22,7 +22,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("/login")
 	httpsession := session.GetSession(w, r)
 	if r.Method == "GET" {
-		vd := newViewData(r)
+		vd := newViewData(w, r)
 		vd.setErrorMessage(httpsession.GetErrorMessageID())
 		vd.setToken(httpsession.SetCSRFToken())
 		vd.setLoginPageLocalizedMessages()
@@ -37,6 +37,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 					session.InvalidateSession(w, r)
 					httpsession := session.GetSession(w, r)
 					httpsession.SetAuthenticatedUser(user)
+					httpsession.SetCSRFToken()
 					dataaccess.UpdateLastConnection(userID)
 					if user.IsAdmin() {
 						http.Redirect(w, r, "/admin/users", http.StatusFound)

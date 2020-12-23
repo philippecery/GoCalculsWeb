@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/philippecery/maths/webapp/controller/app"
+	"github.com/philippecery/maths/webapp/session"
 )
 
 // SetupRoutes defines the handlers for the request paths
@@ -35,8 +36,9 @@ func handleFunc(pattern string, h func(http.ResponseWriter, *http.Request)) {
 
 func securityHeaders(h func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		token := session.GetSession(w, r).SetCSPNonce()
 		w.Header().Set("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains")
-		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'; block-all-mixed-content; default-src 'none'; script-src 'self' 'unsafe-inline'; connect-src 'self'; font-src 'self'; style-src 'self';")
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'; block-all-mixed-content; default-src 'none'; connect-src 'self'; font-src 'self'; style-src 'self'; base-uri 'self'; script-src 'nonce-"+token+"' 'unsafe-inline'")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
 		w.Header().Set("Referrer-Policy", "no-referrer")

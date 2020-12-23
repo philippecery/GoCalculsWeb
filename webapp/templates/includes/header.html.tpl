@@ -17,7 +17,7 @@
         {{ end }}
         <div class="btn-group" role="group">
             {{ range $key, $value := .langs }}
-              <a class="btn btn-xs btn-default" onclick="language('{{ $key }}');" role="button"><span>{{ $value }}</span></a>
+              <a class="btn btn-xs btn-default" id="lang_{{ $key }}" role="button"><span>{{ $value }}</span></a>
             {{ end }}
         </div>
       </div>

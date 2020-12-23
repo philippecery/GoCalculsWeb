@@ -58,7 +58,7 @@
 					<td>{{ .Role }}</td>
 					<td>{{ .Token }}</td>
 					<td>{{ .Expires }}</td>
-					<td class="text-center"><a href="{{ .Link }}" onclick="copyURI(event)" data-toggle="tooltip" data-placement="top" title="{{ $i18n_copyRegistrationLink }}"><span class="glyphicon glyphicon-copy"></span></a></td>
+					<td class="text-center"><a href="{{ .Link }}" id="link_{{ .UserID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_copyRegistrationLink }}"><span class="glyphicon glyphicon-copy"></span></a></td>
 					<!-- TODO: Add confirmation before deletion-->
 					<td class="text-center"><a href="/admin/delete?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_deleteUser }}"><span class="glyphicon glyphicon-trash"></span></a></td>
 				</tr>
@@ -72,11 +72,14 @@
 		</a>
 	</div>
 	{{ template "footer.html" . }}
-	<script type="text/javascript" src="/js/jquery-2.2.2.min.js"></script>
-	<script type="text/javascript" src="/js/bootstrap.min.js"></script>
-	<script>
+	<script nonce="{{ .nonce }}" type="text/javascript" src="/js/jquery-2.2.2.min.js"></script>
+	<script nonce="{{ .nonce }}" type="text/javascript" src="/js/bootstrap.min.js"></script>
+	<script nonce="{{ .nonce }}">
 	$(document).ready(function(){
-		$('[data-toggle="tooltip"]').tooltip(); 
+		$('[data-toggle="tooltip"]').tooltip();
+		{{ range .UnregisteredUsers }}
+		document.getElementById('link_{{ .UserID }}').addEventListener('click', function(evt) { copyURI(evt) });
+		{{ end }}
 	});
 	function copyURI(evt) {
 		evt.preventDefault();

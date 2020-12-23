@@ -52,3 +52,19 @@ func (s *HTTPSession) GetCSRFToken() string {
 	}
 	return ""
 }
+
+// SetCSPNonce generates a random nonce for strict CSP and stores it in this session.
+func (s *HTTPSession) SetCSPNonce() string {
+	token := util.GenerateRandomBytesToBase64(32)
+	s.SetAttribute("nonce", token)
+	return token
+}
+
+// GetCSPNonce returns the nonce for strict CSP from the session.
+func (s *HTTPSession) GetCSPNonce() string {
+	if token, isString := s.GetAttribute("nonce").(string); isString {
+		s.RemoveAttribute("nonce")
+		return token
+	}
+	return ""
+}

@@ -28,44 +28,48 @@ var validID = regexp.MustCompile("^[a-z]{2,}(\\.?[a-z]{2,})*$")
 func NewUser(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
-		if r.Method == "GET" {
-			vd := newViewData(r)
-			vd.setUser(user)
-			vd.setErrorMessage(httpsession.GetErrorMessageID())
-			vd.setToken(httpsession.SetCSRFToken())
-			vd.setNewUserPageLocalizedMessages()
-			if err := templates.ExecuteTemplate(w, "newUser.html.tpl", vd); err != nil {
-				log.Fatalf("Error while executing template 'newUser': %v\n", err)
-			}
-			return
-		}
-		if r.Method == "POST" {
-			if r.PostFormValue("token") == httpsession.GetCSRFToken() {
-				if roleID, _ := strconv.Atoi(r.PostFormValue("role")); roleID > 0 && constant.UserRole(roleID).IsValid() {
-					userID := strings.ToLower(r.PostFormValue("userId"))
-					if len(userID) <= 32 && validID.MatchString(userID) && dataaccess.IsUserIDAvailable(userID) {
-						token, expirationTime := generateUserToken(userID)
-						unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: &expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
-						if err := dataaccess.CreateNewUser(unregisteredUser); err != nil {
-							log.Printf("User creation failed. Cause: %v", err)
-							httpsession.SetErrorMessageID("errorUserCreationFailed")
-						}
-						http.Redirect(w, r, "/admin/users", http.StatusFound)
-						return
-					}
-					log.Printf("User %s invalid or already exists\n", userID)
-					httpsession.SetErrorMessageID("errorInvalidUserID")
-				} else {
-					log.Printf("Invalid role id %d\n", roleID)
-					httpsession.SetErrorMessageID("errorInvalidRoleID")
+		if token := httpsession.GetCSRFToken(); token != "" {
+			if r.Method == "GET" {
+				vd := newViewData(w, r)
+				vd.setUser(user)
+				vd.setErrorMessage(httpsession.GetErrorMessageID())
+				vd.setToken(token)
+				vd.setNewUserPageLocalizedMessages()
+				if err := templates.ExecuteTemplate(w, "newUser.html.tpl", vd); err != nil {
+					log.Fatalf("Error while executing template 'newUser': %v\n", err)
 				}
-			} else {
-				log.Printf("Invalid CSRF token")
+				return
 			}
-			http.Redirect(w, r, "/admin/newUser", http.StatusFound)
-			return
+			if r.Method == "POST" {
+				if r.PostFormValue("token") == token {
+					if roleID, _ := strconv.Atoi(r.PostFormValue("role")); roleID > 0 && constant.UserRole(roleID).IsValid() {
+						userID := strings.ToLower(r.PostFormValue("userId"))
+						if len(userID) <= 32 && validID.MatchString(userID) && dataaccess.IsUserIDAvailable(userID) {
+							token, expirationTime := generateUserToken(userID)
+							unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: &expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
+							if err := dataaccess.CreateNewUser(unregisteredUser); err != nil {
+								log.Printf("User creation failed. Cause: %v", err)
+								httpsession.SetErrorMessageID("errorUserCreationFailed")
+							}
+							http.Redirect(w, r, "/admin/users", http.StatusFound)
+							return
+						}
+						log.Printf("User %s invalid or already exists\n", userID)
+						httpsession.SetErrorMessageID("errorInvalidUserID")
+					} else {
+						log.Printf("Invalid role id %d\n", roleID)
+						httpsession.SetErrorMessageID("errorInvalidRoleID")
+					}
+				} else {
+					log.Printf("Invalid CSRF token")
+				}
+				http.Redirect(w, r, "/admin/newUser", http.StatusFound)
+				return
+			}
+			log.Printf("Invalid method %s\n", r.Method)
+		} else {
+			log.Printf("CSRF token not found in session")
 		}
-		log.Printf("Invalid method %s\n", r.Method)
 	} else {
 		log.Println("User is not authenticated or does not have Admin role")
 	}

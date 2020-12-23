@@ -13,7 +13,7 @@ type viewData map[string]interface{}
 
 var validLang = regexp.MustCompile("^(en|fr)$")
 
-func newViewData(r *http.Request) viewData {
+func newViewData(w http.ResponseWriter, r *http.Request) viewData {
 	vd := make(viewData)
 	if cookie, err := r.Cookie("lang"); err == nil && validLang.MatchString(cookie.Value) {
 		vd["lang"] = cookie.Value
@@ -28,6 +28,7 @@ func newViewData(r *http.Request) viewData {
 		}
 	}
 	vd["langs"] = langs
+	vd["nonce"] = session.GetSession(w, r).GetCSPNonce()
 	return vd
 }
 

@@ -20,7 +20,7 @@ import (
 func Users(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
-		vd := newViewData(r)
+		vd := newViewData(w, r)
 		vd.setUser(user)
 		vd.setRegisteredUsers(dataaccess.GetAllRegisteredUsers())
 		vd.setUnregisteredUsers(dataaccess.GetAllUnregisteredUsers())
