@@ -9,7 +9,7 @@
             <div class="form-group">
                 <label for="userId" class="col-sm-2 control-label">{{ .i18n_userid }}</label>
                 <div class="col-sm-3">
-                    <input type="text" class="form-control" id="userId" name="userId"/>
+                    <input type="text" autocomplete="off" pattern="^(?=^[a-z.]{3,32}$)[a-z]{2,}(\.?[a-z]{2,})*$" title="Between 3 and 32 characters. Only lower case letters and dot (.) character are allowed. Must start and end with letters." class="form-control" id="userId" name="userId"/>
                 </div>
             </div>
             <div class="form-group">

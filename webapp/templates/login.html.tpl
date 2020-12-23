@@ -9,13 +9,13 @@
             <div class="form-group">
                 <label for="userId" class="col-sm-2 control-label">{{ .i18n_userid }}</label>
                 <div class="col-sm-3">
-                    <input type="text" class="form-control" id="userId" name="userId"/>
+                    <input type="text" autocomplete="username" class="form-control" id="userId" name="userId"/>
                 </div>
             </div>
             <div class="form-group">
                 <label for="password" class="col-sm-2 control-label">{{ .i18n_password }}</label>
                 <div class="col-sm-3">
-                    <input type="password" class="form-control" id="password" name="password"/>
+                    <input type="password" autocomplete="current-password" class="form-control" id="password" name="password"/>
                 </div>
             </div>
             <div class="form-group">
