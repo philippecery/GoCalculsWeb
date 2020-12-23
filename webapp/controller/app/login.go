@@ -18,7 +18,6 @@ import (
 //  - a GET request will display the Login form. If an error message is available in the session, it will be displayed.
 //  - a POST request will authenticate the user if the submitted credentials are valid.
 func Login(w http.ResponseWriter, r *http.Request) {
-	//fmt.Println("/login")
 	httpsession := session.GetSession(w, r)
 	if r.Method == "GET" {
 		vd := newViewData(w, r)
@@ -83,5 +82,6 @@ func verifyUserIDPassword(userID, password string) *document.User {
 // Logout handles requests to /logout by invalidating the session and redirecting to /login
 func Logout(w http.ResponseWriter, r *http.Request) {
 	session.InvalidateSession(w, r)
+	session.GetSession(w, r)
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
