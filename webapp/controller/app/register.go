@@ -31,6 +31,7 @@ var validPassword = []*regexp.Regexp{
 //  - a GET request will display the registration form if the submitted token exists and is not expired.
 //  - a POST request will store the user's data if the token exists and is still not expired.
 func Register(w http.ResponseWriter, r *http.Request) {
+	session.InvalidateSession(w, r)
 	httpsession := session.GetSession(w, r)
 	if r.Method == "GET" {
 		if userToken := dataaccess.GetUserByToken(r.URL.Query()["token"][0]); userToken != nil {
