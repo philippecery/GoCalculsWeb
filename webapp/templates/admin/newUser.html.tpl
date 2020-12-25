@@ -4,7 +4,7 @@
     <div class="col-sm-12 text-center"><h2><span class="glyphicon glyphicon-user"></span>&nbsp;<span>{{ .i18n_newUser }}</span></h2></div>
 	{{ template "error.html" . }}
     <div class="col-sm-12">
-        <form id="registrationForm" method="POST" action="/admin/newUser" class="form-horizontal">
+        <form id="registrationForm" method="POST" action="/admin/user/new" class="form-horizontal">
             <input type="hidden" name="token" value="{{ .Token }}"/>
             <div class="form-group">
                 <label for="userId" class="col-sm-2 control-label">{{ .i18n_userid }}</label>
@@ -27,7 +27,7 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <div class="btn-group" role="group">
                         <button id="register" type="submit" class="btn btn-lg btn-success">{{ .i18n_createUser }}</button>
-                        <a class="btn btn-lg btn-default" href="/admin/users" role="button"><span>{{ .i18n_cancel }}</span></a>
+                        <a class="btn btn-lg btn-default" href="/admin/user/list" role="button"><span>{{ .i18n_cancel }}</span></a>
                     </div>
                 </div>
             </div>

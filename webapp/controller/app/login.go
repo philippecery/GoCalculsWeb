@@ -20,11 +20,14 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if r.Method == "GET" {
-		vd := newViewData(w, r)
-		vd.setErrorMessage(httpsession.GetErrorMessageID())
-		vd.setToken(httpsession.SetCSRFToken())
-		vd.setLoginPageLocalizedMessages()
-		if err := templates.ExecuteTemplate(w, "login.html.tpl", vd); err != nil {
+		vd := NewViewData(w, r)
+		vd.SetErrorMessage(httpsession.GetErrorMessageID())
+		vd.SetToken(httpsession.SetCSRFToken())
+		vd.SetDefaultLocalizedMessages().
+			AddLocalizedMessage("login").
+			AddLocalizedMessage("userid").
+			AddLocalizedMessage("password")
+		if err := Templates.ExecuteTemplate(w, "login.html.tpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'login': %v\n", err)
 		}
 	} else {
@@ -38,7 +41,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 					httpsession.SetCSRFToken()
 					dataaccess.UpdateLastConnection(userID)
 					if user.IsAdmin() {
-						http.Redirect(w, r, "/admin/users", http.StatusFound)
+						http.Redirect(w, r, "/admin/user/list", http.StatusFound)
 					} else {
 						http.Redirect(w, r, "/", http.StatusFound)
 					}
@@ -54,13 +57,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		httpsession.SetErrorMessageID("errorAuthenticationFailed")
 		http.Redirect(w, r, "/login", http.StatusFound)
 	}
-}
-
-func (vd viewData) setLoginPageLocalizedMessages() viewData {
-	return vd.setDefaultLocalizedMessages().
-		addLocalizedMessage("login").
-		addLocalizedMessage("userid").
-		addLocalizedMessage("password")
 }
 
 func verifyUserIDPassword(userID, password string) *document.User {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/philippecery/maths/webapp/controller/app"
+	"github.com/philippecery/maths/webapp/controller/app/admin"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -15,12 +16,13 @@ func SetupRoutes() {
 
 	handleFunc("/", noCache(app.Home))
 	handleFunc("/login", noCache(app.Login))
-	handleFunc("/admin/users", noCache(app.Users))
-	handleFunc("/admin/newUser", noCache(app.NewUser))
-	handleFunc("/admin/status", app.Status)
-	handleFunc("/admin/delete", app.Delete)
+	handleFunc("/admin/user/list", noCache(admin.UserList))
+	handleFunc("/admin/user/new", noCache(admin.UserNew))
+	handleFunc("/admin/user/status", admin.UserStatus)
+	handleFunc("/admin/user/delete", admin.UserDelete)
 	handleFunc("/register", noCache(app.Register))
 	handleFunc("/operations", app.Todo)
+	//handleFunc("/operations", noCache(student.Operations))
 	handleFunc("/logout", app.Logout)
 
 	//handleFunc("/websocket", api.Endpoints)

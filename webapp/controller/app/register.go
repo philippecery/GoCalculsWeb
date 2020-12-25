@@ -34,15 +34,23 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if r.Method == "GET" {
 		if userToken := dataaccess.GetUserByToken(r.URL.Query()["token"][0]); userToken != nil {
-			vd := newViewData(w, r)
+			vd := NewViewData(w, r)
 			if userToken.Expires.Before(time.Now()) {
 				httpsession.SetErrorMessageID("errorRegistrationTokenExpired")
 			}
-			vd.setUserID(userToken.UserID)
-			vd.setErrorMessage(httpsession.GetErrorMessageID())
-			vd.setToken(userToken.Token)
-			vd.setRegisterPageLocalizedMessages()
-			if err := templates.ExecuteTemplate(w, "registration.html.tpl", vd); err != nil {
+			vd.SetUserID(userToken.UserID)
+			vd.SetErrorMessage(httpsession.GetErrorMessageID())
+			vd.SetToken(userToken.Token)
+			vd.SetDefaultLocalizedMessages().
+				AddLocalizedMessage("registration").
+				AddLocalizedMessage("userid").
+				AddLocalizedMessage("firstName").
+				AddLocalizedMessage("lastName").
+				AddLocalizedMessage("emailAddress").
+				AddLocalizedMessage("password").
+				AddLocalizedMessage("passwordConfirm").
+				AddLocalizedMessage("register")
+			if err := Templates.ExecuteTemplate(w, "registration.html.tpl", vd); err != nil {
 				log.Fatalf("Error while executing template 'registration': %v\n", err)
 			}
 			return
@@ -69,18 +77,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("Invalid method %s\n", r.Method)
 	}
-}
-
-func (vd viewData) setRegisterPageLocalizedMessages() viewData {
-	return vd.setDefaultLocalizedMessages().
-		addLocalizedMessage("registration").
-		addLocalizedMessage("userid").
-		addLocalizedMessage("firstName").
-		addLocalizedMessage("lastName").
-		addLocalizedMessage("emailAddress").
-		addLocalizedMessage("password").
-		addLocalizedMessage("passwordConfirm").
-		addLocalizedMessage("register")
 }
 
 func validateUserInput(r *http.Request) (*document.RegisteredUser, string, error) {

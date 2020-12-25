@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/session"
 )
@@ -13,7 +12,7 @@ type viewData map[string]interface{}
 
 var validLang = regexp.MustCompile("^(en|fr)$")
 
-func newViewData(w http.ResponseWriter, r *http.Request) viewData {
+func NewViewData(w http.ResponseWriter, r *http.Request) viewData {
 	vd := make(viewData)
 	if cookie, err := r.Cookie("lang"); err == nil && validLang.MatchString(cookie.Value) {
 		vd["lang"] = cookie.Value
@@ -40,38 +39,37 @@ func (vd viewData) getCurrentLanguage() string {
 	return vd["lang"].(string)
 }
 
-func (vd viewData) setUser(ui *session.UserInformation) {
+func (vd viewData) SetUser(ui *session.UserInformation) {
 	vd["User"] = ui
 }
 
-func (vd viewData) setErrorMessage(messageID string) {
+func (vd viewData) SetErrorMessage(messageID string) {
 	if messageID != "" {
 		vd["ErrorMessage"] = i18n.GetLocalizedMessage(vd.getCurrentLanguage(), messageID)
 	}
 }
 
-func (vd viewData) setToken(token string) {
+func (vd viewData) SetToken(token string) {
 	vd["Token"] = token
 }
 
-func (vd viewData) setUserID(userid string) {
+func (vd viewData) SetUserID(userid string) {
 	vd["UserID"] = userid
 }
 
-func (vd viewData) setRegisteredUsers(u []*document.User) {
-	vd["RegisteredUsers"] = u
+func (vd viewData) SetViewData(key string, data interface{}) {
+	vd[key] = data
 }
 
-func (vd viewData) setUnregisteredUsers(u []*document.User) {
-	vd["UnregisteredUsers"] = u
+func (vd viewData) SetLocalizedMessage(key, messageID string) {
+	vd["i18n_"+key] = i18n.GetLocalizedMessage(vd.getCurrentLanguage(), messageID)
 }
 
-func (vd viewData) setDefaultLocalizedMessages() viewData {
-	vd.addLocalizedMessage("title")
-	return vd
+func (vd viewData) SetDefaultLocalizedMessages() viewData {
+	return vd.AddLocalizedMessage("title")
 }
 
-func (vd viewData) addLocalizedMessage(messageID string) viewData {
-	vd["i18n_"+messageID] = i18n.GetLocalizedMessage(vd.getCurrentLanguage(), messageID)
+func (vd viewData) AddLocalizedMessage(messageID string) viewData {
+	vd.SetLocalizedMessage(messageID, messageID)
 	return vd
 }

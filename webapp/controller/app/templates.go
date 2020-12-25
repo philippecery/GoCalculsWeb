@@ -2,9 +2,10 @@ package app
 
 import "text/template"
 
-var templates = template.New("")
+var Templates = template.New("")
 
 func init() {
-	templates = template.Must(templates.ParseGlob("templates/*.tpl"))
-	templates = template.Must(templates.ParseGlob("templates/*/*.tpl"))
+	Templates = template.Must(Templates.ParseGlob("templates/*.tpl"))
+	Templates = template.Must(Templates.ParseGlob("templates/*/*.tpl"))
+	Templates = template.Must(Templates.ParseGlob("templates/*/*/*.tpl"))
 }

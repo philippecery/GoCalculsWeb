@@ -29,9 +29,9 @@
 					<td>{{ .EmailAddress }}</td>
 					<td>{{ .Role }}</td>
 					<td>{{ .LastConnection }}</td>
-					<td class="text-center">{{ if eq $currentUserID .UserID }}<span class="glyphicon glyphicon-ban-circle"></span>{{ else }}<a href="/admin/status?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ if .Enabled }}{{ $i18n_disableAccount }}{{ else }}{{ $i18n_enableAccount }}{{ end }}"><span class="glyphicon glyphicon-{{ if .Enabled }}ok{{ else }}remove{{ end }}-circle"></span></a>{{ end }}</td>
+					<td class="text-center">{{ if eq $currentUserID .UserID }}<span class="glyphicon glyphicon-ban-circle"></span>{{ else }}<a href="/admin/user/status?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ if .Enabled }}{{ $i18n_disableAccount }}{{ else }}{{ $i18n_enableAccount }}{{ end }}"><span class="glyphicon glyphicon-{{ if .Enabled }}ok{{ else }}remove{{ end }}-circle"></span></a>{{ end }}</td>
 					<!-- TODO: Add confirmation before deletion-->
-					<td class="text-center">{{ if eq $currentUserID .UserID }}<span class="glyphicon glyphicon-ban-circle"></span>{{ else }}<a href="/admin/delete?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_deleteUser }}"><span class="glyphicon glyphicon-trash"></span></a>{{ end }}</td>
+					<td class="text-center">{{ if eq $currentUserID .UserID }}<span class="glyphicon glyphicon-ban-circle"></span>{{ else }}<a href="/admin/user/delete?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_deleteUser }}"><span class="glyphicon glyphicon-trash"></span></a>{{ end }}</td>
 				</tr>
 				{{ end }}
 			</tbody>
@@ -60,14 +60,14 @@
 					<td>{{ .Expires }}</td>
 					<td class="text-center"><a href="{{ .Link }}" id="link_{{ .UserID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_copyRegistrationLink }}"><span class="glyphicon glyphicon-copy"></span></a></td>
 					<!-- TODO: Add confirmation before deletion-->
-					<td class="text-center"><a href="/admin/delete?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_deleteUser }}"><span class="glyphicon glyphicon-trash"></span></a></td>
+					<td class="text-center"><a href="/admin/user/delete?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_deleteUser }}"><span class="glyphicon glyphicon-trash"></span></a></td>
 				</tr>
 				{{ end }}
 			</tbody>
 		</table>
 	</div>
 	<div class="text-center col-sm-12">
-		<a class="btn btn-lg btn-success btn-block" href="/admin/newUser" role="button">
+		<a class="btn btn-lg btn-success btn-block" href="/admin/user/new" role="button">
 			<span class="glyphicon glyphicon-plus"></span>&nbsp;<span>{{ .i18n_addUser }}</span>
 		</a>
 	</div>

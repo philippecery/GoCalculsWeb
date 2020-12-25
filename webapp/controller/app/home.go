@@ -14,10 +14,14 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil {
 		if r.Method == "GET" {
-			vd := newViewData(w, r)
-			vd.setUser(user)
-			vd.setHomePageLocalizedMessages()
-			if err := templates.ExecuteTemplate(w, "home.html.tpl", vd); err != nil {
+			vd := NewViewData(w, r)
+			vd.SetUser(user)
+			vd.SetDefaultLocalizedMessages().
+				AddLocalizedMessage("mentalmath").
+				AddLocalizedMessage("columnform").
+				AddLocalizedMessage("results").
+				AddLocalizedMessage("logout")
+			if err := Templates.ExecuteTemplate(w, "home.html.tpl", vd); err != nil {
 				log.Fatalf("Error while executing template 'home': %v\n", err)
 			}
 			return
@@ -27,13 +31,5 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		log.Println("User is not authenticated")
 	}
 	log.Println("Redirecting to Login page")
-	http.Redirect(w, r, "/login", http.StatusFound)
-}
-
-func (vd viewData) setHomePageLocalizedMessages() viewData {
-	return vd.setDefaultLocalizedMessages().
-		addLocalizedMessage("mentalmath").
-		addLocalizedMessage("columnform").
-		addLocalizedMessage("results").
-		addLocalizedMessage("logout")
+	http.Redirect(w, r, "/logout", http.StatusFound)
 }
