@@ -28,31 +28,36 @@ import (
 func UserList(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
-		vd := app.NewViewData(w, r)
-		vd.SetUser(user)
-		vd.SetViewData("RegisteredUsers", dataaccess.GetAllRegisteredUsers())
-		vd.SetViewData("UnregisteredUsers", dataaccess.GetAllUnregisteredUsers())
-		vd.SetDefaultLocalizedMessages().
-			AddLocalizedMessage("registeredUsers").
-			AddLocalizedMessage("unregisteredUsers").
-			AddLocalizedMessage("userid").
-			AddLocalizedMessage("firstName").
-			AddLocalizedMessage("lastName").
-			AddLocalizedMessage("emailAddress").
-			AddLocalizedMessage("role").
-			AddLocalizedMessage("lastConnection").
-			AddLocalizedMessage("disableAccount").
-			AddLocalizedMessage("enableAccount").
-			AddLocalizedMessage("deleteUser").
-			AddLocalizedMessage("token").
-			AddLocalizedMessage("expires").
-			AddLocalizedMessage("copyRegistrationLink").
-			AddLocalizedMessage("addUser").
-			AddLocalizedMessage("logout")
-		if err := app.Templates.ExecuteTemplate(w, "users.html.tpl", vd); err != nil {
-			log.Fatalf("Error while executing template 'users': %v\n", err)
+		if r.Method == "GET" {
+			vd := app.NewViewData(w, r)
+			vd.SetUser(user)
+			vd.SetViewData("RegisteredUsers", dataaccess.GetAllRegisteredUsers())
+			vd.SetViewData("UnregisteredUsers", dataaccess.GetAllUnregisteredUsers())
+			vd.SetDefaultLocalizedMessages().
+				AddLocalizedMessage("registeredUsers").
+				AddLocalizedMessage("unregisteredUsers").
+				AddLocalizedMessage("userid").
+				AddLocalizedMessage("firstName").
+				AddLocalizedMessage("lastName").
+				AddLocalizedMessage("emailAddress").
+				AddLocalizedMessage("role").
+				AddLocalizedMessage("lastConnection").
+				AddLocalizedMessage("disableAccount").
+				AddLocalizedMessage("enableAccount").
+				AddLocalizedMessage("deleteUser").
+				AddLocalizedMessage("token").
+				AddLocalizedMessage("expires").
+				AddLocalizedMessage("copyRegistrationLink").
+				AddLocalizedMessage("addUser").
+				AddLocalizedMessage("logout")
+			if err := app.Templates.ExecuteTemplate(w, "userList.html.tpl", vd); err != nil {
+				log.Fatalf("Error while executing template 'userList': %v\n", err)
+			}
+			return
 		}
-		return
+		log.Printf("Invalid method %s\n", r.Method)
+	} else {
+		log.Println("User is not authenticated or does not have Admin role")
 	}
 	log.Println("Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
@@ -88,16 +93,20 @@ func executeAction(w http.ResponseWriter, r *http.Request, action func() error) 
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
 		if r.Method == "GET" {
-			userID := r.URL.Query()["userid"][0]
-			actionToken := r.URL.Query()["rnd"][0]
-			if userID != "" && actionToken != "" && verifyActionToken(userID, actionToken) {
-				var err error
-				if err = action(); err != nil {
-					httpsession.SetErrorMessageID(err.Error())
+			if len(r.URL.Query()["userid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
+				userID := r.URL.Query()["userid"][0]
+				actionToken := r.URL.Query()["rnd"][0]
+				if userID != "" && actionToken != "" && verifyActionToken(userID, actionToken) {
+					var err error
+					if err = action(); err != nil {
+						httpsession.SetErrorMessageID(err.Error())
+					}
+					return
 				}
-				return
+				log.Println("Invalid userID or token")
+			} else {
+				log.Println("Missing userID or token")
 			}
-			log.Println("Invalid userID or token")
 		} else {
 			log.Printf("Invalid method %s\n", r.Method)
 		}
@@ -130,7 +139,6 @@ func UserNew(w http.ResponseWriter, r *http.Request) {
 		if token := httpsession.GetCSRFToken(); token != "" {
 			if r.Method == "GET" {
 				vd := app.NewViewData(w, r)
-				vd.SetUser(user)
 				vd.SetErrorMessage(httpsession.GetErrorMessageID())
 				vd.SetToken(token)
 				vd.SetDefaultLocalizedMessages().
@@ -144,8 +152,8 @@ func UserNew(w http.ResponseWriter, r *http.Request) {
 					AddLocalizedMessage("createUser").
 					AddLocalizedMessage("cancel").
 					AddLocalizedMessage("logout")
-				if err := app.Templates.ExecuteTemplate(w, "newUser.html.tpl", vd); err != nil {
-					log.Fatalf("Error while executing template 'newUser': %v\n", err)
+				if err := app.Templates.ExecuteTemplate(w, "userNew.html.tpl", vd); err != nil {
+					log.Fatalf("Error while executing template 'userNew': %v\n", err)
 				}
 				return
 			}
