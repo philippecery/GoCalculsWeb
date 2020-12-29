@@ -1,13 +1,18 @@
 {
     "language": "English",
     "title": "Maths",
-    "login": "Login",
+    "mentalmath": "Mental Math",
+    "columnform": "Column Form Operation",
+    "save": "Save",
+    "cancel": "Cancel",
     "logout": "Logout",
+
+    "login": "Login",
     "userid": "User ID",
     "password": "Password",
-    "registeredUsers": "Registered users",
-    "unregisteredUsers": "Unregistered uSers",
 
+    "registeredUsers": "Registered Users",
+    "unregisteredUsers": "Unregistered Users",
     "firstName": "First Name",
     "lastName": "Last Name",
     "emailAddress": "Email Address",
@@ -15,27 +20,52 @@
     "lastConnection": "Last Connection",
     "disableAccount": "Disable Account",
     "enableAccount": "Enable Account",
-    "deleteUser": "Delete User",
     "token": "Token",
     "expires": "Expires",
     "copyRegistrationLink": "Copy RegistrationLink",
     "addUser": "Add User",
+    "deleteUser": "Delete",
 
     "newUser": "New User",
     "select": "Select...",
     "admin": "Admin",
     "teacher": "Teacher",
     "student": "Student",
-    "createUser": "Create",
-    "cancel": "Cancel",
 
-    "mentalmath": "Mental Math",
-    "columnform": "Column Form Operation",
     "results": "Results",
 
     "registration": "Registration",
     "passwordConfirm": "Password Confirmation",
     "register": "Register",
+
+    "students": "Students",
+    "editStudent": "Edit",
+
+    "grades": "Grades",
+    "addGrade": "Add",
+    "newGrade": "New Grade",
+    "editGrade": "Edit",
+    "copyGrade": "Copy",
+    "deleteGrade": "Delete",
+
+    "gradeName": "Name",
+    "gradeDescription": "Description",
+    "nbAdditions": "Additions",
+    "nbSubstractions": "Substractions",
+    "nbMultiplications": "Multiplications",
+    "nbDivisions": "Divisions",
+    "timeInMinutes": "Time (min)",
+
+    "remainder": "Remainder",
+    "check": "Check",
+    "continue": "Continue",
+    "restart": "Restart",
+    "retry": "Retry",
+    "quit": "Quit",
+    "close": "Close",
+    "timeout": "You took too much time. Try again...",
+    "success": "Congratulations!",
+    "failure": "Try again...",
 
     "errorAuthenticationFailed": "Authentication Failed.",
     "errorUserCreationFailed": "User creation failed.",
@@ -48,5 +78,9 @@
     "errorInvalidFirstName": "Invalid first name.",
     "errorInvalidLastName": "Invalid last name.",
     "errorUserDeletionFailed": "User deletion failed.",
-    "errorUserStatusUpdateFailed": "User status update failed."
+    "errorUserStatusUpdateFailed": "User status update failed.",
+
+    "errorGradeCreationFailed": "Grade creation failed.",
+    "errorGradeUpdateFailed": "Grade update failed.",
+    "errorGradeDeletionFailed": "Grade deletion failed."
 }

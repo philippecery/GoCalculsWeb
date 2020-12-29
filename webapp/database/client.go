@@ -28,6 +28,7 @@ func Connect() error {
 			log.Println("Connected to MongoDB!")
 			database := client.Database("maths")
 			collection.Users = database.Collection("users")
+			collection.Grades = database.Collection("grades")
 		}
 	}
 	return err

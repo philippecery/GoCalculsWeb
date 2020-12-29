@@ -13,19 +13,25 @@ import (
 
 // User document
 type User struct {
-	UserID         string
-	EmailAddress   string
-	Password       string
-	FirstName      string
-	LastName       string
-	Role           constant.UserRole
-	Status         constant.UserStatus
-	LastConnection *time.Time
-	Token          string
-	Expires        *time.Time
+	UserID          string
+	EmailAddress    string
+	Password        string
+	FirstName       string
+	LastName        string
+	Role            constant.UserRole
+	Status          constant.UserStatus
+	LastConnection  *time.Time
+	Token           string
+	Expires         *time.Time
+	MentalMath      *Homework
+	ColumnForm      *Homework
+	SourceGradeID   string
+	SourceGradeName string
+	CustomGrade     bool
 }
 
 // UnregisteredUser document
+// Used to create a new User document when admin creates new user
 type UnregisteredUser struct {
 	UserID  string
 	Role    constant.UserRole
@@ -35,6 +41,7 @@ type UnregisteredUser struct {
 }
 
 // RegisteredUser document
+// Replaces existing User document when user registers
 type RegisteredUser struct {
 	UserID         string
 	EmailAddress   string
@@ -44,6 +51,19 @@ type RegisteredUser struct {
 	Role           constant.UserRole
 	Status         constant.UserStatus
 	LastConnection *time.Time
+}
+
+// Student document
+// Updates an existing User document
+type Student struct {
+	UserID          string
+	FirstName       string
+	LastName        string
+	MentalMath      *Homework
+	ColumnForm      *Homework
+	SourceGradeID   string
+	SourceGradeName string
+	CustomGrade     bool
 }
 
 // Link returns the registration link

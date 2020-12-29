@@ -1,13 +1,18 @@
 {
     "language": "Français",
     "title": "Mathématiques",
-    "login": "Se connecter",
+    "mentalmath": "Calcul Mentaux",
+    "columnform": "Opérations Posées",
+    "save": "Sauvegarder",
+    "cancel": "Abandonner",
     "logout": "Se déconnecter",
+
+    "login": "Se connecter",
     "userid": "Identifiant",
     "password": "Mot de passe",
+
     "registeredUsers": "Utilisateurs inscrits",
     "unregisteredUsers": "Utilisateurs non inscrits",
-
     "firstName": "Prénom",
     "lastName": "Nom",
     "emailAddress": "Addresse Email",
@@ -15,27 +20,52 @@
     "lastConnection": "Dernière Connexion",
     "disableAccount": "Désactiver le compte",
     "enableAccount": "Activer le compte",
-    "deleteUser": "Supprimer l'utilisateur",
     "token": "Jeton",
     "expires": "Expire",
     "copyRegistrationLink": "Copier le lien d'inscription",
     "addUser": "Ajouter un utilisateur",
+    "deleteUser": "Supprimer",
 
     "newUser": "Nouvel utilisateur",
     "select": "Sélectionez...",
     "admin": "Administrateur",
     "teacher": "Enseignant",
     "student": "Étudiant",
-    "createUser": "Créer",
-    "cancel": "Abandonner",
 
-    "mentalmath": "Calcul Mentaux",
-    "columnform": "Opérations Posées",
     "results": "Résultats",
 
     "registration": "Inscription",
     "passwordConfirm": "Confirmation du mot de passe",
     "register": "S'inscrire",
+
+    "students": "Étudiants",
+    "editStudent": "Éditer",
+
+    "grades": "Niveaux",
+    "addGrade": "Ajouter",
+    "newGrade": "Nouveau niveau",
+    "editGrade": "Éditer",
+    "copyGrade": "Copier",
+    "deleteGrade": "Supprimer",
+
+    "gradeName": "Nom",
+    "gradeDescription": "Description",
+    "nbAdditions": "Additions",
+    "nbSubstractions": "Soustractions",
+    "nbMultiplications": "Multiplications",
+    "nbDivisions": "Divisions",
+    "timeInMinutes": "Temps (min)",
+
+    "remainder": "Reste",
+    "check": "Vérifier",
+    "continue": "Continuer",
+    "restart": "Recommencer",
+    "retry": "Ré-essayer",
+    "quit": "Quitter",
+    "close": "Fermer",
+    "timeout": "Tu as pris trop de temps. Essaye encore...",
+    "success": "Félicitations!",
+    "failure": "Essaye encore...",
 
     "errorAuthenticationFailed": "Echec d'authentification.",
     "errorUserCreationFailed": "La création de l'utilisateur a échoué.",
@@ -48,5 +78,9 @@
     "errorInvalidFirstName": "Ce prénom est invalide.",
     "errorInvalidLastName": "Ce nom est invalide.",
     "errorUserDeletionFailed": "La suppression de cet utilisateur a échoué.",
-    "errorUserStatusUpdateFailed": "La modification du statut de cet utilisateur a échoué."
+    "errorUserStatusUpdateFailed": "La modification du statut de cet utilisateur a échoué.",
+
+    "errorGradeCreationFailed": "La création du niveau a échoué.",
+    "errorGradeUpdateFailed": "La modification du niveau a échoué.",
+    "errorGradeDeletionFailed": "La suppression de ce niveau a échoué."
 }

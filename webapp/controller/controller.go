@@ -5,6 +5,7 @@ import (
 
 	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/controller/app/admin"
+	"github.com/philippecery/maths/webapp/controller/app/teacher"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -20,6 +21,17 @@ func SetupRoutes() {
 	handleFunc("/admin/user/new", noCache(admin.UserNew))
 	handleFunc("/admin/user/status", admin.UserStatus)
 	handleFunc("/admin/user/delete", admin.UserDelete)
+
+	handleFunc("/teacher/grade/list", noCache(teacher.GradeList))
+	handleFunc("/teacher/grade/new", noCache(teacher.GradeNew))
+	handleFunc("/teacher/grade/edit", noCache(teacher.GradeEdit))
+	handleFunc("/teacher/grade/copy", noCache(teacher.GradeCopy))
+	handleFunc("/teacher/grade/save", noCache(teacher.GradeSave))
+	handleFunc("/teacher/grade/delete", teacher.GradeDelete)
+	handleFunc("/teacher/student/list", noCache(teacher.StudentList))
+	handleFunc("/teacher/student/edit", app.Todo)
+	//handleFunc("/teacher/student/edit", noCache(teacher.StudentEdit))
+
 	handleFunc("/register", noCache(app.Register))
 	handleFunc("/operations", app.Todo)
 	//handleFunc("/operations", noCache(student.Operations))

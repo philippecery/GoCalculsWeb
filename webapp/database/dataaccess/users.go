@@ -14,6 +14,26 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// GetAllUsers returns all the User documents in the Users collection
+func GetAllUsers() []*document.User {
+	var err error
+	var cursor *mongo.Cursor
+	if cursor, err = collection.Users.Find(context.TODO(), bson.M{}); err != nil {
+		log.Printf("Unable to find User documents. Cause: %v", err)
+		return nil
+	}
+	var users []*document.User
+	for cursor.Next(context.TODO()) {
+		var user document.User
+		if err = cursor.Decode(&user); err != nil {
+			log.Printf("Unable to decode User document. Cause: %v", err)
+			return nil
+		}
+		users = append(users, &user)
+	}
+	return users
+}
+
 // GetUserByID returns the User document from the Users collection where userid field is the provided id
 func GetUserByID(id string) *document.User {
 	var user document.User
@@ -30,26 +50,6 @@ func UpdateLastConnection(id string) {
 	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": id}, bson.M{"$set": bson.M{"lastconnection": &now}}); err != nil {
 		log.Printf("Unable to update %s's last connection time. Cause: %v", id, err)
 	}
-}
-
-// GetAllUsers returns all the User documents in the Users collection
-func GetAllUsers() []*document.User {
-	var err error
-	var cursor *mongo.Cursor
-	if cursor, err = collection.Users.Find(context.TODO(), bson.M{}); err != nil {
-		log.Printf("Unable to find User document. Cause: %v", err)
-		return nil
-	}
-	var users []*document.User
-	for cursor.Next(context.TODO()) {
-		var user document.User
-		if err = cursor.Decode(&user); err != nil {
-			log.Printf("Unable to decode User document. Cause: %v", err)
-			return nil
-		}
-		users = append(users, &user)
-	}
-	return users
 }
 
 // GetAllUnregisteredUsers returns all the User documents in the Users collections where status is Unregistered
@@ -92,7 +92,49 @@ func GetAllRegisteredUsers() []*document.User {
 	return registeredUsers
 }
 
-// CreateNewUser creates a new User document to the Users collection
+// GetAllStudents returns all the User documents in the Users collections where status is Enabled and role is Student
+func GetAllStudents() []*document.Student {
+	var err error
+	var cursor *mongo.Cursor
+	if cursor, err = collection.Users.Find(context.TODO(), bson.M{"status": constant.Enabled, "role": constant.Student}); err != nil {
+		log.Printf("Unable to find User document. Cause: %v", err)
+		return nil
+	}
+	var students []*document.Student
+	for cursor.Next(context.TODO()) {
+		var student document.Student
+		if err = cursor.Decode(&student); err != nil {
+			log.Printf("Unable to decode User document. Cause: %v", err)
+			return nil
+		}
+		if student.MentalMath == nil {
+			student.MentalMath = &document.Homework{}
+		}
+		if student.ColumnForm == nil {
+			student.ColumnForm = &document.Homework{}
+		}
+		students = append(students, &student)
+	}
+	return students
+}
+
+// GetStudentByID returns the User document from the Users collection where userid field is the provided id and the role is Student
+func GetStudentByID(id string) *document.Student {
+	var student document.Student
+	if err := collection.Users.FindOne(context.TODO(), bson.M{"userid": id, "role": constant.Student}).Decode(&student); err != nil {
+		log.Printf("Unable to find User with id %s and role Student. Cause: %v", id, err)
+		return nil
+	}
+	if student.MentalMath == nil {
+		student.MentalMath = &document.Homework{}
+	}
+	if student.ColumnForm == nil {
+		student.ColumnForm = &document.Homework{}
+	}
+	return &student
+}
+
+// CreateNewUser creates a new User document in the Users collection
 func CreateNewUser(newUser *document.UnregisteredUser) error {
 	if _, err := collection.Users.InsertOne(context.TODO(), newUser); err != nil {
 		return errors.New("Registration token creation failed")
