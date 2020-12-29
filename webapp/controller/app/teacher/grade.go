@@ -226,7 +226,6 @@ func GradeEdit(w http.ResponseWriter, r *http.Request) {
 // Only POST requests are allowed. The user must have role Teacher to access this page.
 // Creates a new grade or updates the existing one, if the submitted data are valid.
 func GradeSave(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("/teacher/grade/save\n")
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
 		if token := httpsession.GetCSRFToken(); token != "" {
@@ -365,7 +364,6 @@ func validateUserInput(r *http.Request) (map[string]int, error) {
 	}
 	numbers := make(map[string]int)
 	for _, number := range numbersToValidate {
-		fmt.Printf("%s = %s\n", number.field, r.PostFormValue(number.field))
 		if value, err := strconv.Atoi(r.PostFormValue(number.field)); err == nil && value >= number.min && value <= number.max && value%number.step == 0 {
 			numbers[number.field] = value
 		} else {
