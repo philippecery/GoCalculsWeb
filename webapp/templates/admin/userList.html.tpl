@@ -20,7 +20,7 @@
 				{{ $currentUserID := .User.UserID }}
 				{{ $i18n_disableAccount := .i18n_disableAccount }}
 				{{ $i18n_enableAccount := .i18n_enableAccount }}
-				{{ $i18n_deleteUser := .i18n_deleteUser }}
+				{{ $i18n_delete := .i18n_deleteUser }}
 				{{ range .RegisteredUsers }}
 				<tr>
 					<td>{{ .UserID }}</td>
@@ -31,7 +31,7 @@
 					<td>{{ .LastConnection }}</td>
 					<td class="text-center">{{ if eq $currentUserID .UserID }}<span class="glyphicon glyphicon-ban-circle"></span>{{ else }}<a href="/admin/user/status?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ if .Enabled }}{{ $i18n_disableAccount }}{{ else }}{{ $i18n_enableAccount }}{{ end }}"><span class="glyphicon glyphicon-{{ if .Enabled }}ok{{ else }}remove{{ end }}-circle"></span></a>{{ end }}</td>
 					<!-- TODO: Add confirmation before deletion-->
-					<td class="text-center">{{ if eq $currentUserID .UserID }}<span class="glyphicon glyphicon-ban-circle"></span>{{ else }}<a href="/admin/user/delete?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_deleteUser }}"><span class="glyphicon glyphicon-trash"></span></a>{{ end }}</td>
+					<td class="text-center">{{ if eq $currentUserID .UserID }}<span class="glyphicon glyphicon-ban-circle"></span>{{ else }}<a href="/admin/user/delete?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_delete }}"><span class="glyphicon glyphicon-trash"></span></a>{{ end }}</td>
 				</tr>
 				{{ end }}
 			</tbody>
@@ -60,7 +60,7 @@
 					<td>{{ .Expires }}</td>
 					<td class="text-center"><a href="{{ .Link }}" id="link_{{ .UserID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_copyRegistrationLink }}"><span class="glyphicon glyphicon-copy"></span></a></td>
 					<!-- TODO: Add confirmation before deletion-->
-					<td class="text-center"><a href="/admin/user/delete?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_deleteUser }}"><span class="glyphicon glyphicon-trash"></span></a></td>
+					<td class="text-center"><a href="/admin/user/delete?userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_delete }}"><span class="glyphicon glyphicon-trash"></span></a></td>
 				</tr>
 				{{ end }}
 			</tbody>

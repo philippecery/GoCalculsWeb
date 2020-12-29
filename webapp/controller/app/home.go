@@ -26,10 +26,10 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
-		log.Printf("Invalid method %s\n", r.Method)
+		log.Printf("/: Invalid method %s\n", r.Method)
 	} else {
-		log.Println("User is not authenticated")
+		log.Println("/: User is not authenticated")
 	}
-	log.Println("Redirecting to Login page")
+	log.Println("/: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }

@@ -61,14 +61,14 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			token := r.PostFormValue("token")
 			if newUser, errorMessageID, err := validateUserInput(r); err == nil {
 				if err = dataaccess.RegisterUser(newUser, token); err != nil {
-					log.Printf("User creation failed. Cause: %v", err)
+					log.Printf("/register: User creation failed. Cause: %v", err)
 					httpsession.SetErrorMessageID("errorRegistrationFailed")
 				} else {
 					http.Redirect(w, r, "/login", http.StatusFound)
 					return
 				}
 			} else {
-				log.Printf("Input validation failed. Cause: %v", err)
+				log.Printf("/register: Input validation failed. Cause: %v", err)
 				if errorMessageID != "" {
 					httpsession.SetErrorMessageID(errorMessageID)
 				}
@@ -76,7 +76,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/register?token="+token, http.StatusFound)
 			return
 		}
-		log.Printf("Invalid method %s\n", r.Method)
+		log.Printf("/register: Invalid method %s\n", r.Method)
 	}
 }
 

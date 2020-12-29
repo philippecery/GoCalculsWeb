@@ -31,6 +31,7 @@ func UserList(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			vd := app.NewViewData(w, r)
 			vd.SetUser(user)
+			vd.SetErrorMessage(httpsession.GetErrorMessageID())
 			vd.SetViewData("RegisteredUsers", dataaccess.GetAllRegisteredUsers())
 			vd.SetViewData("UnregisteredUsers", dataaccess.GetAllUnregisteredUsers())
 			vd.SetDefaultLocalizedMessages().
@@ -55,11 +56,11 @@ func UserList(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
-		log.Printf("Invalid method %s\n", r.Method)
+		log.Printf("/admin/user/list: Invalid method %s\n", r.Method)
 	} else {
-		log.Println("User is not authenticated or does not have Admin role")
+		log.Println("/admin/user/list: User is not authenticated or does not have Admin role")
 	}
-	log.Println("Redirecting to Login page")
+	log.Println("/admin/user/list: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 
@@ -103,17 +104,17 @@ func executeAction(w http.ResponseWriter, r *http.Request, action func() error) 
 					}
 					return
 				}
-				log.Println("Invalid userID or token")
+				log.Println("/admin/user/...: Invalid userID or token")
 			} else {
-				log.Println("Missing userID or token")
+				log.Println("/admin/user/...: Missing userID or token")
 			}
 		} else {
-			log.Printf("Invalid method %s\n", r.Method)
+			log.Printf("/admin/user/...: Invalid method %s\n", r.Method)
 		}
 	} else {
-		log.Println("User is not authenticated or does not have Admin role")
+		log.Println("/admin/user/...: User is not authenticated or does not have Admin role")
 	}
-	log.Println("Redirecting to Login page")
+	log.Println("/admin/user/...: Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
@@ -149,7 +150,7 @@ func UserNew(w http.ResponseWriter, r *http.Request) {
 					AddLocalizedMessage("admin").
 					AddLocalizedMessage("teacher").
 					AddLocalizedMessage("student").
-					AddLocalizedMessage("createUser").
+					AddLocalizedMessage("save").
 					AddLocalizedMessage("cancel").
 					AddLocalizedMessage("logout")
 				if err := app.Templates.ExecuteTemplate(w, "userNew.html.tpl", vd); err != nil {
@@ -171,26 +172,26 @@ func UserNew(w http.ResponseWriter, r *http.Request) {
 							http.Redirect(w, r, "/admin/user/list", http.StatusFound)
 							return
 						}
-						log.Printf("User %s invalid or already exists\n", userID)
+						log.Printf("/admin/user/new: User %s invalid or already exists\n", userID)
 						httpsession.SetErrorMessageID("errorInvalidUserID")
 					} else {
-						log.Printf("Invalid role id %d\n", roleID)
+						log.Printf("/admin/user/new: Invalid role id %d\n", roleID)
 						httpsession.SetErrorMessageID("errorInvalidRoleID")
 					}
 				} else {
-					log.Println("Invalid CSRF token")
+					log.Println("/admin/user/new: Invalid CSRF token")
 				}
 				http.Redirect(w, r, "/admin/user/new", http.StatusFound)
 				return
 			}
-			log.Printf("Invalid method %s\n", r.Method)
+			log.Printf("/admin/user/new: Invalid method %s\n", r.Method)
 		} else {
-			log.Println("CSRF token not found in session")
+			log.Println("/admin/user/new: CSRF token not found in session")
 		}
 	} else {
-		log.Println("User is not authenticated or does not have Admin role")
+		log.Println("/admin/user/new: User is not authenticated or does not have Admin role")
 	}
-	log.Println("Redirecting to Login page")
+	log.Println("/admin/user/new: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 

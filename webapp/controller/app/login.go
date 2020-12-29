@@ -40,19 +40,24 @@ func Login(w http.ResponseWriter, r *http.Request) {
 					httpsession.SetAuthenticatedUser(user)
 					httpsession.SetCSRFToken()
 					dataaccess.UpdateLastConnection(userID)
-					if user.IsAdmin() {
+					switch user.Role {
+					case constant.Admin:
 						http.Redirect(w, r, "/admin/user/list", http.StatusFound)
-					} else {
+					case constant.Teacher:
+						http.Redirect(w, r, "/teacher/student/list", http.StatusFound)
+					case constant.Student:
 						http.Redirect(w, r, "/", http.StatusFound)
+					default:
+						http.Redirect(w, r, "/logout", http.StatusFound)
 					}
 					return
 				}
-				log.Printf("User %s: wrong password\n", userID)
+				log.Printf("/login: User %s: wrong password\n", userID)
 			} else {
-				log.Printf("User %s: wrong CSRF token\n", userID)
+				log.Printf("/login: User %s: wrong CSRF token\n", userID)
 			}
 		} else {
-			log.Printf("Invalid method %s\n", r.Method)
+			log.Printf("/login: Invalid method %s\n", r.Method)
 		}
 		httpsession.SetErrorMessageID("errorAuthenticationFailed")
 		http.Redirect(w, r, "/login", http.StatusFound)

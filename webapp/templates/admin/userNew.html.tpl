@@ -26,7 +26,7 @@
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
                     <div class="btn-group" role="group">
-                        <button id="register" type="submit" class="btn btn-lg btn-success">{{ .i18n_createUser }}</button>
+                        <button id="createUser" type="submit" class="btn btn-lg btn-primary">{{ .i18n_save }}</button>
                         <a class="btn btn-lg btn-default" href="/admin/user/list" role="button"><span>{{ .i18n_cancel }}</span></a>
                     </div>
                 </div>
