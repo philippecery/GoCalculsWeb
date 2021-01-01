@@ -39,7 +39,7 @@
     "register": "S'inscrire",
 
     "students": "Étudiants",
-    "changeGrade": "Modifier Niveau",
+    "setGrade": "Niveau",
     "nograde": "Pas de niveau assigné",
     "assignGrade": "Assigner Niveau",
     "unassignGrade": "Enlever Niveau",

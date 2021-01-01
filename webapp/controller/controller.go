@@ -28,9 +28,10 @@ func SetupRoutes() {
 	handleFunc("/teacher/grade/copy", noCache(teacher.GradeCopy))
 	handleFunc("/teacher/grade/save", noCache(teacher.GradeSave))
 	handleFunc("/teacher/grade/students", noCache(teacher.GradeStudents))
+	handleFunc("/teacher/grade/unassign", teacher.GradeUnassign)
 	handleFunc("/teacher/grade/delete", teacher.GradeDelete)
 	handleFunc("/teacher/student/list", noCache(teacher.StudentList))
-	handleFunc("/teacher/student/edit", app.Todo)
+	handleFunc("/teacher/student/grade", app.Todo)
 	//handleFunc("/teacher/student/edit", noCache(teacher.StudentEdit))
 
 	handleFunc("/register", noCache(app.Register))

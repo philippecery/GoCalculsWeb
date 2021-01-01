@@ -54,8 +54,9 @@ func GetAllGrades() []*document.Grade {
 
 // GetGradeByID returns the Grade document from the Grades collection where gradeid field is the provided id
 func GetGradeByID(id string) *document.Grade {
-	grade := new(document.Grade)
+	var grade *document.Grade
 	if grade = cache.get(id); grade == nil {
+		grade = new(document.Grade)
 		if err := collection.Grades.FindOne(context.TODO(), bson.M{"gradeid": id}).Decode(grade); err != nil {
 			log.Printf("Unable to find Grade with id %s. Cause: %v", id, err)
 			return nil

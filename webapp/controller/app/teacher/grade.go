@@ -1,11 +1,6 @@
 package teacher
 
 import (
-	"bytes"
-	"crypto/hmac"
-	hash "crypto/sha256"
-	"encoding/base64"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/philippecery/maths/webapp/config"
 	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
@@ -83,6 +77,7 @@ func GradeStudents(w http.ResponseWriter, r *http.Request) {
 							AddLocalizedMessage("firstName").
 							AddLocalizedMessage("lastName").
 							AddLocalizedMessage("nograde").
+							AddLocalizedMessage("unassignGrade").
 							AddLocalizedMessage("save").
 							AddLocalizedMessage("cancel").
 							AddLocalizedMessage("logout")
@@ -106,7 +101,7 @@ func GradeStudents(w http.ResponseWriter, r *http.Request) {
 								httpsession.SetErrorMessageID("errorGradeStudentUpdateFailed")
 							} else {
 								log.Printf("/teacher/grade/students: Grade updated for %d students", len(selectedStudents))
-								http.Redirect(w, r, "/teacher/grade/list", http.StatusFound)
+								http.Redirect(w, r, "/teacher/grade/students?gradeid="+gradeID, http.StatusFound)
 								return
 							}
 						} else {
@@ -366,51 +361,63 @@ func GradeSave(w http.ResponseWriter, r *http.Request) {
 // Only GET requests are allowed. The user must have role Teacher to access this page.
 // Deletes the selected grade if the token is valid
 func GradeDelete(w http.ResponseWriter, r *http.Request) {
-	executeAction(w, r, func() error {
-		if err := dataaccess.DeleteGrade(r.URL.Query()["gradeid"][0]); err != nil {
-			return errors.New("errorGradeDeletionFailed")
-		}
-		http.Redirect(w, r, "/teacher/grade/list", http.StatusFound)
-		return nil
-	})
-}
-
-func executeAction(w http.ResponseWriter, r *http.Request, action func() error) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
 		if r.Method == "GET" {
 			if len(r.URL.Query()["gradeid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
 				gradeID := r.URL.Query()["gradeid"][0]
 				actionToken := r.URL.Query()["rnd"][0]
-				if gradeID != "" && actionToken != "" && verifyActionToken(gradeID, actionToken) {
-					var err error
-					if err = action(); err != nil {
+				if gradeID != "" && actionToken != "" && document.VerifyGradeActionToken(actionToken, gradeID) {
+					if err := dataaccess.DeleteGrade(r.URL.Query()["gradeid"][0]); err != nil {
 						httpsession.SetErrorMessageID(err.Error())
 					}
+					http.Redirect(w, r, "/teacher/grade/list", http.StatusFound)
 					return
 				}
-				log.Println("/teacher/grade/...: Invalid gradeID or token")
+				log.Println("/teacher/grade/delete: Invalid gradeID or token")
 			} else {
-				log.Println("/teacher/grade/...: Missing gradeID or token")
+				log.Println("/teacher/grade/delete: Missing gradeID or token")
 			}
 		} else {
-			log.Printf("/teacher/grade/...: Invalid method %s\n", r.Method)
+			log.Printf("/teacher/grade/delete: Invalid method %s\n", r.Method)
 		}
 	} else {
-		log.Println("/teacher/grade/...: User is not authenticated or does not have Teacher role")
+		log.Println("/teacher/grade/delete: User is not authenticated or does not have Teacher role")
 	}
-	log.Println("/teacher/grade/...: Redirecting to Login page")
+	log.Println("/teacher/grade/delete: Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
-func verifyActionToken(gradeID, actionToken string) bool {
-	if token, err := base64.URLEncoding.DecodeString(actionToken); err == nil {
-		mac := hmac.New(hash.New, []byte(config.Config.Keys.ActionToken))
-		mac.Write([]byte(gradeID))
-		mac.Write(token[:32])
-		return bytes.Equal(token[32:], mac.Sum(nil))
+// GradeUnassign handles requests to /teacher/grade/unassign
+// Only GET requests are allowed. The user must have role Teacher to access this page.
+// Resets the grade id for the selected student if the token is valid
+func GradeUnassign(w http.ResponseWriter, r *http.Request) {
+	httpsession := session.GetSession(w, r)
+	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+		if r.Method == "GET" {
+			if len(r.URL.Query()["gradeid"]) == 1 && len(r.URL.Query()["userid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
+				gradeID := r.URL.Query()["gradeid"][0]
+				userID := r.URL.Query()["userid"][0]
+				actionToken := r.URL.Query()["rnd"][0]
+				if gradeID != "" && userID != "" && actionToken != "" && document.VerifyStudentActionToken(actionToken, userID, gradeID) {
+					if err := dataaccess.UnassignGradeForStudent(gradeID, userID); err != nil {
+						httpsession.SetErrorMessageID(err.Error())
+					}
+					http.Redirect(w, r, "/teacher/grade/students?gradeid="+gradeID, http.StatusFound)
+					return
+				}
+				log.Println("/teacher/grade/unassign: Invalid gradeID or token")
+			} else {
+				log.Println("/teacher/grade/unassign: Missing gradeID or token")
+			}
+		} else {
+			log.Printf("/teacher/grade/unassign: Invalid method %s\n", r.Method)
+		}
+	} else {
+		log.Println("/teacher/grade/unassign: User is not authenticated or does not have Teacher role")
 	}
-	return false
+	log.Println("/teacher/grade/unassign: Redirecting to Login page")
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 type validateNumber struct {

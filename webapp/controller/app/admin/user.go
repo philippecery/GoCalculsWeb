@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"bytes"
 	"crypto/hmac"
 	hash "crypto/sha256"
 	"encoding/base64"
@@ -97,7 +96,7 @@ func executeAction(w http.ResponseWriter, r *http.Request, action func() error) 
 			if len(r.URL.Query()["userid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
 				userID := r.URL.Query()["userid"][0]
 				actionToken := r.URL.Query()["rnd"][0]
-				if userID != "" && actionToken != "" && verifyActionToken(userID, actionToken) {
+				if userID != "" && actionToken != "" && document.VerifyUserActionToken(actionToken, userID) {
 					var err error
 					if err = action(); err != nil {
 						httpsession.SetErrorMessageID(err.Error())
@@ -116,16 +115,6 @@ func executeAction(w http.ResponseWriter, r *http.Request, action func() error) 
 	}
 	log.Println("/admin/user/...: Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)
-}
-
-func verifyActionToken(userID, actionToken string) bool {
-	if token, err := base64.URLEncoding.DecodeString(actionToken); err == nil {
-		mac := hmac.New(hash.New, []byte(config.Config.Keys.ActionToken))
-		mac.Write([]byte(userID))
-		mac.Write(token[:32])
-		return bytes.Equal(token[32:], mac.Sum(nil))
-	}
-	return false
 }
 
 var validID = regexp.MustCompile("^[a-z]{2,}(\\.?[a-z]{2,})*$")

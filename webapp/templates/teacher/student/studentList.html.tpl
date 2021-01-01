@@ -28,7 +28,7 @@
 				</tr>
 			</thead>
 			<tbody id="studentsData">
-				{{ $i18n_changeGrade := .i18n_changeGrade }}
+				{{ $i18n_setGrade := .i18n_setGrade }}
 				{{ $i18n_nograde := .i18n_nograde }}
 				{{ range .Students }}
 				<tr>
@@ -49,7 +49,7 @@
 					{{ else }}
 					<td colspan="11">{{ $i18n_nograde }}</td>
 					{{ end }}
-					<td class="text-center"><a href="/teacher/student/edit?userid={{ .UserID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_changeGrade }}"><span class="glyphicon glyphicon-pencil"></span></a></td>
+					<td class="text-center"><a href="/teacher/student/grade?userid={{ .UserID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_setGrade }}"><span class="glyphicon glyphicon-pencil"></span></a></td>
 				</tr>
 				{{ end }}
 			</tbody>

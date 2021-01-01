@@ -39,7 +39,7 @@
     "register": "Register",
 
     "students": "Students",
-    "changeGrade": "Change Grade",
+    "setGrade": "Set Grade",
     "nograde": "No grade assigned",
     "assignGrade": "Assign Grade",
     "unassignGrade": "Unassign Grade",

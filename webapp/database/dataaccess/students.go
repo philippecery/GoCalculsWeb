@@ -93,3 +93,12 @@ func SetGradeForStudents(gradeID string, students []string) error {
 	}
 	return nil
 }
+
+// UnassignGradeForStudent removes the gradeid of selected student
+func UnassignGradeForStudent(gradeID, studentID string) error {
+	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"role": constant.Student, "userid": studentID, "gradeid": gradeID}, bson.M{"$set": bson.M{"gradeid": ""}}); err != nil {
+		log.Printf("Unable to reset grade for selected student. Cause: %v", err)
+		return errors.New("Unable to reset grade for selected student")
+	}
+	return nil
+}

@@ -1,14 +1,9 @@
 package document
 
 import (
-	"crypto/hmac"
-	hash "crypto/sha256"
-	"encoding/base64"
 	"time"
 
-	"github.com/philippecery/maths/webapp/config"
 	"github.com/philippecery/maths/webapp/constant"
-	"github.com/philippecery/maths/webapp/util"
 )
 
 // User document
@@ -62,18 +57,6 @@ type Student struct {
 // Link returns the registration link
 func (u *User) Link() string {
 	return "/register?token=" + u.Token
-}
-
-// ActionToken generates and returns a unique ID to pass as a query parameter for CSRF protection.
-func (u *User) ActionToken() string {
-	salt := util.GenerateRandomBytes(32)
-	mac := hmac.New(hash.New, []byte(config.Config.Keys.ActionToken))
-	mac.Write([]byte(u.UserID))
-	mac.Write(salt)
-	token := make([]byte, 0)
-	token = append(token, salt...)
-	token = append(token, mac.Sum(nil)...)
-	return base64.URLEncoding.EncodeToString(token)
 }
 
 // Enabled returns true if this user's status is Enabled.

@@ -21,7 +21,7 @@
 				<tr>
 					<td>{{ .FirstName }}</td>
 					<td>{{ .LastName }}</td>
-					<td class="text-center"><a href="/teacher/grade/unassign?userid={{ .UserID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_unassignGrade }}"><span class="glyphicon glyphicon-remove"></span></a></td>
+					<td class="text-center"><a href="/teacher/grade/unassign?gradeid={{ $gradeID }}&userid={{ .UserID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_unassignGrade }}"><span class="glyphicon glyphicon-remove"></span></a></td>
 				</tr>
 				{{ end }}
 				{{ end }}
