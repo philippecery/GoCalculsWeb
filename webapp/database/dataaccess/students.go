@@ -35,46 +35,6 @@ func GetAllStudents() []*document.Student {
 	return students
 }
 
-// GetStudentsInGrade returns all the User documents in the Users collections where status is Enabled, role is Student and is assigned to the provided grade
-func GetStudentsInGrade(gradeID string) []*document.Student {
-	var err error
-	var cursor *mongo.Cursor
-	if cursor, err = collection.Users.Find(context.TODO(), bson.M{"status": constant.Enabled, "role": constant.Student, "gradeid": gradeID}); err != nil {
-		log.Printf("Unable to find User document. Cause: %v", err)
-		return nil
-	}
-	var students []*document.Student
-	for cursor.Next(context.TODO()) {
-		student := new(document.Student)
-		if err = cursor.Decode(student); err != nil {
-			log.Printf("Unable to decode User document. Cause: %v", err)
-			return nil
-		}
-		students = append(students, student)
-	}
-	return students
-}
-
-// GetStudentsNotInGrade returns all the User documents in the Users collections where status is Enabled, role is Student and is assigned to the provided grade
-func GetStudentsNotInGrade(gradeID string) []*document.Student {
-	var err error
-	var cursor *mongo.Cursor
-	if cursor, err = collection.Users.Find(context.TODO(), bson.M{"status": constant.Enabled, "role": constant.Student, "gradeid": bson.M{"$ne": gradeID}}); err != nil {
-		log.Printf("Unable to find User document. Cause: %v", err)
-		return nil
-	}
-	var students []*document.Student
-	for cursor.Next(context.TODO()) {
-		student := new(document.Student)
-		if err = cursor.Decode(student); err != nil {
-			log.Printf("Unable to decode User document. Cause: %v", err)
-			return nil
-		}
-		students = append(students, student)
-	}
-	return students
-}
-
 // GetStudentByID returns the User document from the Users collection where userid field is the provided id and the role is Student
 func GetStudentByID(id string) *document.Student {
 	student := new(document.Student)

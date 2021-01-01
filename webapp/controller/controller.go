@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/controller/app/admin"
+	"github.com/philippecery/maths/webapp/controller/app/student"
 	"github.com/philippecery/maths/webapp/controller/app/teacher"
 	"github.com/philippecery/maths/webapp/session"
 )
@@ -16,7 +18,10 @@ func SetupRoutes() {
 	handleStatic("js")
 
 	handleFunc("/", noCache(app.Home))
+	handleFunc("/register", noCache(app.Register))
 	handleFunc("/login", noCache(app.Login))
+	handleFunc("/logout", app.Logout)
+
 	handleFunc("/admin/user/list", noCache(admin.UserList))
 	handleFunc("/admin/user/new", noCache(admin.UserNew))
 	handleFunc("/admin/user/status", admin.UserStatus)
@@ -34,10 +39,9 @@ func SetupRoutes() {
 	handleFunc("/teacher/student/grade", app.Todo)
 	//handleFunc("/teacher/student/edit", noCache(teacher.StudentEdit))
 
-	handleFunc("/register", noCache(app.Register))
-	handleFunc("/operations", app.Todo)
-	//handleFunc("/operations", noCache(student.Operations))
-	handleFunc("/logout", app.Logout)
+	handleFunc("/student/dashboard", noCache(student.Dashboard))
+	handleFunc("/student/operations", app.Todo)
+	//handleFunc("/student/operations", noCache(student.Operations))
 
 	//handleFunc("/websocket", api.Endpoints)
 }
@@ -52,6 +56,7 @@ func handleFunc(pattern string, h func(http.ResponseWriter, *http.Request)) {
 
 func securityHeaders(h func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s", r.Method, r.RequestURI)
 		token := session.GetSession(w, r).SetCSPNonce()
 		w.Header().Set("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains")
 		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'; block-all-mixed-content; default-src 'none'; connect-src 'self'; font-src 'self'; img-src 'self'; style-src 'self'; form-action 'self'; base-uri 'self'; script-src 'nonce-"+token+"' 'unsafe-inline'")

@@ -101,3 +101,12 @@ func DeleteGrade(id string) error {
 	}
 	return errors.New("Grade deletion failed")
 }
+
+// GetGradeForStudent returns the Grade document for the provided student ID
+func GetGradeForStudent(id string) *document.Grade {
+	grade := new(document.Grade)
+	if student := GetStudentByID(id); student != nil {
+		grade = GetGradeByID(student.GradeID)
+	}
+	return grade
+}

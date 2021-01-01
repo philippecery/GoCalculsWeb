@@ -46,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 					case constant.Teacher:
 						http.Redirect(w, r, "/teacher/student/list", http.StatusFound)
 					case constant.Student:
-						http.Redirect(w, r, "/", http.StatusFound)
+						http.Redirect(w, r, "/student/dashboard", http.StatusFound)
 					default:
 						http.Redirect(w, r, "/logout", http.StatusFound)
 					}
@@ -84,5 +84,6 @@ func verifyUserIDPassword(userID, password string) *document.User {
 func Logout(w http.ResponseWriter, r *http.Request) {
 	session.InvalidateSession(w, r)
 	session.GetSession(w, r)
+	log.Println("/logout: Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
