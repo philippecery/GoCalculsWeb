@@ -39,16 +39,21 @@
     "register": "Register",
 
     "students": "Students",
-    "editStudent": "Edit",
+    "changeGrade": "Change Grade",
+    "nograde": "No grade assigned",
+    "assignGrade": "Assign Grade",
+    "unassignGrade": "Unassign Grade",
+    "otherStudents": "Other Students",
 
     "grades": "Grades",
     "addGrade": "Add",
     "newGrade": "New Grade",
+    "manageStudents": "Students",
     "editGrade": "Edit",
     "copyGrade": "Copy",
     "deleteGrade": "Delete",
 
-    "gradeName": "Name",
+    "gradeName": "Grade",
     "gradeDescription": "Description",
     "nbAdditions": "Additions",
     "nbSubstractions": "Substractions",
@@ -82,5 +87,6 @@
 
     "errorGradeCreationFailed": "Grade creation failed.",
     "errorGradeUpdateFailed": "Grade update failed.",
-    "errorGradeDeletionFailed": "Grade deletion failed."
+    "errorGradeDeletionFailed": "Grade deletion failed.",
+    "errorGradeStudentUpdateFailed": "Grade update failed for selected students."
 }

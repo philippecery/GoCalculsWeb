@@ -36,6 +36,7 @@ func GradeList(w http.ResponseWriter, r *http.Request) {
 				AddLocalizedMessage("gradeName").
 				AddLocalizedMessage("mentalmath").
 				AddLocalizedMessage("columnform").
+				AddLocalizedMessage("manageStudents").
 				AddLocalizedMessage("editGrade").
 				AddLocalizedMessage("copyGrade").
 				AddLocalizedMessage("deleteGrade").
@@ -51,6 +52,80 @@ func GradeList(w http.ResponseWriter, r *http.Request) {
 		log.Println("/teacher/grade/list: User is not authenticated or does not have Teacher role")
 	}
 	log.Println("/teacher/grade/list: Redirecting to Login page")
+	http.Redirect(w, r, "/logout", http.StatusFound)
+}
+
+// GradeStudents handles requests to /teacher/grade/students
+// Only GET and POST requests are allowed. The user must have role Teacher to access this page.
+//  - a GET request will display the Grade Students page. If an error message is available in the session, it will be displayed.
+//  - a POST request will assign the grade to the selected students if the submitted data are valid.
+func GradeStudents(w http.ResponseWriter, r *http.Request) {
+	httpsession := session.GetSession(w, r)
+	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+		if token := httpsession.GetCSRFToken(); token != "" {
+			if r.Method == "GET" {
+				if len(r.URL.Query()["gradeid"]) == 1 {
+					gradeID := r.URL.Query()["gradeid"][0]
+					if grade := dataaccess.GetGradeByID(gradeID); grade != nil {
+						vd := app.NewViewData(w, r)
+						vd.SetUser(user)
+						vd.SetToken(token)
+						vd.SetErrorMessage(httpsession.GetErrorMessageID())
+						vd.SetViewData("Grade", grade)
+						vd.SetViewData("Students", dataaccess.GetAllStudents())
+						vd.SetDefaultLocalizedMessages().
+							AddLocalizedMessage("students").
+							AddLocalizedMessage("grades").
+							AddLocalizedMessage("otherStudents").
+							AddLocalizedMessage("gradeName").
+							AddLocalizedMessage("mentalmath").
+							AddLocalizedMessage("columnform").
+							AddLocalizedMessage("firstName").
+							AddLocalizedMessage("lastName").
+							AddLocalizedMessage("nograde").
+							AddLocalizedMessage("save").
+							AddLocalizedMessage("cancel").
+							AddLocalizedMessage("logout")
+						if err := app.Templates.ExecuteTemplate(w, "gradeStudents.html.tpl", vd); err != nil {
+							log.Fatalf("Error while executing template 'gradeStudents': %v\n", err)
+						}
+						return
+					}
+					log.Printf("/teacher/grade/students: Grade %s not found\n", gradeID)
+				} else {
+					log.Printf("/teacher/grade/students: Invalid gradeID parameter in URL\n")
+				}
+			} else {
+				if r.Method == "POST" {
+					if r.PostFormValue("token") == token {
+						gradeID := r.PostFormValue("gradeID")
+						selectedStudents := r.PostForm["selectedStudents"]
+						if len(selectedStudents) > 0 {
+							if err := dataaccess.SetGradeForStudents(gradeID, selectedStudents); err != nil {
+								log.Printf("/teacher/grade/students: Grade update failed for selected students. Cause: %v", err)
+								httpsession.SetErrorMessageID("errorGradeStudentUpdateFailed")
+							} else {
+								log.Printf("/teacher/grade/students: Grade updated for %d students", len(selectedStudents))
+								http.Redirect(w, r, "/teacher/grade/list", http.StatusFound)
+								return
+							}
+						} else {
+							log.Printf("/teacher/grade/students: No student selected.")
+						}
+					} else {
+						log.Println("/teacher/grade/students: Invalid CSRF token")
+					}
+				} else {
+					log.Printf("/teacher/grade/students: Invalid method %s\n", r.Method)
+				}
+			}
+		} else {
+			log.Println("/teacher/grade/students: CSRF token not found in session")
+		}
+	} else {
+		log.Println("/teacher/grade/students: User is not authenticated or does not have Teacher role")
+	}
+	log.Println("/teacher/grade/students: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 

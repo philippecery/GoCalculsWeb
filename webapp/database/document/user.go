@@ -13,21 +13,17 @@ import (
 
 // User document
 type User struct {
-	UserID          string
-	EmailAddress    string
-	Password        string
-	FirstName       string
-	LastName        string
-	Role            constant.UserRole
-	Status          constant.UserStatus
-	LastConnection  *time.Time
-	Token           string
-	Expires         *time.Time
-	MentalMath      *Homework
-	ColumnForm      *Homework
-	SourceGradeID   string
-	SourceGradeName string
-	CustomGrade     bool
+	UserID         string
+	EmailAddress   string
+	Password       string
+	FirstName      string
+	LastName       string
+	Role           constant.UserRole
+	Status         constant.UserStatus
+	LastConnection *time.Time
+	Token          string
+	Expires        *time.Time
+	GradeID        string
 }
 
 // UnregisteredUser document
@@ -56,14 +52,11 @@ type RegisteredUser struct {
 // Student document
 // Updates an existing User document
 type Student struct {
-	UserID          string
-	FirstName       string
-	LastName        string
-	MentalMath      *Homework
-	ColumnForm      *Homework
-	SourceGradeID   string
-	SourceGradeName string
-	CustomGrade     bool
+	UserID    string
+	FirstName string
+	LastName  string
+	GradeID   string
+	Grade     *Grade
 }
 
 // Link returns the registration link

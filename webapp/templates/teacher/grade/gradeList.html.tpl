@@ -14,6 +14,7 @@
 					<th rowspan="2"></th>
 					<th rowspan="2"></th>
 					<th rowspan="2"></th>
+					<th rowspan="2"></th>
 				</tr>
 				<tr>
 					<th>+</th>
@@ -32,6 +33,7 @@
 				{{ $i18n_editGrade := .i18n_editGrade }}
 				{{ $i18n_copyGrade := .i18n_copyGrade }}
 				{{ $i18n_deleteGrade := .i18n_deleteGrade }}
+				{{ $i18n_manageStudents := .i18n_manageStudents }}
 				{{ range .Grades }}
 				<tr>
 					<td>{{ .Name }}</td>
@@ -46,6 +48,7 @@
 					<td>{{ .ColumnForm.NbMultiplications }}</td>
 					<td>{{ .ColumnForm.NbDivisions }}</td>
 					<td>{{ .ColumnForm.Time }}</td>
+					<td class="text-center"><a href="/teacher/grade/students?gradeid={{ .GradeID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_manageStudents }}"><span class="glyphicon glyphicon-education"></span></a></td>
 					<td class="text-center"><a href="/teacher/grade/edit?gradeid={{ .GradeID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_editGrade }}"><span class="glyphicon glyphicon-pencil"></span></a></td>
 					<td class="text-center"><a href="/teacher/grade/copy?gradeid={{ .GradeID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_copyGrade }}"><span class="glyphicon glyphicon-copy"></span></a></td>
 					<td class="text-center"><a href="/teacher/grade/delete?gradeid={{ .GradeID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_deleteGrade }}"><span class="glyphicon glyphicon-trash"></span></a></td>

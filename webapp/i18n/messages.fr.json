@@ -39,16 +39,21 @@
     "register": "S'inscrire",
 
     "students": "Étudiants",
-    "editStudent": "Éditer",
+    "changeGrade": "Modifier Niveau",
+    "nograde": "Pas de niveau assigné",
+    "assignGrade": "Assigner Niveau",
+    "unassignGrade": "Enlever Niveau",
+    "otherStudents": "Autres Étudiants",
 
     "grades": "Niveaux",
     "addGrade": "Ajouter",
     "newGrade": "Nouveau niveau",
+    "manageStudents": "Étudiants",
     "editGrade": "Éditer",
     "copyGrade": "Copier",
     "deleteGrade": "Supprimer",
 
-    "gradeName": "Nom",
+    "gradeName": "Niveau",
     "gradeDescription": "Description",
     "nbAdditions": "Additions",
     "nbSubstractions": "Soustractions",

@@ -24,9 +24,10 @@ func StudentList(w http.ResponseWriter, r *http.Request) {
 				AddLocalizedMessage("grades").
 				AddLocalizedMessage("firstName").
 				AddLocalizedMessage("lastName").
-				AddLocalizedMessage("editStudent").
+				AddLocalizedMessage("changeGrade").
 				AddLocalizedMessage("mentalmath").
 				AddLocalizedMessage("columnform").
+				AddLocalizedMessage("nograde").
 				AddLocalizedMessage("logout")
 			if err := app.Templates.ExecuteTemplate(w, "studentList.html.tpl", vd); err != nil {
 				log.Fatalf("Error while executing template 'studentList': %v\n", err)

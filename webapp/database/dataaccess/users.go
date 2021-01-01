@@ -24,24 +24,24 @@ func GetAllUsers() []*document.User {
 	}
 	var users []*document.User
 	for cursor.Next(context.TODO()) {
-		var user document.User
-		if err = cursor.Decode(&user); err != nil {
+		user := new(document.User)
+		if err = cursor.Decode(user); err != nil {
 			log.Printf("Unable to decode User document. Cause: %v", err)
 			return nil
 		}
-		users = append(users, &user)
+		users = append(users, user)
 	}
 	return users
 }
 
 // GetUserByID returns the User document from the Users collection where userid field is the provided id
 func GetUserByID(id string) *document.User {
-	var user document.User
-	if err := collection.Users.FindOne(context.TODO(), bson.M{"userid": id}).Decode(&user); err != nil {
+	user := new(document.User)
+	if err := collection.Users.FindOne(context.TODO(), bson.M{"userid": id}).Decode(user); err != nil {
 		log.Printf("Unable to find User with id %s. Cause: %v", id, err)
 		return nil
 	}
-	return &user
+	return user
 }
 
 // UpdateLastConnection updates the lastconnection field to current datetime for the User document where userid field is the provided id
@@ -62,12 +62,12 @@ func GetAllUnregisteredUsers() []*document.User {
 	}
 	var unregisteredUsers []*document.User
 	for cursor.Next(context.TODO()) {
-		var unregisteredUser document.User
-		if err = cursor.Decode(&unregisteredUser); err != nil {
+		unregisteredUser := new(document.User)
+		if err = cursor.Decode(unregisteredUser); err != nil {
 			log.Printf("Unable to decode User document. Cause: %v", err)
 			return nil
 		}
-		unregisteredUsers = append(unregisteredUsers, &unregisteredUser)
+		unregisteredUsers = append(unregisteredUsers, unregisteredUser)
 	}
 	return unregisteredUsers
 }
@@ -82,56 +82,14 @@ func GetAllRegisteredUsers() []*document.User {
 	}
 	var registeredUsers []*document.User
 	for cursor.Next(context.TODO()) {
-		var registeredUser document.User
-		if err = cursor.Decode(&registeredUser); err != nil {
+		registeredUser := new(document.User)
+		if err = cursor.Decode(registeredUser); err != nil {
 			log.Printf("Unable to decode User document. Cause: %v", err)
 			return nil
 		}
-		registeredUsers = append(registeredUsers, &registeredUser)
+		registeredUsers = append(registeredUsers, registeredUser)
 	}
 	return registeredUsers
-}
-
-// GetAllStudents returns all the User documents in the Users collections where status is Enabled and role is Student
-func GetAllStudents() []*document.Student {
-	var err error
-	var cursor *mongo.Cursor
-	if cursor, err = collection.Users.Find(context.TODO(), bson.M{"status": constant.Enabled, "role": constant.Student}); err != nil {
-		log.Printf("Unable to find User document. Cause: %v", err)
-		return nil
-	}
-	var students []*document.Student
-	for cursor.Next(context.TODO()) {
-		var student document.Student
-		if err = cursor.Decode(&student); err != nil {
-			log.Printf("Unable to decode User document. Cause: %v", err)
-			return nil
-		}
-		if student.MentalMath == nil {
-			student.MentalMath = &document.Homework{}
-		}
-		if student.ColumnForm == nil {
-			student.ColumnForm = &document.Homework{}
-		}
-		students = append(students, &student)
-	}
-	return students
-}
-
-// GetStudentByID returns the User document from the Users collection where userid field is the provided id and the role is Student
-func GetStudentByID(id string) *document.Student {
-	var student document.Student
-	if err := collection.Users.FindOne(context.TODO(), bson.M{"userid": id, "role": constant.Student}).Decode(&student); err != nil {
-		log.Printf("Unable to find User with id %s and role Student. Cause: %v", id, err)
-		return nil
-	}
-	if student.MentalMath == nil {
-		student.MentalMath = &document.Homework{}
-	}
-	if student.ColumnForm == nil {
-		student.ColumnForm = &document.Homework{}
-	}
-	return &student
 }
 
 // CreateNewUser creates a new User document in the Users collection
@@ -182,12 +140,12 @@ func ToggleUserStatus(id string) error {
 
 // GetUserByToken returns the User document from the Users collection where token field is the provided token
 func GetUserByToken(token string) *document.User {
-	var unregisteredUser document.User
-	if err := collection.Users.FindOne(context.TODO(), bson.M{"token": token}).Decode(&unregisteredUser); err != nil {
+	unregisteredUser := new(document.User)
+	if err := collection.Users.FindOne(context.TODO(), bson.M{"token": token}).Decode(unregisteredUser); err != nil {
 		log.Printf("Unable to find unregistered user with token %s. Cause: %v", token, err)
 		return nil
 	}
-	return &unregisteredUser
+	return unregisteredUser
 }
 
 // RegisterUser retrieves and replaces the User document where userid field equals the one in the new User document
