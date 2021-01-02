@@ -39,12 +39,9 @@ func VerifyStudentActionToken(actionToken string, userID, gradeID string) bool {
 // ActionToken generates and returns a unique ID to pass as a query parameter for CSRF protection.
 func (g *Grade) ActionToken() string {
 	salt := util.GenerateRandomBytes(32)
-	mac := hmac.New(hash.New, []byte(config.Config.Keys.ActionToken))
-	mac.Write([]byte(g.GradeID))
-	mac.Write(salt)
 	token := make([]byte, 0)
 	token = append(token, salt...)
-	token = append(token, mac.Sum(nil)...)
+	token = append(token, generateActionToken(salt, g.GradeID)...)
 	return base64.URLEncoding.EncodeToString(token)
 }
 

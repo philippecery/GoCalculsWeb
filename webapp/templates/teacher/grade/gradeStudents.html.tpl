@@ -33,7 +33,7 @@
         <form id="gradeStudentsForm" method="POST" action="/teacher/grade/students" class="form-horizontal">
             <input type="hidden" name="token" value="{{ .Token }}"/>
             <input type="hidden" name="gradeID" value="{{ $gradeID }}"/>
-			<table id="students" class="table table-striped">
+			<table id="studentGrades" class="table table-striped">
 				<thead>
 					<tr>
 						<th rowspan="2">{{ .i18n_firstName }}</th>

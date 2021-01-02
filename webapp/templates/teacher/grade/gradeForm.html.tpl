@@ -2,7 +2,7 @@
 <html lang="{{ .lang }}">
 	{{ template "header.html" . }}
 	{{ template "teacher.navbar.html" . }}
-    <div class="col-sm-12 text-center"><h2><span class="glyphicon glyphicon-user"></span>&nbsp;<span>{{ .i18n_gradeFormTitle }}</span></h2></div>
+    <div class="col-sm-12 text-center"><h2><span class="glyphicon glyphicon-tasks"></span>&nbsp;<span>{{ .i18n_gradeFormTitle }}</span></h2></div>
 	{{ template "error.html" . }}
     <div class="col-sm-12">
         <form id="gradeForm" method="POST" action="/teacher/grade/save" class="form-horizontal">

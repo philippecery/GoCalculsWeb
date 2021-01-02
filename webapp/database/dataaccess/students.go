@@ -42,6 +42,9 @@ func GetStudentByID(id string) *document.Student {
 		log.Printf("Unable to find User with id %s and role Student. Cause: %v", id, err)
 		return nil
 	}
+	if student.GradeID != "" {
+		student.Grade = GetGradeByID(student.GradeID)
+	}
 	return student
 }
 
@@ -57,7 +60,16 @@ func SetGradeForStudents(gradeID string, students []string) error {
 // UnassignGradeForStudent removes the gradeid of selected student
 func UnassignGradeForStudent(gradeID, studentID string) error {
 	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"role": constant.Student, "userid": studentID, "gradeid": gradeID}, bson.M{"$set": bson.M{"gradeid": ""}}); err != nil {
-		log.Printf("Unable to reset grade for selected student. Cause: %v", err)
+		log.Printf("Unable to reset grade %s for student %s. Cause: %v", gradeID, studentID, err)
+		return errors.New("Unable to reset grade for selected student")
+	}
+	return nil
+}
+
+// AssignGradeForStudent sets the gradeid for selected student
+func AssignGradeForStudent(gradeID, studentID string) error {
+	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"role": constant.Student, "userid": studentID}, bson.M{"$set": bson.M{"gradeid": gradeID}}); err != nil {
+		log.Printf("Unable to set grade %s for student %s. Cause: %v", gradeID, studentID, err)
 		return errors.New("Unable to reset grade for selected student")
 	}
 	return nil

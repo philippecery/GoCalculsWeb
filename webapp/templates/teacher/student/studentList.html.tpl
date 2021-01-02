@@ -2,7 +2,7 @@
 <html lang="{{ .lang }}">
 	{{ template "header.html" . }}
 	{{ template "teacher.navbar.html" . }}
-    <div class="col-sm-12 text-center"><h2><span class="glyphicon glyphicon-user"></span>&nbsp;<span>{{ .i18n_students }}</span></h2></div>
+    <div class="col-sm-12 text-center"><h2><span class="glyphicon glyphicon-education"></span>&nbsp;<span>{{ .i18n_students }}</span></h2></div>
 	<div class="col-sm-12">
 		<table id="students" class="table table-striped">
 			<thead>
@@ -49,7 +49,7 @@
 					{{ else }}
 					<td colspan="11">{{ $i18n_nograde }}</td>
 					{{ end }}
-					<td class="text-center"><a href="/teacher/student/grade?userid={{ .UserID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_setGrade }}"><span class="glyphicon glyphicon-pencil"></span></a></td>
+					<td class="text-center"><a href="/teacher/student/grade?userid={{ .UserID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_setGrade }}"><span class="glyphicon glyphicon-tasks"></span></a></td>
 				</tr>
 				{{ end }}
 			</tbody>
