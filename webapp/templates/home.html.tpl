@@ -1,18 +1,12 @@
 <!DOCTYPE html>
 <html lang="{{ .lang }}">
 	{{ template "header.html" . }}
-	<div class="text-center col-sm-12">
-		<div><h2>{{ .User.FirstName }}</h2></div>
-		<div class="well well-lg center block">
-			<a class="btn btn-lg btn-success btn-block" href="/operations?category=1" role="button">
-				<span class="glyphicon glyphicon-hourglass"></span>&nbsp;<span>{{ .i18n_mentalmath }}</span>
-			</a>
-			<a class="btn btn-lg btn-primary btn-block" href="/operations?category=2" role="button">
-				<span class="glyphicon glyphicon-pencil"></span>&nbsp;<span>{{ .i18n_columnform }}</span>
-			</a>
-			<a class="btn btn-lg btn-default btn-block" href="/results" role="button">
-				<span class="glyphicon glyphicon-education"></span>&nbsp;<span>{{ .i18n_results }}</span>
-			</a>
+	<div class="jumbotron">
+		<h2>{{ .i18n_welcome }}</h2>
+		<p>{{ .i18n_introduction }}</p>
+		<div class="btn-group" role="group">
+			<a class="btn btn-info btn-lg" href="#" role="button">{{ .i18n_learnMore }}</a>
+			<a class="btn btn-primary btn-lg" href="/login" role="button">{{ .i18n_getStarted }}</a>
 		</div>
 	</div>
 	{{ template "footer.html" . }}

@@ -7,6 +7,11 @@
     "cancel": "Abandonner",
     "logout": "Se déconnecter",
 
+    "welcome": "Bienvenue",
+    "introduction": "Introduction",
+    "learnMore": "En savoir plus...",
+    "getStarted": "Cliquez ici pour commencer",
+
     "login": "Se connecter",
     "userid": "Identifiant",
     "password": "Mot de passe",
