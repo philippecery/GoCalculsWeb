@@ -10,7 +10,6 @@ import (
 
 // Dashboard handles requests to /student/dashboard
 // Only GET requests are allowed. The user must be authenticated and have the Student role to access the home page.
-// Redirects the user to /login, otherwise.
 func Dashboard(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
