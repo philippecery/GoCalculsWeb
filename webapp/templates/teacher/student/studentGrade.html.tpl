@@ -4,7 +4,7 @@
 	{{ template "teacher.navbar.html" . }}
     {{ $currentGrade := .Student.Grade }}
     <div class="col-sm-12 text-center"><h2><span class="glyphicon glyphicon-education"></span>&nbsp;<span>{{ .Student.FirstName }} {{ .Student.LastName }}</span></h2></div>
-    <div class="col-sm-12 text-center"><h3><span>{{ .i18n_currentGrade }}: {{ $currentGrade.Name }}</span></h3></div>
+    <div class="col-sm-12 text-center"><h3><span>{{ .i18n_currentGrade }}: {{ if $currentGrade }}{{ $currentGrade.Name }}{{ else }}{{ .i18n_nograde }}{{ end }}</span></h3></div>
 	<div class="col-sm-12">
 		<table id="grades" class="table table-striped">
 			<thead>
@@ -31,8 +31,9 @@
 			<tbody id="studentGradesData">
 				{{ $i18n_assignGrade := .i18n_assignGrade }}
 				{{ $userID := .Student.UserID }}
+				{{ $currentGradeID := .Student.GradeID }}
 				{{ range .Grades }}
-                {{ if ne .GradeID $currentGrade.GradeID }}
+                {{ if ne .GradeID $currentGradeID }}
 				<tr>
 					<td>{{ .Name }}</td>
 					<td>{{ .Description }}</td>
