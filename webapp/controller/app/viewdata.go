@@ -37,7 +37,8 @@ func validateLang(lang string) bool {
 	return validLang.MatchString(lang)
 }
 
-func (vd ViewData) getCurrentLanguage() string {
+// GetCurrentLanguage returns the current language selected by the user
+func (vd ViewData) GetCurrentLanguage() string {
 	return vd["lang"].(string)
 }
 
@@ -49,7 +50,7 @@ func (vd ViewData) SetUser(ui *session.UserInformation) {
 // SetErrorMessage sets an error message to be passed to templates.
 func (vd ViewData) SetErrorMessage(messageID string) {
 	if messageID != "" {
-		vd["ErrorMessage"] = i18n.GetLocalizedMessage(vd.getCurrentLanguage(), messageID)
+		vd["ErrorMessage"] = i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), messageID)
 	}
 }
 
@@ -71,7 +72,7 @@ func (vd ViewData) SetViewData(key string, data interface{}) {
 // SetLocalizedMessage retrieves the localized message for the provided messageID in the user's selected language.
 // The provided key is prefixed with "i18n_" to avoid conflicts.
 func (vd ViewData) SetLocalizedMessage(key, messageID string) {
-	vd["i18n_"+key] = i18n.GetLocalizedMessage(vd.getCurrentLanguage(), messageID)
+	vd["i18n_"+key] = i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), messageID)
 }
 
 // SetDefaultLocalizedMessages sets localized messages passed to all templates.

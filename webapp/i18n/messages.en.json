@@ -3,6 +3,10 @@
     "title": "Maths",
     "mentalmath": "Mental Math",
     "columnform": "Column Form Operation",
+    "addition": "Addition",
+    "substraction": "Substraction",
+    "multiplication": "Multiplication",
+    "division": "Division",
     "save": "Save",
     "cancel": "Cancel",
     "logout": "Logout",
@@ -78,6 +82,7 @@
     "success": "Congratulations!",
     "failure": "Try again...",
 
+    "errorGenericMessage": "An error occurred. Please contact the administrator.",
     "errorAuthenticationFailed": "Authentication Failed.",
     "errorUserCreationFailed": "User creation failed.",
     "errorInvalidUserID": "User ID is invalid or already exists.",

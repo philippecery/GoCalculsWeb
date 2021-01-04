@@ -3,6 +3,10 @@
     "title": "Mathématiques",
     "mentalmath": "Calcul Mentaux",
     "columnform": "Opérations Posées",
+    "addition": "Addition",
+    "substraction": "Soustraction",
+    "multiplication": "Multiplication",
+    "division": "Division",
     "save": "Sauvegarder",
     "cancel": "Abandonner",
     "logout": "Se déconnecter",
@@ -78,6 +82,7 @@
     "success": "Félicitations!",
     "failure": "Essaye encore...",
 
+    "errorGenericMessage": "Une erreur est survenue. Veuillez contacter l'administrateur.",
     "errorAuthenticationFailed": "Echec d'authentification.",
     "errorUserCreationFailed": "La création de l'utilisateur a échoué.",
     "errorInvalidUserID": "Cet identifiant d'utilisateur est invalide ou déjà utilisé.",

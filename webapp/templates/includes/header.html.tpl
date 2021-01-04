@@ -6,6 +6,14 @@
     <title>{{ .i18n_title }}</title>
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/range.css" rel="stylesheet">
+    <style nonce="{{ .nonce }}">
+      div.percentAll {
+        height: 40px;
+      }
+      div.percentGood {
+        width: 0%;
+      }
+    </style>
   </head>
   <body>
     <div class="container">

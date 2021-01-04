@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/philippecery/maths/webapp/config"
+	"github.com/philippecery/maths/webapp/controller/api"
 	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/controller/app/admin"
 	"github.com/philippecery/maths/webapp/controller/app/student"
@@ -40,10 +42,9 @@ func SetupRoutes() {
 	handleFunc("/teacher/student/assign", teacher.GradeAssign)
 
 	handleFunc("/student/dashboard", noCache(student.Dashboard))
-	handleFunc("/student/operations", app.Todo)
-	//handleFunc("/student/operations", noCache(student.Operations))
+	handleFunc("/student/operations", noCache(student.Operations))
 
-	//handleFunc("/websocket", api.Endpoints)
+	handleFunc("/websocket", api.Endpoints)
 }
 
 func handleStatic(path string) {
@@ -59,7 +60,7 @@ func securityHeaders(h func(http.ResponseWriter, *http.Request)) func(http.Respo
 		log.Printf("%s %s", r.Method, r.RequestURI)
 		token := session.GetSession(w, r).SetCSPNonce()
 		w.Header().Set("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains")
-		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'; block-all-mixed-content; default-src 'none'; connect-src 'self'; font-src 'self'; img-src 'self'; style-src 'self'; form-action 'self'; base-uri 'self'; script-src 'nonce-"+token+"' 'unsafe-inline'")
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'; block-all-mixed-content; default-src 'none'; connect-src wss://"+config.Config.Hostname+"; font-src 'self'; img-src 'self'; style-src 'self' 'nonce-"+token+"'; form-action 'self'; base-uri 'self'; script-src 'nonce-"+token+"'")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
 		w.Header().Set("Referrer-Policy", "no-referrer")
