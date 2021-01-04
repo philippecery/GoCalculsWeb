@@ -8,10 +8,11 @@ import (
 )
 
 type configStruct struct {
-	Port int
-	SSL  *sslConfigStruct
-	DB   *dbConfigStruct
-	Keys *keysConfigStruct
+	Port     int
+	Hostname string
+	SSL      *sslConfigStruct
+	DB       *dbConfigStruct
+	Keys     *keysConfigStruct
 }
 
 type dbConfigStruct struct {
