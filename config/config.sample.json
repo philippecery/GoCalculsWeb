@@ -1,5 +1,6 @@
 {
-    "port": 8043,
+    "hostname": "<domain for CSP>",
+    "port": 443,
     "ssl": {
         "keystore": "<PEM bundle of certificate and PKCS#8 password-protected private key>",
         "password": "<private key password>"
