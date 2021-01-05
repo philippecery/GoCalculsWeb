@@ -32,56 +32,61 @@ func Endpoints(w http.ResponseWriter, r *http.Request) {
 			conn, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Println(err)
+				http.Redirect(w, r, "/student/dashboard", http.StatusFound)
+				return
 			}
-			log.Println("Client Connected")
+			log.Println("/websocket: Client Connected")
 			request := &request{session: httpsession}
 			for {
 				var messageType int
 				var requestMessage, responseMessage []byte
 				var err error
 				if messageType, requestMessage, err = conn.ReadMessage(); err == nil {
-					log.Printf("Request received: %s\n", string(requestMessage))
+					log.Printf("/websocket: Request received: %s\n", string(requestMessage))
 					if err = json.Unmarshal(requestMessage, &request.message); err == nil {
-						var response interface{}
-						if requestType, isString := request.message["request"].(string); isString {
-							switch requestType {
-							case "operation":
-								fmt.Println("generating next operation")
-								response = request.generateNextOperation()
-							case "answer":
-								fmt.Println("processing answer")
-								response = request.processAnswer()
-							case "toggle":
-								fmt.Println("toggling answer/result")
-								response = request.toggleResult()
-							case "results":
-								fmt.Println("displaying final results")
-								response = request.results()
-							default:
-								log.Printf("Invalid message type: %s", requestType)
-							}
-							if responseMessage, err = json.Marshal(response); err == nil {
-								if err = conn.WriteMessage(messageType, responseMessage); err == nil {
-									log.Printf("Response sent: %s\n", string(responseMessage))
+						if csrfToken, isString := request.message["token"].(string); isString && csrfToken == token {
+							var response interface{}
+							if requestType, isString := request.message["request"].(string); isString {
+								switch requestType {
+								case "operation":
+									response = request.operation()
+								case "answer":
+									response = request.answer()
+								case "toggle":
+									response = request.toggle()
+								case "results":
+									response = request.results()
+								default:
+									err = fmt.Errorf("/websocket: Invalid message type: %s", requestType)
 								}
+								if response != nil {
+									if responseMessage, err = json.Marshal(response); err == nil {
+										if err = conn.WriteMessage(messageType, responseMessage); err == nil {
+											log.Printf("/websocket: Response sent: %s\n", string(responseMessage))
+										}
+									}
+								}
+							} else {
+								err = fmt.Errorf("/websocket: Request type is not a string")
 							}
 						} else {
-							err = fmt.Errorf("Request type is not a string")
+							err = fmt.Errorf("/websocket: Invalid CSRF token")
 						}
 					}
 				}
 				if err != nil {
 					log.Println(err)
-					return
+					break
 				}
 			}
+			conn.Close()
 		} else {
-			log.Println("CSRF token not found in session")
+			log.Println("/websocket: CSRF token not found in session")
 		}
 	} else {
-		log.Println("User is not authenticated or does not have Student role")
+		log.Println("/websocket: User is not authenticated or does not have Student role")
 	}
-	log.Println("Redirecting to Login page")
+	log.Println("/websocket: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 

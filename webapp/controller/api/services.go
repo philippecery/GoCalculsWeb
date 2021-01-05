@@ -9,7 +9,7 @@ import (
 	"github.com/philippecery/maths/webapp/util"
 )
 
-func (r *request) generateNextOperation() map[string]interface{} {
+func (r *request) operation() map[string]interface{} {
 	if session := r.getHomeworkSession(); session != nil {
 		if homeworkType, exists := constant.HomeworkTypes[session.TypeID]; exists {
 			operatorIDs := session.OperatorIDs()
@@ -49,7 +49,7 @@ func (r *request) generateNextOperation() map[string]interface{} {
 	}
 }
 
-func (r *request) processAnswer() map[string]interface{} {
+func (r *request) answer() map[string]interface{} {
 	if session := r.getHomeworkSession(); session != nil {
 		operation := session.GetCurrentOperation()
 		if result, result2 := operation.Result(); result > 0 {
@@ -75,7 +75,7 @@ func (r *request) processAnswer() map[string]interface{} {
 			}
 		}
 	} else {
-		log.Printf("/websocket[operation]: No HomeworkSession found in session")
+		log.Printf("/websocket[answer]: No HomeworkSession found in session")
 	}
 	return map[string]interface{}{
 		"response": "error", "message": r.getLocalizedMessage("errorGenericMessage"),
@@ -93,7 +93,7 @@ func (r *request) results() map[string]interface{} {
 	}
 }
 
-func (r *request) toggleResult() map[string]interface{} {
+func (r *request) toggle() map[string]interface{} {
 	if show, err := r.getBool("show"); err == nil {
 		if show {
 			return map[string]interface{}{

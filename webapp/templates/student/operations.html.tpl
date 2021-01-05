@@ -101,6 +101,7 @@
             var socket = new WebSocket('wss://' + document.domain + ':' + location.port + namespace);
             var type = {{ .TypeID }};
             var userId = '{{ .User.UserID }}';
+            var token = '{{ .Token }}';
 
             $('div#keyboard button[id^=keynum]').click(function(event) {
                 log(this.innerText);
@@ -159,7 +160,7 @@
             var timeinterval = setInterval(updateClock, 1000);
 
             $('button#next').click(function(event) {
-                socket.send(JSON.stringify({ request: "operation" }));
+                socket.send(JSON.stringify({ request: "operation", token: token }));
             });
 
             function processOperationResponse(msg) {
@@ -203,12 +204,12 @@
                     $('div#keyboard').addClass('hidden');
                     $('div#keyboard2').addClass('hidden');
                     $('button#submit').prop('disabled', true);
-                    var operationAnswerMsg = {
+                    socket.send(JSON.stringify({
                         request: "answer",
                         answer: $('input#answer').val(),
-                        answer2: $('input#answer2').val()
-                    };
-                    socket.send(JSON.stringify(operationAnswerMsg));
+                        answer2: $('input#answer2').val(),
+                        token: token
+                    }));
                 }
             });
 
@@ -234,7 +235,7 @@
                 $('button#submit').addClass('hidden');
                 if(msg.nbTotalRemaining > 0) {
                     if(msg.good == true) {
-                    	socket.send(JSON.stringify({ request: "operation" }));
+                    	socket.send(JSON.stringify({ request: "operation", token: token }));
                     } else {
                         if(type == 1) {
                             ended = true;
@@ -250,7 +251,7 @@
             }
 
             $('button#toggleResult').click(function(event) {
-                socket.send({ request: "toggle", show: $('span#toggleResult').hasClass('glyphicon-eye-open') });
+                socket.send({ request: "toggle", show: $('span#toggleResult').hasClass('glyphicon-eye-open'), token: token });
             });
 
             function processToggleResponse(msg) {
@@ -281,7 +282,7 @@
                         )
                     )
                 }
-                socket.send(JSON.stringify({ request: "results", timeout: timeout }));
+                socket.send(JSON.stringify({ request: "results", timeout: timeout, token: token }));
                 $('#results').modal('show');
             }
 
@@ -348,7 +349,7 @@
                 $('nbResults').removeClass('hidden');
             }
             socket.onopen = function(event) {
-            	socket.send(JSON.stringify({ request: "operation" }));
+            	socket.send(JSON.stringify({ request: "operation", token: token }));
             }
 
             socket.onmessage = function(event) {
