@@ -18,7 +18,7 @@
             <div class="form-group">
                 <label for="description" class="col-sm-2 control-label">{{ .i18n_gradeDescription }}</label>
                 <div class="col-sm-10">
-                    <textarea class="form-control" id="description" name="description" rows="2" value="{{ .Grade.Description }}"></textarea>
+                    <textarea class="form-control" id="description" name="description" rows="2">{{ .Grade.Description }}</textarea>
                 </div>
             </div>
             <label class="col-sm-offset-2 control-label">{{ .i18n_mentalmath }}</label>
