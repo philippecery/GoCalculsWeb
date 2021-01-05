@@ -2,6 +2,8 @@ package document
 
 import "github.com/philippecery/maths/webapp/constant"
 
+// HomeworkSession represents a homwework session.
+// Contains the homework assigned by the teacher, the operations generated, the answers submitted, and the results per operator.
 type HomeworkSession struct {
 	TypeID          int
 	Homework        *Homework
@@ -12,18 +14,23 @@ type HomeworkSession struct {
 	Divisions       *Results
 }
 
+// Results contains the number of good and wrong answers submitted per operator during a session
 type Results struct {
 	NbGood  int
 	NbWrong int
 }
 
+// Operation represents a randomly generated operation to be done by the student, as well as the answer submitted.
 type Operation struct {
 	OperatorID int
 	Operand1   int
 	Operand2   int
 	Status     constant.Status
+	Answer     int
+	Answer2    int
 }
 
+// Result returns the expected result for this operation.
 func (o *Operation) Result() (int, int) {
 	switch o.OperatorID {
 	case 1:
@@ -38,10 +45,12 @@ func (o *Operation) Result() (int, int) {
 	return 0, 0
 }
 
+// NewHomeworkSession returns a new initialized homework session.
 func NewHomeworkSession(typeID int, homework Homework) *HomeworkSession {
 	return &HomeworkSession{TypeID: typeID, Homework: &homework, Operations: make([]*Operation, 0), Additions: &Results{}, Substractions: &Results{}, Multiplications: &Results{}, Divisions: &Results{}}
 }
 
+// GetCurrentOperation returns the latest operation added to this homework session.
 func (s *HomeworkSession) GetCurrentOperation() *Operation {
 	if len(s.Operations) > 0 {
 		return s.Operations[len(s.Operations)-1]
@@ -67,10 +76,12 @@ func (s *HomeworkSession) OperatorIDs() []int {
 	return operationIDs
 }
 
+// NbTotalGood returns the total number of good answers.
 func (s *HomeworkSession) NbTotalGood() int {
 	return s.Additions.NbGood + s.Substractions.NbGood + s.Multiplications.NbGood + s.Divisions.NbGood
 }
 
+// NbUpdate returns the number of answers, good or wrong, for the specified operator.
 func (s *HomeworkSession) NbUpdate(isGood bool, operatorID int) int {
 	var nbUpdate int
 	var results *Results

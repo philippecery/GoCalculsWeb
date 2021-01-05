@@ -19,6 +19,7 @@ func (u *User) ActionToken() string {
 	return base64.URLEncoding.EncodeToString(token)
 }
 
+// VerifyUserActionToken verifies the provided action token is valid for the provided user.
 func VerifyUserActionToken(actionToken string, userID string) bool {
 	return verifyActionToken(actionToken, userID)
 }
@@ -32,6 +33,7 @@ func (s *Student) ActionToken() string {
 	return base64.URLEncoding.EncodeToString(token)
 }
 
+// VerifyStudentActionToken verifies the provided action token is valid for the provided student and grade.
 func VerifyStudentActionToken(actionToken string, userID, gradeID string) bool {
 	return verifyActionToken(actionToken, userID, gradeID)
 }
@@ -45,6 +47,7 @@ func (g *Grade) ActionToken() string {
 	return base64.URLEncoding.EncodeToString(token)
 }
 
+// VerifyGradeActionToken verifies the provided action token is valid for the provided grade.
 func VerifyGradeActionToken(actionToken string, gradeID string) bool {
 	return verifyActionToken(actionToken, gradeID)
 }

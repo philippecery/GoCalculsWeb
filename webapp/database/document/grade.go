@@ -23,6 +23,7 @@ func (h *Homework) NumberOfOperations() int {
 	return h.NbAdditions + h.NbSubstractions + h.NbMultiplications + h.NbDivisions
 }
 
+// NumberOfOperationsByOperator returns the number of operations in this homework for the sepcified operator
 func (h *Homework) NumberOfOperationsByOperator(operatorID int) int {
 	var nbOperations int
 	switch operatorID {
