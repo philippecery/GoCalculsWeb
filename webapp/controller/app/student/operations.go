@@ -41,7 +41,7 @@ func init() {
 func Operations(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
-		if token := httpsession.GetCSRFToken(); token != "" {
+		if token := httpsession.NewCSWHToken(); token != "" {
 			if r.Method == "GET" {
 				if typeID := validateTypeID(r.FormValue("type")); typeID > 0 {
 					if grade := dataaccess.GetStudentByID(user.UserID).Grade; grade != nil {
@@ -71,8 +71,9 @@ func Operations(w http.ResponseWriter, r *http.Request) {
 							AddLocalizedMessage("timeout").
 							AddLocalizedMessage("success").
 							AddLocalizedMessage("failure").
+							AddLocalizedMessage("errDisabled").
 							AddLocalizedMessage("logout")
-						httpsession.SetAttribute("HomeworkSession", document.NewHomeworkSession(typeID, *homework))
+						httpsession.SetAttribute("HomeworkSession", document.NewHomeworkSession(user.UserID, typeID, *homework))
 						httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
 						if err := app.Templates.ExecuteTemplate(w, "operations.html.tpl", vd); err != nil {
 							log.Fatalf("Error while executing template 'operations': %v\n", err)

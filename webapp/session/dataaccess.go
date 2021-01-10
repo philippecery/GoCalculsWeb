@@ -53,6 +53,21 @@ func (s *HTTPSession) GetCSRFToken() string {
 	return ""
 }
 
+// NewCSWHToken generates a random token and stores it in this session.
+func (s *HTTPSession) NewCSWHToken() string {
+	token := util.GenerateRandomBytesToBase64(32)
+	s.SetAttribute("cswh", token)
+	return token
+}
+
+// GetCSWHToken returns the CSRF token from the session.
+func (s *HTTPSession) GetCSWHToken() string {
+	if token, isString := s.GetAttribute("cswh").(string); isString {
+		return token
+	}
+	return ""
+}
+
 // SetCSPNonce generates a random nonce for strict CSP and stores it in this session.
 func (s *HTTPSession) SetCSPNonce() string {
 	nonce := util.GenerateRandomBytesToBase64(32)

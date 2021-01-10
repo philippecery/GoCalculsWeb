@@ -16,72 +16,76 @@ import (
 func Endpoints(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
-		if token := httpsession.GetCSRFToken(); token != "" {
-			upgrader := websocket.Upgrader{}
-			upgrader.CheckOrigin = func(r *http.Request) bool {
-				origin := r.Header["Origin"]
-				if len(origin) == 0 {
-					return false
-				}
-				u, err := url.Parse(origin[0])
-				if err != nil {
-					return false
-				}
-				return equalASCIIFold(u.Host, r.Host)
-			}
-			conn, err := upgrader.Upgrade(w, r, nil)
-			if err != nil {
-				log.Println(err)
-				http.Redirect(w, r, "/student/dashboard", http.StatusFound)
-				return
-			}
-			log.Println("/websocket: Client Connected")
-			request := &request{session: httpsession}
-			for {
-				var messageType int
-				var requestMessage, responseMessage []byte
-				var err error
-				if messageType, requestMessage, err = conn.ReadMessage(); err == nil {
-					log.Printf("/websocket: Request received: %s\n", string(requestMessage))
-					if err = json.Unmarshal(requestMessage, &request.message); err == nil {
-						if csrfToken, isString := request.message["token"].(string); isString && csrfToken == token {
-							var response interface{}
-							if requestType, isString := request.message["request"].(string); isString {
-								switch requestType {
-								case "operation":
-									response = request.operation()
-								case "answer":
-									response = request.answer()
-								case "toggle":
-									response = request.toggle()
-								case "results":
-									response = request.results()
-								default:
-									err = fmt.Errorf("/websocket: Invalid message type: %s", requestType)
-								}
-								if response != nil {
-									if responseMessage, err = json.Marshal(response); err == nil {
-										if err = conn.WriteMessage(messageType, responseMessage); err == nil {
-											log.Printf("/websocket: Response sent: %s\n", string(responseMessage))
-										}
-									}
-								}
-							} else {
-								err = fmt.Errorf("/websocket: Request type is not a string")
-							}
-						} else {
-							err = fmt.Errorf("/websocket: Invalid CSRF token")
-						}
+		if token := httpsession.GetCSWHToken(); token != "" {
+			if r.FormValue("token") == token {
+				upgrader := websocket.Upgrader{}
+				upgrader.CheckOrigin = func(r *http.Request) bool {
+					origin := r.Header["Origin"]
+					if len(origin) == 0 {
+						return false
 					}
+					u, err := url.Parse(origin[0])
+					if err != nil {
+						return false
+					}
+					return equalASCIIFold(u.Host, r.Host)
 				}
+				conn, err := upgrader.Upgrade(w, r, nil)
 				if err != nil {
 					log.Println(err)
-					break
+					http.Redirect(w, r, "/student/dashboard", http.StatusFound)
+					return
 				}
+				log.Println("/websocket: Client Connected")
+				socket := &socket{conn: conn, session: httpsession}
+				for {
+					var messageType int
+					var requestMessage []byte
+					var err error
+					if messageType, requestMessage, err = conn.ReadMessage(); err == nil {
+						switch messageType {
+						case websocket.TextMessage:
+							log.Printf("/websocket: Request received: %s\n", string(requestMessage))
+							if err = json.Unmarshal(requestMessage, &socket.message); err == nil {
+								if cswhToken, isString := socket.message["token"].(string); isString && cswhToken == token {
+									if requestType, isString := socket.message["request"].(string); isString {
+										switch requestType {
+										case "operation":
+											err = socket.operation()
+										case "answer":
+											err = socket.answer()
+										case "toggle":
+											err = socket.toggle()
+										case "summary":
+											err = socket.summary()
+										default:
+											err = fmt.Errorf("/websocket: Invalid request type: %s", requestType)
+										}
+									} else {
+										err = fmt.Errorf("/websocket: Request type is not a string")
+									}
+								} else {
+									err = fmt.Errorf("/websocket: Invalid CSWH token in message")
+								}
+							}
+						case websocket.CloseMessage:
+							log.Printf("/websocket: Close message received\n")
+							break
+						default:
+							err = fmt.Errorf("/websocket: Expected a text message, got type %d", messageType)
+						}
+					}
+					if err != nil {
+						log.Println(err)
+						break
+					}
+				}
+				conn.Close()
+				return
 			}
-			conn.Close()
+			log.Println("/websocket: Invalid CSWH token in URL")
 		} else {
-			log.Println("/websocket: CSRF token not found in session")
+			log.Println("/websocket: CSWH token not found in session")
 		}
 	} else {
 		log.Println("/websocket: User is not authenticated or does not have Student role")

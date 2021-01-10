@@ -3,10 +3,34 @@
     "title": "Maths",
     "mentalmath": "Mental Math",
     "columnform": "Column Form Operation",
+
+    "Addition": {
+        "one": "addition",
+        "other": "additions"
+    },
+    "Substraction": {
+        "one": "substraction",
+        "other": "substractions"
+    },
+    "Multiplication": {
+        "one": "multiplication",
+        "other": "multiplications"
+    },
+    "Division": {
+        "one": "division",
+        "other": "divisions"
+    },
+
     "addition": "Addition",
     "substraction": "Substraction",
     "multiplication": "Multiplication",
     "division": "Division",
+
+    "additions": "Additions",
+    "substractions": "Substractions",
+    "multiplications": "Multiplications",
+    "divisions": "Divisions",
+
     "save": "Save",
     "cancel": "Cancel",
     "logout": "Logout",
@@ -81,8 +105,18 @@
     "timeout": "You took too much time. Try again...",
     "success": "Congratulations!",
     "failure": "Try again...",
-
+    "summaryOperationsTodo": "You had {{ .nbTotal }} {{ .operationsType }} to complete",
+    "summaryOperationsGood": {
+        "one": "{{ .nbGood }} is correct",
+        "other": "{{ .nbGood }} are correct"
+    },
+    "summaryOperationsWrong": {
+        "one": "{{ .nbWrong }} is not",
+        "other": "{{ .nbWrong }} are not"
+    },
     "errorGenericMessage": "An error occurred. Please contact the administrator.",
+    "errDisabled": "This feature is not available in this page.",
+
     "errorAuthenticationFailed": "Authentication Failed.",
     "errorUserCreationFailed": "User creation failed.",
     "errorInvalidUserID": "User ID is invalid or already exists.",

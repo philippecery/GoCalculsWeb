@@ -26,8 +26,19 @@ func loadMessages(path, lang string) {
 }
 
 // GetLocalizedMessage returns the message messageID in language lang
-func GetLocalizedMessage(lang, messageID string) string {
-	return localizers[lang].MustLocalize(&i18n.LocalizeConfig{MessageID: messageID})
+func GetLocalizedMessage(lang, messageID string, data ...interface{}) string {
+	var pluralCount, templateData interface{}
+	if len(data) > 0 {
+		pluralCount = data[0]
+		if len(data) > 1 {
+			templateData = data[1]
+		}
+	}
+	return localizers[lang].MustLocalize(&i18n.LocalizeConfig{
+		MessageID:    messageID,
+		PluralCount:  pluralCount,
+		TemplateData: templateData,
+	})
 }
 
 func initSupportedLanguages() {

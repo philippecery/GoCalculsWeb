@@ -70,14 +70,14 @@
         <hr/>
     </div>
     <div class="col-sm-offset-3 col-sm-6 text-center">
-        <button id="exit" type="button" class="btn btn-lg btn-default btn-block"><span class="glyphicon glyphicon-home"></span>&nbsp;{{ .i18_quit }}</button>
+        <button id="exit" type="button" class="btn btn-lg btn-default btn-block"><span class="glyphicon glyphicon-home"></span>&nbsp;{{ .i18n_quit }}</button>
     </div>
 
     <div class="modal fade" id="results" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">{{ .i18_results }}</h4>
+                    <h4 class="modal-title">{{ .i18n_results }}</h4>
                 </div>
                 <div class="modal-body" id="operationlist">
                     <div id="resultsOperations"></div>
@@ -92,16 +92,22 @@
     <div id="logs" class="col-sm-12 hidden">
     </div>
 
-    {{ template "footer.html" . }}
+    </div>
+    </body>
     <script nonce="{{ .nonce }}" type="text/javascript" src="/js/jquery-2.2.2.min.js"></script>
     <script nonce="{{ .nonce }}" type="text/javascript" src="/js/bootstrap.min.js"></script>
     <script nonce="{{ .nonce }}" type="text/javascript" charset="utf-8">
         $(document).ready(function(){
-            var namespace = '/websocket';
+            var token = '{{ .Token }}';
+            var namespace = '/websocket?token='+token;
             var socket = new WebSocket('wss://' + document.domain + ':' + location.port + namespace);
             var type = {{ .TypeID }};
-            var userId = '{{ .User.UserID }}';
-            var token = '{{ .Token }}';
+
+            {{ $i18n_errDisabled := .i18n_errDisabled }}
+            {{ range $key, $value := .langs }}
+            $('#lang_{{ $key }}').addClass('disabled');
+            $('#lang_{{ $key }}').click(function(event) { window.alert(`{{ $i18n_errDisabled }}`) });
+            {{ end }}
 
             $('div#keyboard button[id^=keynum]').click(function(event) {
                 log(this.innerText);
@@ -251,7 +257,7 @@
             }
 
             $('button#toggleResult').click(function(event) {
-                socket.send({ request: "toggle", show: $('span#toggleResult').hasClass('glyphicon-eye-open'), token: token });
+                socket.send(JSON.stringify({ request: "toggle", show: $('span#toggleResult').hasClass('glyphicon-eye-open'), token: token }));
             });
 
             function processToggleResponse(msg) {
@@ -270,19 +276,19 @@
                 }
             }
             $('button#summary').click(function(event) {
-                summary();
+                $('#results').modal('show');
             });
             function summary() {
                 if (timeout) {
                     $('div#resultsOperations').append(
                         $('<p class="lead text-center text-danger"/>').append(
                             $('<span class="glyphicon glyphicon-time"/>').text(''),
-                            $('<span/>').text('&nbsp;{{ .i18n_timeout }}&nbsp;'),
+                            $('<span/>').text('{{ .i18n_timeout }}'),
                             $('<span class="glyphicon glyphicon-time"/>').text('')
                         )
                     )
                 }
-                socket.send(JSON.stringify({ request: "results", timeout: timeout, token: token }));
+                socket.send(JSON.stringify({ request: "summary", timeout: timeout, token: token }));
                 $('#results').modal('show');
             }
 
@@ -303,9 +309,12 @@
                             textClass = 'text-success';
                         }
                     }
-                    text = msg.nbGood + ' ' + pluriel('correcte', msg.nbGood) + ', ' + msg.nbWrong + ' ' + pluriel('erreur', msg.nbWrong);
+                    //text = msg.nbGood + ' ' + pluriel('correcte', msg.nbGood) + ', ' + msg.nbWrong + ' ' + pluriel('erreur', msg.nbWrong);
+                    //$('div#resultsOperations').append(
+                    //    $('<p class="text-center ' + textClass + '"/>').html(msg.nbTotal + ' ' + msg.operationName + ' &agrave; faire, ' + text)
+                    //);
                     $('div#resultsOperations').append(
-                        $('<p class="text-center ' + textClass + '"/>').html(msg.nbTotal + ' ' + msg.operationName + ' &agrave; faire, ' + text)
+                        $('<p class="text-center ' + textClass + '"/>').html(msg.operationsTodo + ', ' + msg.operationsGood + ', ' + msg.operationsWrong)
                     );
                     if(msg.success) {
                         $('span#resultsOperations').append('<p class="lead text-center text-success"><span class="glyphicon glyphicon glyphicon-thumbs-up"></span><span>&nbsp;{{ .i18n_success }}&nbsp;</span><span class="glyphicon glyphicon glyphicon-thumbs-up"></span></p>');
@@ -329,13 +338,11 @@
                 restart();
             });
             function restart() {
-                var url = "/student/operations?userid={{ .User.UserID }}&type={{ .TypeID }}";
-                if(userId == 0) {
-                    url = "/student/selection?type={{ .TypeID }}";
-                }
-                top.location = url;
+                socket.close(1000);
+                top.location = "/student/operations?type={{ .TypeID }}";
             }
             $('button#exit').click(function(event) {
+                socket.close(1000);
                 top.location = "/student/dashboard";
             });
 
@@ -364,7 +371,7 @@
                     case "toggle":
                         processToggleResponse(msg);
                         break;
-                    case "results":
+                    case "summary":
                         processResultsResponse(msg);
                         break;
                 }

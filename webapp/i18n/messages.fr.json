@@ -3,10 +3,34 @@
     "title": "Mathématiques",
     "mentalmath": "Calcul Mentaux",
     "columnform": "Opérations Posées",
+
+    "Addition": {
+        "one": "addition",
+        "other": "additions"
+    },
+    "Substraction": {
+        "one": "soustraction",
+        "other": "soustractions"
+    },
+    "Multiplication": {
+        "one": "multiplication",
+        "other": "multiplications"
+    },
+    "Division": {
+        "one": "division",
+        "other": "divisions"
+    },
+
     "addition": "Addition",
     "substraction": "Soustraction",
     "multiplication": "Multiplication",
     "division": "Division",
+
+    "additions": "Additions",
+    "substractions": "Soustractions",
+    "multiplications": "Multiplications",
+    "divisions": "Divisions",
+
     "save": "Sauvegarder",
     "cancel": "Abandonner",
     "logout": "Se déconnecter",
@@ -81,8 +105,19 @@
     "timeout": "Tu as pris trop de temps. Essaye encore...",
     "success": "Félicitations!",
     "failure": "Essaye encore...",
+    "summaryOperationsTodo": "Tu avais {{ .nbTotal }} {{ .operationsType }} à faire",
+    "summaryOperationsGood": {
+        "one": "{{ .nbGood }} est correcte",
+        "other": "{{ .nbGood }} sont correctes"
+    },
+    "summaryOperationsWrong": {
+        "one": "{{ .nbWrong }} est incorrecte",
+        "other": "{{ .nbWrong }} sont incorrectes"
+    },
 
     "errorGenericMessage": "Une erreur est survenue. Veuillez contacter l'administrateur.",
+    "errDisabled": "Cette fonctionalité n'est pas disponible sur cette page.",
+
     "errorAuthenticationFailed": "Echec d'authentification.",
     "errorUserCreationFailed": "La création de l'utilisateur a échoué.",
     "errorInvalidUserID": "Cet identifiant d'utilisateur est invalide ou déjà utilisé.",

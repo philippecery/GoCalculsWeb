@@ -26,9 +26,7 @@ func Connect() error {
 	if client, err = mongo.Connect(context.TODO(), clientOptions); err == nil {
 		if err = client.Ping(context.TODO(), nil); err == nil {
 			log.Println("Connected to MongoDB!")
-			database := client.Database("maths")
-			collection.Users = database.Collection("users")
-			collection.Grades = database.Collection("grades")
+			collection.Register(client.Database("maths"))
 		}
 	}
 	return err

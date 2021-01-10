@@ -1,10 +1,17 @@
 package document
 
-import "github.com/philippecery/maths/webapp/constant"
+import (
+	"time"
+
+	"github.com/philippecery/maths/webapp/constant"
+)
 
 // HomeworkSession represents a homwework session.
 // Contains the homework assigned by the teacher, the operations generated, the answers submitted, and the results per operator.
 type HomeworkSession struct {
+	UserID          string
+	StartTime       time.Time
+	EndTime         time.Time
 	TypeID          int
 	Homework        *Homework
 	Operations      []*Operation
@@ -30,24 +37,50 @@ type Operation struct {
 	Answer2    int
 }
 
-// Result returns the expected result for this operation.
-func (o *Operation) Result() (int, int) {
+// VerifyResult returns true if answer equals expected result
+func (o *Operation) VerifyResult(answer, answer2 int) bool {
+	o.Answer = answer
+	o.Answer2 = answer2
+	var result, result2 int
 	switch o.OperatorID {
 	case 1:
-		return o.Operand1 + o.Operand2, 0
+		result = o.Operand1 + o.Operand2
 	case 2:
-		return o.Operand1 - o.Operand2, 0
+		result = o.Operand1 - o.Operand2
 	case 3:
-		return o.Operand1 * o.Operand2, 0
+		result = o.Operand1 * o.Operand2
 	case 4:
-		return o.Operand1 / o.Operand2, o.Operand1 % o.Operand2
+		result = o.Operand1 / o.Operand2
+		result2 = o.Operand1 % o.Operand2
+	}
+	return answer == result && answer2 == result2
+}
+
+// GetResult returns the expected result for this operation, only if an answer was already submitted.
+func (o *Operation) GetResult() (int, int) {
+	if o.Answer > 0 {
+		switch o.OperatorID {
+		case 1:
+			return o.Operand1 + o.Operand2, 0
+		case 2:
+			return o.Operand1 - o.Operand2, 0
+		case 3:
+			return o.Operand1 * o.Operand2, 0
+		case 4:
+			return o.Operand1 / o.Operand2, o.Operand1 % o.Operand2
+		}
 	}
 	return 0, 0
 }
 
+// GetAnswer returns the submitted answer for this operation.
+func (o *Operation) GetAnswer() (int, int) {
+	return o.Answer, o.Answer2
+}
+
 // NewHomeworkSession returns a new initialized homework session.
-func NewHomeworkSession(typeID int, homework Homework) *HomeworkSession {
-	return &HomeworkSession{TypeID: typeID, Homework: &homework, Operations: make([]*Operation, 0), Additions: &Results{}, Substractions: &Results{}, Multiplications: &Results{}, Divisions: &Results{}}
+func NewHomeworkSession(userID string, typeID int, homework Homework) *HomeworkSession {
+	return &HomeworkSession{UserID: userID, StartTime: time.Now(), TypeID: typeID, Homework: &homework, Operations: make([]*Operation, 0), Additions: &Results{}, Substractions: &Results{}, Multiplications: &Results{}, Divisions: &Results{}}
 }
 
 // GetCurrentOperation returns the latest operation added to this homework session.
