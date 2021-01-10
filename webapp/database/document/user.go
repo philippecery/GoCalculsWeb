@@ -15,9 +15,9 @@ type User struct {
 	LastName       string
 	Role           constant.UserRole
 	Status         constant.UserStatus
-	LastConnection *time.Time
+	LastConnection time.Time
 	Token          string
-	Expires        *time.Time
+	Expires        time.Time
 	GradeID        string
 }
 
@@ -28,7 +28,7 @@ type UnregisteredUser struct {
 	Role    constant.UserRole
 	Status  constant.UserStatus
 	Token   string
-	Expires *time.Time
+	Expires time.Time
 }
 
 // RegisteredUser document
@@ -41,7 +41,7 @@ type RegisteredUser struct {
 	LastName       string
 	Role           constant.UserRole
 	Status         constant.UserStatus
-	LastConnection *time.Time
+	LastConnection time.Time
 }
 
 // Student document
