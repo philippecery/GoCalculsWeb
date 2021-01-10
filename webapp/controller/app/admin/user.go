@@ -153,7 +153,7 @@ func UserNew(w http.ResponseWriter, r *http.Request) {
 						userID := strings.ToLower(r.PostFormValue("userId"))
 						if len(userID) <= 32 && validID.MatchString(userID) && dataaccess.IsUserIDAvailable(userID) {
 							token, expirationTime := generateUserToken(userID)
-							unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: &expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
+							unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
 							if err := dataaccess.CreateNewUser(unregisteredUser); err != nil {
 								log.Printf("User creation failed. Cause: %v", err)
 								httpsession.SetErrorMessageID("errorUserCreationFailed")
