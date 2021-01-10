@@ -23,13 +23,9 @@ func GetAllUsers() []*document.User {
 		return nil
 	}
 	var users []*document.User
-	for cursor.Next(context.TODO()) {
-		user := new(document.User)
-		if err = cursor.Decode(user); err != nil {
-			log.Printf("Unable to decode User document. Cause: %v", err)
-			return nil
-		}
-		users = append(users, user)
+	if err = cursor.All(context.TODO(), &users); err != nil {
+		log.Printf("Unable to decode User documents. Cause: %v", err)
+		return nil
 	}
 	return users
 }
@@ -46,8 +42,7 @@ func GetUserByID(id string) *document.User {
 
 // UpdateLastConnection updates the lastconnection field to current datetime for the User document where userid field is the provided id
 func UpdateLastConnection(id string) {
-	now := time.Now()
-	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": id}, bson.M{"$set": bson.M{"lastconnection": &now}}); err != nil {
+	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": id}, bson.M{"$set": bson.M{"lastconnection": time.Now()}}); err != nil {
 		log.Printf("Unable to update %s's last connection time. Cause: %v", id, err)
 	}
 }
@@ -61,13 +56,9 @@ func GetAllUnregisteredUsers() []*document.User {
 		return nil
 	}
 	var unregisteredUsers []*document.User
-	for cursor.Next(context.TODO()) {
-		unregisteredUser := new(document.User)
-		if err = cursor.Decode(unregisteredUser); err != nil {
-			log.Printf("Unable to decode User document. Cause: %v", err)
-			return nil
-		}
-		unregisteredUsers = append(unregisteredUsers, unregisteredUser)
+	if err = cursor.All(context.TODO(), &unregisteredUsers); err != nil {
+		log.Printf("Unable to decode User document. Cause: %v", err)
+		return nil
 	}
 	return unregisteredUsers
 }
@@ -81,13 +72,9 @@ func GetAllRegisteredUsers() []*document.User {
 		return nil
 	}
 	var registeredUsers []*document.User
-	for cursor.Next(context.TODO()) {
-		registeredUser := new(document.User)
-		if err = cursor.Decode(registeredUser); err != nil {
-			log.Printf("Unable to decode User document. Cause: %v", err)
-			return nil
-		}
-		registeredUsers = append(registeredUsers, registeredUser)
+	if err = cursor.All(context.TODO(), &registeredUsers); err != nil {
+		log.Printf("Unable to decode User document. Cause: %v", err)
+		return nil
 	}
 	return registeredUsers
 }
