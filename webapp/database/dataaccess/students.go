@@ -20,6 +20,7 @@ func GetAllStudents() []*document.Student {
 		log.Printf("Unable to find User document. Cause: %v", err)
 		return nil
 	}
+	defer cursor.Close(context.TODO())
 	var students []*document.Student
 	for cursor.Next(context.TODO()) {
 		student := new(document.Student)

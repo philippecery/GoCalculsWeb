@@ -39,6 +39,7 @@ func GetAllGrades() []*document.Grade {
 		log.Printf("Unable to find Grade documents. Cause: %v", err)
 		return nil
 	}
+	defer cursor.Close(context.TODO())
 	var grades []*document.Grade
 	for cursor.Next(context.TODO()) {
 		grade := new(document.Grade)
