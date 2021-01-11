@@ -133,5 +133,8 @@
     "errorGradeCreationFailed": "Grade creation failed.",
     "errorGradeUpdateFailed": "Grade update failed.",
     "errorGradeDeletionFailed": "Grade deletion failed.",
-    "errorGradeStudentUpdateFailed": "Grade update failed for selected students."
+    "errorGradeStudentUpdateFailed": "Grade update failed for selected students.",
+
+    "errorNoHomeworkOfType1": "You don't have mental math operations assigned to you.",
+    "errorNoHomeworkOfType2": "You don't have column form operations assigned to you."
 }

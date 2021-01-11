@@ -17,6 +17,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			vd := app.NewViewData(w, r)
 			vd.SetUser(user)
+			vd.SetErrorMessage(httpsession.GetErrorMessageID())
 			vd.SetViewData("Grade", dataaccess.GetStudentByID(user.UserID).Grade)
 			vd.SetDefaultLocalizedMessages().
 				AddLocalizedMessage("mentalmath").

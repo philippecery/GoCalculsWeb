@@ -133,5 +133,8 @@
 
     "errorGradeCreationFailed": "La création du niveau a échoué.",
     "errorGradeUpdateFailed": "La modification du niveau a échoué.",
-    "errorGradeDeletionFailed": "La suppression de ce niveau a échoué."
+    "errorGradeDeletionFailed": "La suppression de ce niveau a échoué.",
+
+    "errorNoHomeworkOfType1": "Tu n'as pas de calculs mentaux assignés.",
+    "errorNoHomeworkOfType2": "Tu n'as pas d'opérations posées assignées."
 }

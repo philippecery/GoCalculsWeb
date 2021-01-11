@@ -57,34 +57,39 @@ func Operations(w http.ResponseWriter, r *http.Request) {
 						case 2:
 							homework = grade.ColumnForm
 						}
-						vd.SetViewData("Homework", homework)
-						vd.SetViewData("Keyboards", keyboards)
-						vd.SetDefaultLocalizedMessages().
-							AddLocalizedMessage("check").
-							AddLocalizedMessage("continue").
-							AddLocalizedMessage("restart").
-							AddLocalizedMessage("results").
-							AddLocalizedMessage("retry").
-							AddLocalizedMessage("quit").
-							AddLocalizedMessage("remainder").
-							AddLocalizedMessage("close").
-							AddLocalizedMessage("timeout").
-							AddLocalizedMessage("success").
-							AddLocalizedMessage("failure").
-							AddLocalizedMessage("errDisabled").
-							AddLocalizedMessage("logout")
-						httpsession.SetAttribute("HomeworkSession", document.NewHomeworkSession(user.UserID, typeID, *homework))
-						httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
-						if err := app.Templates.ExecuteTemplate(w, "operations.html.tpl", vd); err != nil {
-							log.Fatalf("Error while executing template 'operations': %v\n", err)
+						if homework.NumberOfOperations() > 0 {
+							vd.SetViewData("Homework", homework)
+							vd.SetViewData("Keyboards", keyboards)
+							vd.SetDefaultLocalizedMessages().
+								AddLocalizedMessage("check").
+								AddLocalizedMessage("continue").
+								AddLocalizedMessage("restart").
+								AddLocalizedMessage("results").
+								AddLocalizedMessage("retry").
+								AddLocalizedMessage("quit").
+								AddLocalizedMessage("remainder").
+								AddLocalizedMessage("close").
+								AddLocalizedMessage("timeout").
+								AddLocalizedMessage("success").
+								AddLocalizedMessage("failure").
+								AddLocalizedMessage("errDisabled").
+								AddLocalizedMessage("logout")
+							httpsession.SetAttribute("HomeworkSession", document.NewHomeworkSession(user.UserID, typeID, *homework))
+							httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
+							if err := app.Templates.ExecuteTemplate(w, "operations.html.tpl", vd); err != nil {
+								log.Fatalf("Error while executing template 'operations': %v\n", err)
+							}
+							return
 						}
-						return
+						log.Printf("/student/operations: Student %s has no operations of type %d assigned\n", user.UserID, typeID)
+						httpsession.SetErrorMessageID("errorNoHomeworkOfType" + r.FormValue("type"))
+					} else {
+						log.Printf("/student/operations: Student %s is not assign a grade\n", user.UserID)
 					}
-					log.Printf("/student/operations: Student %s is not assign a grade\n", user.UserID)
 					http.Redirect(w, r, "/student/dashboard", http.StatusFound)
 					return
 				}
-				log.Printf("/student/operations: Invalid operation type %s\n", r.FormValue("type"))
+				log.Printf("/student/operations: Invalid homework type %s\n", r.FormValue("type"))
 			} else {
 				log.Printf("/student/operations: Invalid method %s\n", r.Method)
 			}

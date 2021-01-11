@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ .lang }}">
 	{{ template "header.html" . }}
+	{{ template "error.html" . }}
 	<div class="text-center col-sm-12">
 		<div><h2>{{ .User.FirstName }}</h2></div>
 		<div class="well well-lg center block">
