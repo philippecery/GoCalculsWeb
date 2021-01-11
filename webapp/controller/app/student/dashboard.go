@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/philippecery/maths/webapp/controller/app"
+	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -16,6 +17,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			vd := app.NewViewData(w, r)
 			vd.SetUser(user)
+			vd.SetViewData("Grade", dataaccess.GetStudentByID(user.UserID).Grade)
 			vd.SetDefaultLocalizedMessages().
 				AddLocalizedMessage("mentalmath").
 				AddLocalizedMessage("columnform").
