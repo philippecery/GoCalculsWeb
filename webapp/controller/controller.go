@@ -43,6 +43,7 @@ func SetupRoutes() {
 
 	handleFunc("/student/dashboard", noCache(student.Dashboard))
 	handleFunc("/student/operations", noCache(student.Operations))
+	handleFunc("/student/results", noCache(student.Results))
 
 	handleFunc("/websocket", api.Endpoints)
 }
