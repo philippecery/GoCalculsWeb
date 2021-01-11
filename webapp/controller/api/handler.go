@@ -56,8 +56,15 @@ func Endpoints(w http.ResponseWriter, r *http.Request) {
 											err = socket.answer()
 										case "toggle":
 											err = socket.toggle()
-										case "summary":
-											err = socket.summary()
+										case "end":
+											err = socket.end()
+										case "results":
+											page, _ := socket.message["page"].(int)
+											err = socket.results(page)
+										case "details":
+											if sessionID, isString := socket.message["sessionID"].(string); isString {
+												err = socket.details(sessionID)
+											}
 										default:
 											err = fmt.Errorf("/websocket: Invalid request type: %s", requestType)
 										}

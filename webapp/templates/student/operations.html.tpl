@@ -159,7 +159,7 @@
                     $('button#submit').addClass('hidden');
                     $('div#next').addClass('hidden');
                     $('div#end').removeClass('hidden');
-                    summary();
+                    end();
                 }
             }
             updateClock();
@@ -278,7 +278,7 @@
             $('button#summary').click(function(event) {
                 $('#results').modal('show');
             });
-            function summary() {
+            function end() {
                 if (timeout) {
                     $('div#resultsOperations').append(
                         $('<p class="lead text-center text-danger"/>').append(
@@ -288,7 +288,7 @@
                         )
                     )
                 }
-                socket.send(JSON.stringify({ request: "summary", timeout: timeout, token: token }));
+                socket.send(JSON.stringify({ request: "end", timeout: timeout, token: token }));
                 $('#results').modal('show');
             }
 

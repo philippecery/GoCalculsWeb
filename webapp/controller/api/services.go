@@ -98,7 +98,7 @@ func (s *socket) toggle() error {
 	return s.emitErrorMessage("errorGenericMessage")
 }
 
-func (s *socket) summary() error {
+func (s *socket) end() error {
 	if session := s.getHomeworkSession(); session != nil {
 		var timeout bool
 		var err error
@@ -111,94 +111,132 @@ func (s *socket) summary() error {
 				}
 			}
 			dataaccess.StoreHomeworkSession(session)
-			if nbTotal := session.Homework.NbAdditions; nbTotal > 0 {
-				if err = s.emitTextMessage(map[string]interface{}{
-					"response":      "summary",
-					"operationName": s.getLocalizedMessage("additions"),
-					"nbTotal":       nbTotal,
-					"nbGood":        session.Additions.NbGood,
-					"nbWrong":       session.Additions.NbWrong,
-					"operationsTodo": s.getLocalizedMessage("summaryOperationsTodo", nbTotal, map[string]interface{}{
-						"nbTotal":        nbTotal,
-						"operationsType": s.getLocalizedMessage("Addition", nbTotal),
-					}),
-					"operationsGood": s.getLocalizedMessage("summaryOperationsGood", session.Additions.NbGood, map[string]interface{}{
-						"nbGood": session.Additions.NbGood,
-					}),
-					"operationsWrong": s.getLocalizedMessage("summaryOperationsWrong", session.Additions.NbWrong, map[string]interface{}{
-						"nbWrong": session.Additions.NbWrong,
-					}),
-				}); err != nil {
-					log.Printf("Unable to emit response \"summary\" for operation \"additions\". Cause: %s\n", err)
-				}
-			}
-			if nbTotal := session.Homework.NbSubstractions; nbTotal > 0 {
-				if err = s.emitTextMessage(map[string]interface{}{
-					"response":      "summary",
-					"operationName": s.getLocalizedMessage("substractions"),
-					"nbTotal":       nbTotal,
-					"nbGood":        session.Substractions.NbGood,
-					"nbWrong":       session.Substractions.NbWrong,
-					"operationsTodo": s.getLocalizedMessage("summaryOperationsTodo", nbTotal, map[string]interface{}{
-						"nbTotal":        nbTotal,
-						"operationsType": s.getLocalizedMessage("Substraction", nbTotal),
-					}),
-					"operationsGood": s.getLocalizedMessage("summaryOperationsGood", session.Substractions.NbGood, map[string]interface{}{
-						"nbGood": session.Substractions.NbGood,
-					}),
-					"operationsWrong": s.getLocalizedMessage("summaryOperationsWrong", session.Substractions.NbWrong, map[string]interface{}{
-						"nbWrong": session.Substractions.NbWrong,
-					}),
-				}); err != nil {
-					log.Printf("Unable to emit response \"summary\" for operation \"substractions\". Cause: %s\n", err)
-				}
-			}
-			if nbTotal := session.Homework.NbMultiplications; nbTotal > 0 {
-				if err = s.emitTextMessage(map[string]interface{}{
-					"response":      "summary",
-					"operationName": s.getLocalizedMessage("multiplications"),
-					"nbTotal":       nbTotal,
-					"nbGood":        session.Multiplications.NbGood,
-					"nbWrong":       session.Multiplications.NbWrong,
-					"operationsTodo": s.getLocalizedMessage("summaryOperationsTodo", nbTotal, map[string]interface{}{
-						"nbTotal":        nbTotal,
-						"operationsType": s.getLocalizedMessage("Multiplication", nbTotal),
-					}),
-					"operationsGood": s.getLocalizedMessage("summaryOperationsGood", session.Multiplications.NbGood, map[string]interface{}{
-						"nbGood": session.Multiplications.NbGood,
-					}),
-					"operationsWrong": s.getLocalizedMessage("summaryOperationsWrong", session.Multiplications.NbWrong, map[string]interface{}{
-						"nbWrong": session.Multiplications.NbWrong,
-					}),
-				}); err != nil {
-					log.Printf("Unable to emit response \"summary\" for operation \"multiplications\". Cause: %s\n", err)
-				}
-			}
-			if nbTotal := session.Homework.NbDivisions; nbTotal > 0 {
-				if err = s.emitTextMessage(map[string]interface{}{
-					"response":      "summary",
-					"operationName": s.getLocalizedMessage("divisions"),
-					"nbTotal":       nbTotal,
-					"nbGood":        session.Divisions.NbGood,
-					"nbWrong":       session.Divisions.NbWrong,
-					"operationsTodo": s.getLocalizedMessage("summaryOperationsTodo", nbTotal, map[string]interface{}{
-						"nbTotal":        nbTotal,
-						"operationsType": s.getLocalizedMessage("Division", nbTotal),
-					}),
-					"operationsGood": s.getLocalizedMessage("summaryOperationsGood", session.Divisions.NbGood, map[string]interface{}{
-						"nbGood": session.Divisions.NbGood,
-					}),
-					"operationsWrong": s.getLocalizedMessage("summaryOperationsWrong", session.Divisions.NbWrong, map[string]interface{}{
-						"nbWrong": session.Divisions.NbWrong,
-					}),
-				}); err != nil {
-					log.Printf("Unable to emit response \"summary\" for operation \"divisions\". Cause: %s\n", err)
-				}
-			}
+			s.summary(session)
 			return nil
 		}
+		log.Printf("/websocket[end]: Invalid timeout value")
 	} else {
-		log.Printf("/websocket[summary]: No HomeworkSession found in session")
+		log.Printf("/websocket[end]: No HomeworkSession found in session")
 	}
 	return s.emitErrorMessage("errorGenericMessage")
+}
+
+func (s *socket) results(page int) error {
+	userID := s.session.GetAuthenticatedUser().UserID
+	response := map[string]interface{}{"response": "results"}
+	if homeworkSessions := dataaccess.GetSessionsByUserID(userID, page); homeworkSessions != nil {
+		results := make([]interface{}, 0)
+		for _, homeworkSession := range homeworkSessions {
+			result := map[string]interface{}{
+				"date":              homeworkSession.StartTime,
+				"type":              homeworkSession.TypeID,
+				"nbAdditions":       homeworkSession.Homework.NbAdditions,
+				"nbSubstractions":   homeworkSession.Homework.NbSubstractions,
+				"nbMultiplications": homeworkSession.Homework.NbMultiplications,
+				"nbDivisions":       homeworkSession.Homework.NbDivisions,
+				"duration":          homeworkSession.EndTime.Sub(homeworkSession.StartTime),
+				"status":            homeworkSession.Status,
+			}
+			results = append(results, result)
+		}
+	} else {
+		response["message"] = s.getLocalizedMessage("noResultsFound")
+	}
+	return s.emitTextMessage(response)
+}
+
+func (s *socket) details(sessionID string) error {
+	if session := dataaccess.GetSessionByID(sessionID); session != nil {
+		s.summary(session)
+		return nil
+	}
+	log.Printf("/websocket[end]: HomeworkSession %s not found in DB", sessionID)
+	return s.emitErrorMessage("errorGenericMessage")
+}
+
+func (s *socket) summary(session *document.HomeworkSession) {
+	if nbTotal := session.Homework.NbAdditions; nbTotal > 0 {
+		if err := s.emitTextMessage(map[string]interface{}{
+			"response":      "summary",
+			"operationName": s.getLocalizedMessage("additions"),
+			"nbTotal":       nbTotal,
+			"nbGood":        session.Additions.NbGood,
+			"nbWrong":       session.Additions.NbWrong,
+			"operationsTodo": s.getLocalizedMessage("summaryOperationsTodo", nbTotal, map[string]interface{}{
+				"nbTotal":        nbTotal,
+				"operationsType": s.getLocalizedMessage("Addition", nbTotal),
+			}),
+			"operationsGood": s.getLocalizedMessage("summaryOperationsGood", session.Additions.NbGood, map[string]interface{}{
+				"nbGood": session.Additions.NbGood,
+			}),
+			"operationsWrong": s.getLocalizedMessage("summaryOperationsWrong", session.Additions.NbWrong, map[string]interface{}{
+				"nbWrong": session.Additions.NbWrong,
+			}),
+		}); err != nil {
+			log.Printf("Unable to emit response \"summary\" for operation \"additions\". Cause: %s\n", err)
+		}
+	}
+	if nbTotal := session.Homework.NbSubstractions; nbTotal > 0 {
+		if err := s.emitTextMessage(map[string]interface{}{
+			"response":      "summary",
+			"operationName": s.getLocalizedMessage("substractions"),
+			"nbTotal":       nbTotal,
+			"nbGood":        session.Substractions.NbGood,
+			"nbWrong":       session.Substractions.NbWrong,
+			"operationsTodo": s.getLocalizedMessage("summaryOperationsTodo", nbTotal, map[string]interface{}{
+				"nbTotal":        nbTotal,
+				"operationsType": s.getLocalizedMessage("Substraction", nbTotal),
+			}),
+			"operationsGood": s.getLocalizedMessage("summaryOperationsGood", session.Substractions.NbGood, map[string]interface{}{
+				"nbGood": session.Substractions.NbGood,
+			}),
+			"operationsWrong": s.getLocalizedMessage("summaryOperationsWrong", session.Substractions.NbWrong, map[string]interface{}{
+				"nbWrong": session.Substractions.NbWrong,
+			}),
+		}); err != nil {
+			log.Printf("Unable to emit response \"summary\" for operation \"substractions\". Cause: %s\n", err)
+		}
+	}
+	if nbTotal := session.Homework.NbMultiplications; nbTotal > 0 {
+		if err := s.emitTextMessage(map[string]interface{}{
+			"response":      "summary",
+			"operationName": s.getLocalizedMessage("multiplications"),
+			"nbTotal":       nbTotal,
+			"nbGood":        session.Multiplications.NbGood,
+			"nbWrong":       session.Multiplications.NbWrong,
+			"operationsTodo": s.getLocalizedMessage("summaryOperationsTodo", nbTotal, map[string]interface{}{
+				"nbTotal":        nbTotal,
+				"operationsType": s.getLocalizedMessage("Multiplication", nbTotal),
+			}),
+			"operationsGood": s.getLocalizedMessage("summaryOperationsGood", session.Multiplications.NbGood, map[string]interface{}{
+				"nbGood": session.Multiplications.NbGood,
+			}),
+			"operationsWrong": s.getLocalizedMessage("summaryOperationsWrong", session.Multiplications.NbWrong, map[string]interface{}{
+				"nbWrong": session.Multiplications.NbWrong,
+			}),
+		}); err != nil {
+			log.Printf("Unable to emit response \"summary\" for operation \"multiplications\". Cause: %s\n", err)
+		}
+	}
+	if nbTotal := session.Homework.NbDivisions; nbTotal > 0 {
+		if err := s.emitTextMessage(map[string]interface{}{
+			"response":      "summary",
+			"operationName": s.getLocalizedMessage("divisions"),
+			"nbTotal":       nbTotal,
+			"nbGood":        session.Divisions.NbGood,
+			"nbWrong":       session.Divisions.NbWrong,
+			"operationsTodo": s.getLocalizedMessage("summaryOperationsTodo", nbTotal, map[string]interface{}{
+				"nbTotal":        nbTotal,
+				"operationsType": s.getLocalizedMessage("Division", nbTotal),
+			}),
+			"operationsGood": s.getLocalizedMessage("summaryOperationsGood", session.Divisions.NbGood, map[string]interface{}{
+				"nbGood": session.Divisions.NbGood,
+			}),
+			"operationsWrong": s.getLocalizedMessage("summaryOperationsWrong", session.Divisions.NbWrong, map[string]interface{}{
+				"nbWrong": session.Divisions.NbWrong,
+			}),
+		}); err != nil {
+			log.Printf("Unable to emit response \"summary\" for operation \"divisions\". Cause: %s\n", err)
+		}
+	}
 }
