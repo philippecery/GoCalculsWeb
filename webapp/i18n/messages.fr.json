@@ -115,6 +115,17 @@
         "other": "{{ .nbWrong }} sont incorrectes"
     },
 
+    "allSessions": "Tous",
+    "allTypes": "Tous",
+    "personalBest": "Record Personnel",
+    "gradeBest": "Record du Niveau",
+    "startDate": "Date",
+    "duration": "Durée",
+    "homework": "Devoir",
+    "newer": "Plus récents",
+    "older": "Plus anciens",
+    "noResultsFound": "Aucun résultats",
+
     "errorGenericMessage": "Une erreur est survenue. Veuillez contacter l'administrateur.",
     "errDisabled": "Cette fonctionalité n'est pas disponible sur cette page.",
 

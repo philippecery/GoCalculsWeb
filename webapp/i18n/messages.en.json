@@ -114,6 +114,18 @@
         "one": "{{ .nbWrong }} is not",
         "other": "{{ .nbWrong }} are not"
     },
+
+    "allSessions": "All",
+    "allTypes": "All",
+    "personalBest": "Personal Best",
+    "gradeBest": "Grade Best",
+    "startDate": "Date",
+    "duration": "Duration",
+    "homework": "Homework",
+    "newer": "Newer",
+    "older": "Older",
+    "noResultsFound": "No results found",
+
     "errorGenericMessage": "An error occurred. Please contact the administrator.",
     "errDisabled": "This feature is not available in this page.",
 
