@@ -3,12 +3,14 @@ package document
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/philippecery/maths/webapp/constant"
 )
 
 // HomeworkSession represents a homwework session.
 // Contains the homework assigned by the teacher, the operations generated, the answers submitted, and the results per operator.
 type HomeworkSession struct {
+	SessionID       string
 	UserID          string
 	StartTime       time.Time
 	EndTime         time.Time
@@ -19,6 +21,7 @@ type HomeworkSession struct {
 	Substractions   *Results
 	Multiplications *Results
 	Divisions       *Results
+	Status          constant.HomeworkSessionStatus
 }
 
 // Results contains the number of good and wrong answers submitted per operator during a session
@@ -32,7 +35,7 @@ type Operation struct {
 	OperatorID int
 	Operand1   int
 	Operand2   int
-	Status     constant.Status
+	Status     constant.OperationStatus
 	Answer     int
 	Answer2    int
 }
@@ -80,7 +83,7 @@ func (o *Operation) GetAnswer() (int, int) {
 
 // NewHomeworkSession returns a new initialized homework session.
 func NewHomeworkSession(userID string, typeID int, homework Homework) *HomeworkSession {
-	return &HomeworkSession{UserID: userID, StartTime: time.Now(), TypeID: typeID, Homework: &homework, Operations: make([]*Operation, 0), Additions: &Results{}, Substractions: &Results{}, Multiplications: &Results{}, Divisions: &Results{}}
+	return &HomeworkSession{SessionID: uuid.New().String(), UserID: userID, StartTime: time.Now(), TypeID: typeID, Homework: &homework, Operations: make([]*Operation, 0), Additions: &Results{}, Substractions: &Results{}, Multiplications: &Results{}, Divisions: &Results{}}
 }
 
 // GetCurrentOperation returns the latest operation added to this homework session.

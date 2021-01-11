@@ -1,11 +1,22 @@
 package constant
 
-// Status type
-type Status uint8
+// OperationStatus type
+type OperationStatus uint8
+
+// HomeworkSessionStatus type
+type HomeworkSessionStatus uint8
 
 // List of operation statuses
 const (
-	Todo Status = iota
-	Good
+	Todo OperationStatus = iota
 	Wrong
+	Good
+)
+
+// List of homework statuses
+const (
+	Cancel HomeworkSessionStatus = iota
+	Failed
+	Timeout
+	Success
 )
