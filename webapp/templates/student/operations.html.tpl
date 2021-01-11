@@ -309,10 +309,6 @@
                             textClass = 'text-success';
                         }
                     }
-                    //text = msg.nbGood + ' ' + pluriel('correcte', msg.nbGood) + ', ' + msg.nbWrong + ' ' + pluriel('erreur', msg.nbWrong);
-                    //$('div#resultsOperations').append(
-                    //    $('<p class="text-center ' + textClass + '"/>').html(msg.nbTotal + ' ' + msg.operationName + ' &agrave; faire, ' + text)
-                    //);
                     $('div#resultsOperations').append(
                         $('<p class="text-center ' + textClass + '"/>').html(msg.operationsTodo + ', ' + msg.operationsGood + ', ' + msg.operationsWrong)
                     );
