@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// StoreHomeworkSession stores the current homework session
 func StoreHomeworkSession(newSession *document.HomeworkSession) error {
 	if _, err := collection.Sessions.InsertOne(context.TODO(), newSession); err != nil {
 		return errors.New("HomeworkSession creation failed")
@@ -19,6 +20,7 @@ func StoreHomeworkSession(newSession *document.HomeworkSession) error {
 	return nil
 }
 
+// GetSessionsByUserID returns the homework sessions for the specified user
 func GetSessionsByUserID(userID string) []*document.HomeworkSession {
 	var err error
 	var cursor *mongo.Cursor
