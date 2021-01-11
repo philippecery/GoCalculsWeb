@@ -115,16 +115,16 @@
         "other": "{{ .nbWrong }} sont incorrectes"
     },
 
-    "allSessions": "Tous",
+    "allStatuses": "Tous",
     "allTypes": "Tous",
     "personalBest": "Record Personnel",
     "gradeBest": "Record du Niveau",
     "startDate": "Date",
     "duration": "Durée",
-    "homework": "Devoir",
-    "newer": "Plus récents",
-    "older": "Plus anciens",
-    "noResultsFound": "Aucun résultats",
+    "previous": "Plus récents",
+    "next": "Plus anciens",
+    "noResults": "Aucun résultats",
+    "loading": "Chargement en cours...",
 
     "errorGenericMessage": "Une erreur est survenue. Veuillez contacter l'administrateur.",
     "errDisabled": "Cette fonctionalité n'est pas disponible sur cette page.",

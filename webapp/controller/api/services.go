@@ -140,7 +140,7 @@ func (s *socket) results(page int) error {
 			results = append(results, result)
 		}
 	} else {
-		response["message"] = s.getLocalizedMessage("noResultsFound")
+		response["message"] = s.getLocalizedMessage("noResults")
 	}
 	return s.emitTextMessage(response)
 }
