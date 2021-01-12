@@ -27,7 +27,7 @@ const nbSessionsPerPage = 10
 func GetSessionsByUserID(userID string, page int) ([]*document.HomeworkSession, int64) {
 	var err error
 	var cursor *mongo.Cursor
-	findOptions := options.Find().SetSort(bson.M{"startdate": -1}).SetLimit(nbSessionsPerPage).SetSkip(int64(page * nbSessionsPerPage))
+	findOptions := options.Find().SetSort(bson.M{"starttime": -1}).SetLimit(nbSessionsPerPage).SetSkip(int64((page - 1) * nbSessionsPerPage))
 	if cursor, err = collection.Sessions.Find(context.TODO(), bson.M{"userid": userID}, findOptions); err != nil {
 		log.Printf("Unable to find HomeworkSession documents for user %s. Cause: %v", userID, err)
 		return nil, 0
