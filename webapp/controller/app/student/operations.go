@@ -94,7 +94,7 @@ func Operations(w http.ResponseWriter, r *http.Request) {
 				log.Printf("/student/operations: Invalid method %s\n", r.Method)
 			}
 		} else {
-			log.Println("/student/operations: CSRF token not found in session")
+			log.Println("/student/operations: Unable to generate a new CSWH token")
 		}
 	} else {
 		log.Println("/student/operations: User is not authenticated or does not have Student role")
