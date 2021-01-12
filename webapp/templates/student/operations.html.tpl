@@ -292,7 +292,7 @@
                 $('#results').modal('show');
             }
 
-            function processResultsResponse(msg) {
+            function processSummaryResponse(msg) {
                 log(msg.operationName + ' msg.nbTotal = ' + msg.nbTotal);
                 if(msg.nbTotal > 0) {
                     var textClass, comment;
@@ -368,7 +368,7 @@
                         processToggleResponse(msg);
                         break;
                     case "summary":
-                        processResultsResponse(msg);
+                        processSummaryResponse(msg);
                         break;
                 }
             }
