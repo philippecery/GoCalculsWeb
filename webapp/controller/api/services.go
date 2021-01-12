@@ -100,48 +100,52 @@ func (s *socket) toggle() error {
 
 func (s *socket) end() error {
 	if session := s.getHomeworkSession(); session != nil {
+		session.Status = constant.Cancel
 		var timeout bool
 		var err error
 		if timeout, err = s.getBool("timeout"); err == nil {
 			if timeout {
-				operation := session.GetCurrentOperation()
-				if operation.Status == constant.Todo {
-					operation.Status = constant.Wrong
-					session.NbUpdate(false, operation.OperatorID)
+				session.Status = constant.Timeout
+			} else {
+				session.Status = constant.Success
+				for o := len(session.Operations) - 1; o >= 0; o-- {
+					if session.Operations[o].Status == constant.Wrong {
+						session.Status = constant.Failed
+						break
+					}
 				}
 			}
-			dataaccess.StoreHomeworkSession(session)
-			s.summary(session)
-			return nil
 		}
-		log.Printf("/websocket[end]: Invalid timeout value")
-	} else {
-		log.Printf("/websocket[end]: No HomeworkSession found in session")
+		dataaccess.StoreHomeworkSession(session)
+		s.summary(session)
+		return nil
 	}
+	log.Printf("/websocket[end]: No HomeworkSession found in session")
 	return s.emitErrorMessage("errorGenericMessage")
 }
 
 func (s *socket) results(page int) error {
 	userID := s.session.GetAuthenticatedUser().UserID
-	response := map[string]interface{}{"response": "results"}
-	if homeworkSessions := dataaccess.GetSessionsByUserID(userID, page); homeworkSessions != nil {
-		results := make([]interface{}, 0)
+	response := map[string]interface{}{"response": "results", "nbTotal": 0}
+	sessions := make([]interface{}, 0)
+	if homeworkSessions, nbTotal := dataaccess.GetSessionsByUserID(userID, page); homeworkSessions != nil {
+		response["nbTotal"] = nbTotal
 		for _, homeworkSession := range homeworkSessions {
-			result := map[string]interface{}{
+			session := map[string]interface{}{
+				"sessionID":         homeworkSession.SessionID,
 				"date":              homeworkSession.StartTime,
-				"type":              homeworkSession.TypeID,
+				"type":              constant.HomeworkTypes[homeworkSession.TypeID].Logo,
 				"nbAdditions":       homeworkSession.Homework.NbAdditions,
 				"nbSubstractions":   homeworkSession.Homework.NbSubstractions,
 				"nbMultiplications": homeworkSession.Homework.NbMultiplications,
 				"nbDivisions":       homeworkSession.Homework.NbDivisions,
 				"duration":          homeworkSession.EndTime.Sub(homeworkSession.StartTime),
-				"status":            homeworkSession.Status,
+				"status":            homeworkSession.Status.Logo(),
 			}
-			results = append(results, result)
+			sessions = append(sessions, session)
 		}
-	} else {
-		response["message"] = s.getLocalizedMessage("noResults")
 	}
+	response["sessions"] = sessions
 	return s.emitTextMessage(response)
 }
 

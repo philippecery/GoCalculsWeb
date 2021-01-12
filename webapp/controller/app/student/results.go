@@ -13,28 +13,35 @@ import (
 func Results(w http.ResponseWriter, r *http.Request) {
 	httpsession := session.GetSession(w, r)
 	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
-		if r.Method == "GET" {
-			vd := app.NewViewData(w, r)
-			vd.SetUser(user)
-			vd.SetDefaultLocalizedMessages().
-				AddLocalizedMessage("results").
-				AddLocalizedMessage("allStatuses").
-				AddLocalizedMessage("allTypes").
-				AddLocalizedMessage("personalBest").
-				AddLocalizedMessage("gradeBest").
-				AddLocalizedMessage("startDate").
-				AddLocalizedMessage("gradeName").
-				AddLocalizedMessage("duration").
-				AddLocalizedMessage("noResults").
-				AddLocalizedMessage("loading").
-				AddLocalizedMessage("previous").
-				AddLocalizedMessage("next").
-				AddLocalizedMessage("quit").
-				AddLocalizedMessage("logout")
-			if err := app.Templates.ExecuteTemplate(w, "results.html.tpl", vd); err != nil {
-				log.Fatalf("Error while executing template 'results': %v\n", err)
+		if token := httpsession.NewCSWHToken(); token != "" {
+			if r.Method == "GET" {
+				vd := app.NewViewData(w, r)
+				vd.SetUser(user)
+				vd.SetToken(token)
+				vd.SetDefaultLocalizedMessages().
+					AddLocalizedMessage("results").
+					AddLocalizedMessage("allStatuses").
+					AddLocalizedMessage("allTypes").
+					AddLocalizedMessage("personalBest").
+					AddLocalizedMessage("gradeBest").
+					AddLocalizedMessage("startDate").
+					AddLocalizedMessage("gradeName").
+					AddLocalizedMessage("duration").
+					AddLocalizedMessage("noResults").
+					AddLocalizedMessage("loading").
+					AddLocalizedMessage("previous").
+					AddLocalizedMessage("next").
+					AddLocalizedMessage("close").
+					AddLocalizedMessage("quit").
+					AddLocalizedMessage("logout")
+				if err := app.Templates.ExecuteTemplate(w, "results.html.tpl", vd); err != nil {
+					log.Fatalf("Error while executing template 'results': %v\n", err)
+				}
+				return
 			}
-			return
+			log.Printf("/student/results: Invalid method %s\n", r.Method)
+		} else {
+			log.Println("/student/results: Unable to generate a new CSWH token")
 		}
 		log.Printf("/student/results: Invalid method %s\n", r.Method)
 	} else {

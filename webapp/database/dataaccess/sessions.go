@@ -23,21 +23,26 @@ func StoreHomeworkSession(newSession *document.HomeworkSession) error {
 
 const nbSessionsPerPage = 10
 
-// GetSessionsByUserID returns the homework sessions for the specified user
-func GetSessionsByUserID(userID string, page int) []*document.HomeworkSession {
+// GetSessionsByUserID returns the paginated homework sessions for the specified user, along with the total number of sessions
+func GetSessionsByUserID(userID string, page int) ([]*document.HomeworkSession, int64) {
 	var err error
 	var cursor *mongo.Cursor
 	findOptions := options.Find().SetSort(bson.M{"startdate": -1}).SetLimit(nbSessionsPerPage).SetSkip(int64(page * nbSessionsPerPage))
 	if cursor, err = collection.Sessions.Find(context.TODO(), bson.M{"userid": userID}, findOptions); err != nil {
-		log.Printf("Unable to find HomeworkSession documents. Cause: %v", err)
-		return nil
+		log.Printf("Unable to find HomeworkSession documents for user %s. Cause: %v", userID, err)
+		return nil, 0
 	}
 	var homeworkSessions []*document.HomeworkSession
 	if err = cursor.All(context.TODO(), &homeworkSessions); err != nil {
 		log.Printf("Unable to decode HomeworkSession documents. Cause: %v", err)
-		return nil
+		return nil, 0
 	}
-	return homeworkSessions
+	var nbTotal int64
+	if nbTotal, err = collection.Sessions.CountDocuments(context.TODO(), bson.M{"userid": userID}); err != nil {
+		log.Printf("Unable to count HomeworkSession documents. Cause: %v", err)
+		return nil, 0
+	}
+	return homeworkSessions, nbTotal
 }
 
 // GetSessionByID returns the homework sessions for the specified user

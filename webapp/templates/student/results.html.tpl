@@ -29,7 +29,6 @@
 					<tr>
 						<th>{{ .i18n_startDate }}</th>
 						<th><span class="glyphicon glyphicon-hourglass"></span>/<span class="glyphicon glyphicon-pencil"></span></th>
-						<th>{{ .i18n_gradeName }}</th>
 						<th>+</th>
 						<th>-</th> 
 						<th>*</th>
@@ -99,25 +98,25 @@
 			var status = -1;
 			var page = 1;
 
-			socket.on('displayResults', function(msg) {
+			function processResultsResponse(msg) {
 				var tbody = $('tbody#resultsData');
 				tbody.html('');
 				var sessions = msg.sessions;
 				for (var item in sessions) {
 					var result = sessions[item];
 					var $tr = $('<tr/>').append(
-							$('<td/>').text(result.session_date),
-							$('<td/>').html('<span class="glyphicon glyphicon-'+result.homeworkType_logo+'"></span>'),
-							$('<td/>').text(result.nb_additions),
-							$('<td/>').text(result.nb_soustractions),
-							$('<td/>').text(result.nb_multiplications),
-							$('<td/>').text(result.nb_divisions),
-							$('<td/>').text(result.duration.minutes+'mn '+result.duration.seconds+'s'),
-							$('<td/>').html('<span class="glyphicon glyphicon-'+result.status_logo+'"></span>'),
-							$('<td/>').html('<button type="button" class="btn btn-default details" session_id="' + result.session_id + '"><span class="glyphicon glyphicon-th-list"></span></button>'));
+							$('<td/>').text(result.date),
+							$('<td/>').html('<span class="glyphicon glyphicon-'+result.type+'"></span>'),
+							$('<td/>').text(result.nbAdditions),
+							$('<td/>').text(result.nbSubstractions),
+							$('<td/>').text(result.nbMultiplications),
+							$('<td/>').text(result.nbDivisions),
+							$('<td/>').text(result.duration),
+							$('<td/>').html('<span class="glyphicon glyphicon-'+result.status+'"></span>'),
+							$('<td/>').html('<button type="button" class="btn btn-default details" sessionID="' + result.sessionID + '"><span class="glyphicon glyphicon-th-list"></span></button>'));
 					tbody.append($tr);
 				}
-				nbTotal = msg.nb_total;
+				nbTotal = msg.nbTotal;
 				if (page == 1) {
 					$('li.previous').addClass('disabled');
 				} else {
@@ -134,9 +133,9 @@
 				} else {
 					$('div#noresults').removeClass('hidden');
 				}
-			});
+			}
 
-			function processResultsResponse(msg) {
+			function processSummaryResponse(msg) {
 				log(msg.operationName + ' msg.nbTotal = ' + msg.nbTotal);
 				if(msg.nbTotal > 0) {
 					var textClass, comment;
@@ -211,9 +210,9 @@
 			$('tbody#resultsData').on('click', 'button.details', function(event) {
 				details($(this).attr('sessionID'));
 			});
-			function details(session_id) {
+			function details(sessionID) {
 				$('div#resultsOperations').text('');
-				socket.send(JSON.stringify({ request: "details", sessionID: session_id, token: token }));
+				socket.send(JSON.stringify({ request: "details", sessionID: sessionID, token: token }));
 				$('div#results').modal('show');
 			}
 			$('button#exit').click(function(event) {
@@ -233,8 +232,11 @@
 			socket.onmessage = function(event) {
 				var msg = JSON.parse(event.data);
 				switch(msg.response) {
-					case "summary":
+					case "results":
 						processResultsResponse(msg);
+						break;
+					case "summary":
+						processSummaryResponse(msg);
 						break;
 				}
 			}
