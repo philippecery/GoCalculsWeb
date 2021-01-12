@@ -29,14 +29,28 @@ func (s *socket) getString(key string) (string, error) {
 	if val, isString := s.message[key].(string); isString {
 		return val, nil
 	}
-	return "", fmt.Errorf("Entry %s does not exist or is nor a string", key)
+	return "", fmt.Errorf("Entry %s does not exist or is not a string", key)
 }
 
 func (s *socket) getBool(key string) (bool, error) {
 	if val, isBool := s.message[key].(bool); isBool {
 		return val, nil
 	}
-	return false, fmt.Errorf("Entry %s does not exist or is nor a boolean", key)
+	return false, fmt.Errorf("Entry %s does not exist or is not a boolean", key)
+}
+
+func (s *socket) getNumber(key string) (float64, error) {
+	if val, isFloat64 := s.message[key].(float64); isFloat64 {
+		return val, nil
+	}
+	return 0, fmt.Errorf("Entry %s does not exist or is not a number", key)
+}
+
+func (s *socket) getInt(key string) (int, error) {
+	if val, err := s.getNumber(key); err == nil {
+		return int(val), nil
+	}
+	return 0, fmt.Errorf("Entry %s does not exist or is not a number", key)
 }
 
 func (s *socket) toInt(key string) (int, error) {

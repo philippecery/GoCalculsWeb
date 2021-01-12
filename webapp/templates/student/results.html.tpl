@@ -175,14 +175,14 @@
 				socket.send(JSON.stringify({ request: "records", page: page, token: token }));
 			});
 			$('.statusFilter').click(function(event) {
-				status = $(this).attr('status');
+				status = parseInt($(this).attr('status'));
 				$('.statusFilter').removeClass('active');
 				$(this).addClass('active');
 				page = 1;
 				reload();
 			});
 			$('.homeworkTypeFilter').click(function(event) {
-				homeworkType = $(this).attr('homeworkType');
+				homeworkType = parseInt($(this).attr('homeworkType'));
 				$('.homeworkTypeFilter').removeClass('active');
 				$(this).addClass('active');
 				page = 1;

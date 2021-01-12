@@ -124,11 +124,11 @@ func (s *socket) end() error {
 	return s.emitErrorMessage("errorGenericMessage")
 }
 
-func (s *socket) results(page int) error {
+func (s *socket) results(homeworkType, status, page int) error {
 	userID := s.session.GetAuthenticatedUser().UserID
 	response := map[string]interface{}{"response": "results", "nbTotal": 0}
 	sessions := make([]interface{}, 0)
-	if homeworkSessions, nbTotal := dataaccess.GetSessionsByUserID(userID, page); homeworkSessions != nil {
+	if homeworkSessions, nbTotal := dataaccess.GetSessionsByUserID(userID, homeworkType, status, page); homeworkSessions != nil {
 		response["nbTotal"] = nbTotal
 		for _, homeworkSession := range homeworkSessions {
 			session := map[string]interface{}{

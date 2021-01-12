@@ -59,8 +59,15 @@ func Endpoints(w http.ResponseWriter, r *http.Request) {
 										case "end":
 											err = socket.end()
 										case "results":
-											page, _ := socket.message["page"].(float64)
-											err = socket.results(int(page))
+											var homeworkType, status, page int
+											if homeworkType, err = socket.getInt("type"); err != nil {
+												homeworkType = -1
+											}
+											if status, err = socket.getInt("status"); err != nil {
+												status = -1
+											}
+											page, _ = socket.getInt("page")
+											err = socket.results(homeworkType, status, page)
 										case "details":
 											if sessionID, isString := socket.message["sessionID"].(string); isString {
 												err = socket.details(sessionID)
