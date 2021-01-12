@@ -105,7 +105,7 @@
 				for (var item in sessions) {
 					var result = sessions[item];
 					var $tr = $('<tr/>').append(
-							$('<td/>').text(result.date),
+							$('<td/>').text(result.startTime),
 							$('<td/>').html('<span class="glyphicon glyphicon-'+result.type+'"></span>'),
 							$('<td/>').text(result.nbAdditions),
 							$('<td/>').text(result.nbSubstractions),

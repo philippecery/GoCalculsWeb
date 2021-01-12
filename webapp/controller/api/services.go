@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/philippecery/maths/webapp/constant"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
@@ -100,6 +101,7 @@ func (s *socket) toggle() error {
 
 func (s *socket) end() error {
 	if session := s.getHomeworkSession(); session != nil {
+		session.EndTime = time.Now()
 		session.Status = constant.Cancel
 		var timeout bool
 		var err error
@@ -133,13 +135,13 @@ func (s *socket) results(homeworkType, status, page int) error {
 		for _, homeworkSession := range homeworkSessions {
 			session := map[string]interface{}{
 				"sessionID":         homeworkSession.SessionID,
-				"date":              homeworkSession.StartTime,
+				"startTime":         homeworkSession.StartTime.Format("Monday 02 January 2006 @ 15:04:05 GMT"),
 				"type":              constant.HomeworkTypes[homeworkSession.TypeID].Logo,
 				"nbAdditions":       homeworkSession.Homework.NbAdditions,
 				"nbSubstractions":   homeworkSession.Homework.NbSubstractions,
 				"nbMultiplications": homeworkSession.Homework.NbMultiplications,
 				"nbDivisions":       homeworkSession.Homework.NbDivisions,
-				"duration":          homeworkSession.EndTime.Sub(homeworkSession.StartTime),
+				"duration":          homeworkSession.EndTime.Sub(homeworkSession.StartTime).String(),
 				"status":            homeworkSession.Status.Logo(),
 			}
 			sessions = append(sessions, session)
