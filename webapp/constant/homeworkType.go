@@ -3,6 +3,7 @@ package constant
 // HomeworkType type
 type HomeworkType struct {
 	I18N                string
+	Logo                string
 	AdditionRange       *OperandRanges
 	SubstractionRange   *OperandRanges
 	MultiplicationRange *OperandRanges
@@ -28,6 +29,7 @@ type OperandRange struct {
 var HomeworkTypes = map[int]*HomeworkType{
 	1: &HomeworkType{
 		I18N: "mentalmath",
+		Logo: "hourglass",
 		AdditionRange: &OperandRanges{
 			OperatorID: 1,
 			Operand1: &OperandRange{
@@ -83,6 +85,7 @@ var HomeworkTypes = map[int]*HomeworkType{
 	},
 	2: &HomeworkType{
 		I18N: "columnform",
+		Logo: "pencil",
 		AdditionRange: &OperandRanges{
 			OperatorID: 1,
 			Operand1: &OperandRange{

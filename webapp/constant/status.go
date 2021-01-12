@@ -20,3 +20,19 @@ const (
 	Timeout
 	Success
 )
+
+// Logo return the logo for this status
+func (s HomeworkSessionStatus) Logo() string {
+	var logo string
+	switch s {
+	case Cancel:
+		logo = "remove"
+	case Failed:
+		logo = "thumbs-down"
+	case Timeout:
+		logo = "time"
+	case Success:
+		logo = "thumbs-up"
+	}
+	return logo
+}
