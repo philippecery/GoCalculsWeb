@@ -338,6 +338,7 @@
                 top.location = "/student/operations?type={{ .TypeID }}";
             }
             $('button#exit').click(function(event) {
+                socket.send(JSON.stringify({ request: "end", token: token }));
                 socket.close(1000);
                 top.location = "/student/dashboard";
             });
@@ -351,6 +352,7 @@
             if(type==2) {
                 $('nbResults').removeClass('hidden');
             }
+
             socket.onopen = function(event) {
             	socket.send(JSON.stringify({ request: "operation", token: token }));
             }
@@ -372,6 +374,11 @@
                         break;
                 }
             }
+
+            $(window).unload(function() {
+                socket.send(JSON.stringify({ request: "end", token: token }));
+                socket.close(1000);
+            });
         });
     </script>
 </html>
