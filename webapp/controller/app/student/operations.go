@@ -74,7 +74,9 @@ func Operations(w http.ResponseWriter, r *http.Request) {
 								AddLocalizedMessage("failure").
 								AddLocalizedMessage("errDisabled").
 								AddLocalizedMessage("logout")
-							httpsession.SetAttribute("HomeworkSession", document.NewHomeworkSession(user.UserID, typeID, *homework))
+							homeworkSession := document.NewHomeworkSession(user.UserID, typeID, *homework)
+							dataaccess.NewHomeworkSession(homeworkSession)
+							httpsession.SetAttribute("HomeworkSessionID", homeworkSession.SessionID)
 							httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
 							if err := app.Templates.ExecuteTemplate(w, "operations.html.tpl", vd); err != nil {
 								log.Fatalf("Error while executing template 'operations': %v\n", err)

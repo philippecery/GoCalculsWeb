@@ -33,10 +33,13 @@ func (s *socket) operation() error {
 				nextOperation.Operand1, _ = util.GetNumberInRange(operandRange.Operand1.RangeMin, operandRange.Operand1.RangeMax)
 				nextOperation.Operand2, _ = util.GetNumberInRange(operandRange.Operand2.RangeMin, operandRange.Operand2.RangeMax)
 				s.addOperation(nextOperation)
-				fmt.Printf("Nb operations in session = %d\n", len(s.getHomeworkSession().Operations))
 				operator := constant.Operators[nextOperation.OperatorID]
 				return s.emitTextMessage(map[string]interface{}{
-					"response": "operation", "operationName": s.getLocalizedMessage(operator.I18N), "operand1": nextOperation.Operand1, "operand2": nextOperation.Operand2, "operator": operator.Symbol,
+					"response":      "operation",
+					"operationName": s.getLocalizedMessage(operator.I18N),
+					"operand1":      nextOperation.Operand1,
+					"operand2":      nextOperation.Operand2,
+					"operator":      operator.Symbol,
 				})
 			}
 			log.Printf("/websocket[operation]: session completed")
@@ -44,7 +47,7 @@ func (s *socket) operation() error {
 			log.Printf("/websocket[operation]: Invalid type ID")
 		}
 	} else {
-		log.Printf("/websocket[operation]: No HomeworkSession found in session")
+		log.Printf("/websocket[operation]: No HomeworkSession found in database")
 	}
 	return s.emitErrorMessage("errorGenericMessage")
 }
@@ -70,10 +73,15 @@ func (s *socket) answer() error {
 		nbTotalRemaining := session.Homework.NumberOfOperations() - session.NbTotalGood()
 		s.saveHomeworkSession(session)
 		return s.emitTextMessage(map[string]interface{}{
-			"response": "answer", "good": good, "nbUpdate": nbUpdate, "percentUpdate": percentUpdate, "percentAll": percentAll, "nbTotalRemaining": nbTotalRemaining,
+			"response":         "answer",
+			"good":             good,
+			"nbUpdate":         nbUpdate,
+			"percentUpdate":    percentUpdate,
+			"percentAll":       percentAll,
+			"nbTotalRemaining": nbTotalRemaining,
 		})
 	}
-	log.Printf("/websocket[answer]: No HomeworkSession found in session")
+	log.Printf("/websocket[answer]: No HomeworkSession found in database")
 	return s.emitErrorMessage("errorGenericMessage")
 }
 
@@ -84,17 +92,23 @@ func (s *socket) toggle() error {
 			if show {
 				result, result2 := operation.GetResult()
 				return s.emitTextMessage(map[string]interface{}{
-					"response": "toggle", "showResult": true, "result": result, "result2": result2,
+					"response":   "toggle",
+					"showResult": true,
+					"result":     result,
+					"result2":    result2,
 				})
 			}
 			answer, answer2 := operation.GetAnswer()
 			return s.emitTextMessage(map[string]interface{}{
-				"response": "toggle", "showResult": false, "answer": answer, "answer2": answer2,
+				"response":   "toggle",
+				"showResult": false,
+				"answer":     answer,
+				"answer2":    answer2,
 			})
 		}
 		log.Printf("/websocket[toggle]: Invalid 'show' parameter")
 	} else {
-		log.Printf("/websocket[toggle]: No HomeworkSession found in session")
+		log.Printf("/websocket[toggle]: No HomeworkSession found in database")
 	}
 	return s.emitErrorMessage("errorGenericMessage")
 }
@@ -118,21 +132,32 @@ func (s *socket) end() error {
 				}
 			}
 		}
-		dataaccess.StoreHomeworkSession(session)
+		dataaccess.UpdateHomeworkSession(session)
 		s.summary(session)
 		return nil
 	}
-	log.Printf("/websocket[end]: No HomeworkSession found in session")
+	log.Printf("/websocket[end]: No HomeworkSession found in database")
 	return s.emitErrorMessage("errorGenericMessage")
 }
 
 func (s *socket) results(homeworkType, status, page int) error {
-	userID := s.session.GetAuthenticatedUser().UserID
 	response := map[string]interface{}{"response": "results", "nbTotal": 0}
 	sessions := make([]interface{}, 0)
-	if homeworkSessions, nbTotal := dataaccess.GetSessionsByUserID(userID, homeworkType, status, page); homeworkSessions != nil {
+	if homeworkSessions, nbTotal := dataaccess.GetSessionsByUserID(s.userID, homeworkType, status, page); homeworkSessions != nil {
 		response["nbTotal"] = nbTotal
 		for _, homeworkSession := range homeworkSessions {
+			var duration string
+			if homeworkSession.EndTime.IsZero() {
+				duration = "00:00,000"
+			} else {
+				d := homeworkSession.EndTime.Sub(homeworkSession.StartTime).Round(time.Millisecond)
+				m := d / time.Minute
+				d -= m * time.Minute
+				s := d / time.Second
+				d -= s * time.Second
+				ms := d / time.Millisecond
+				duration = fmt.Sprintf("%02d:%02d,%03d", m, s, ms)
+			}
 			session := map[string]interface{}{
 				"sessionID":         homeworkSession.SessionID,
 				"startTime":         homeworkSession.StartTime.Format("Monday 02 January 2006 @ 15:04:05 GMT"),
@@ -141,7 +166,7 @@ func (s *socket) results(homeworkType, status, page int) error {
 				"nbSubstractions":   homeworkSession.Homework.NbSubstractions,
 				"nbMultiplications": homeworkSession.Homework.NbMultiplications,
 				"nbDivisions":       homeworkSession.Homework.NbDivisions,
-				"duration":          homeworkSession.EndTime.Sub(homeworkSession.StartTime).String(),
+				"duration":          duration,
 				"status":            homeworkSession.Status.Logo(),
 			}
 			sessions = append(sessions, session)

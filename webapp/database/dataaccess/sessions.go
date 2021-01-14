@@ -12,12 +12,27 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// StoreHomeworkSession stores the current homework session
-func StoreHomeworkSession(newSession *document.HomeworkSession) error {
+// NewHomeworkSession stores the current homework session
+func NewHomeworkSession(newSession *document.HomeworkSession) error {
 	if _, err := collection.Sessions.InsertOne(context.TODO(), newSession); err != nil {
 		return errors.New("HomeworkSession creation failed")
 	}
 	log.Printf("Session stored.")
+	return nil
+}
+
+// UpdateHomeworkSession updates the current homework session
+func UpdateHomeworkSession(newSession *document.HomeworkSession) error {
+	var err error
+	var result *mongo.UpdateResult
+	if result, err = collection.Sessions.ReplaceOne(context.TODO(), bson.M{"sessionid": newSession.SessionID}, newSession); err != nil {
+		return errors.New("HomeworkSession update failed")
+	}
+	if result.MatchedCount == 1 && result.ModifiedCount == 1 {
+		log.Printf("Session updated.")
+	} else {
+		log.Printf("MatchedCount = %d ; ModifedCount = %d", result.MatchedCount, result.ModifiedCount)
+	}
 	return nil
 }
 

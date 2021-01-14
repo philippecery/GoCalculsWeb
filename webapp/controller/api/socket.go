@@ -5,17 +5,20 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/i18n"
-	"github.com/philippecery/maths/webapp/session"
 )
 
 type socket struct {
-	message map[string]interface{}
-	session *session.HTTPSession
-	conn    *websocket.Conn
+	message           map[string]interface{}
+	homeworkSessionID string
+	language          string
+	userID            string
+	conn              *websocket.Conn
 }
 
 func (s *socket) get(key string) (interface{}, error) {
@@ -66,10 +69,7 @@ func (s *socket) toInt(key string) (int, error) {
 }
 
 func (s *socket) getCurrentLanguage() string {
-	if lang, isString := s.session.GetAttribute("Lang").(string); isString {
-		return lang
-	}
-	return "en"
+	return s.language
 }
 
 func (s *socket) addOperation(currentOperation *document.Operation) {
@@ -80,14 +80,12 @@ func (s *socket) addOperation(currentOperation *document.Operation) {
 }
 
 func (s *socket) getHomeworkSession() *document.HomeworkSession {
-	if homeworkSession, isHomeworkSession := s.session.GetAttribute("HomeworkSession").(*document.HomeworkSession); isHomeworkSession {
-		return homeworkSession
-	}
-	return nil
+	return dataaccess.GetSessionByID(s.homeworkSessionID)
 }
 
 func (s *socket) saveHomeworkSession(homeworkSession *document.HomeworkSession) {
-	s.session.SetAttribute("HomeworkSession", homeworkSession)
+	homeworkSession.EndTime = time.Now()
+	dataaccess.UpdateHomeworkSession(homeworkSession)
 }
 
 func (s *socket) getLocalizedMessage(messageID string, data ...interface{}) string {
@@ -111,6 +109,7 @@ func (s *socket) emitTextMessage(message interface{}) error {
 
 func (s *socket) emitErrorMessage(messageID string) error {
 	return s.emit(websocket.TextMessage, map[string]interface{}{
-		"response": "error", "message": s.getLocalizedMessage(messageID),
+		"response": "error",
+		"message":  s.getLocalizedMessage(messageID),
 	})
 }

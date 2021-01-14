@@ -37,7 +37,12 @@ func Endpoints(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				log.Println("/websocket: Client Connected")
-				socket := &socket{conn: conn, session: httpsession}
+				socket := &socket{
+					userID:            user.UserID,
+					language:          httpsession.GetStringAttribute("Lang"),
+					homeworkSessionID: httpsession.GetStringAttribute("HomeworkSessionID"),
+					conn:              conn,
+				}
 				for {
 					var messageType int
 					var requestMessage []byte

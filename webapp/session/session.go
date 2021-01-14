@@ -20,6 +20,14 @@ func (s *HTTPSession) GetAttribute(key string) interface{} {
 	return nil
 }
 
+// GetStringAttribute returns the object bound with the specified name in this session, or nil if no object is bound under the name.
+func (s *HTTPSession) GetStringAttribute(key string) string {
+	if v, isString := s.GetAttribute(key).(string); isString {
+		return v
+	}
+	return ""
+}
+
 // GetAttributeNames returns a slice containing the names of all the objects bound to this session.
 func (s *HTTPSession) GetAttributeNames() []string {
 	names := make([]string, 0, len(s.attributes))
