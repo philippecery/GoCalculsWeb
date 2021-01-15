@@ -2,7 +2,6 @@ package app
 
 import (
 	"net/http"
-	"regexp"
 
 	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/session"
@@ -11,17 +10,15 @@ import (
 // ViewData is a map of data passed to templates
 type ViewData map[string]interface{}
 
-var validLang = regexp.MustCompile("^(en|fr)$")
-
 // NewViewData creates a new ViewData struct, preset with language data and CSP nonce
 func NewViewData(w http.ResponseWriter, r *http.Request) ViewData {
 	vd := make(ViewData)
-	if cookie, err := r.Cookie("lang"); err == nil && validLang.MatchString(cookie.Value) {
+	langs := i18n.GetSupportedLanguages()
+	if cookie, err := r.Cookie("lang"); err == nil && langs[cookie.Value] != "" {
 		vd["lang"] = cookie.Value
 	} else {
-		vd["lang"] = "en"
+		vd["lang"] = "en-US"
 	}
-	langs := i18n.GetSupportedLanguages()
 	for lang := range langs {
 		if lang == vd["lang"] {
 			delete(langs, lang)
@@ -31,10 +28,6 @@ func NewViewData(w http.ResponseWriter, r *http.Request) ViewData {
 	vd["langs"] = langs
 	vd["nonce"] = session.GetSession(w, r).GetCSPNonce()
 	return vd
-}
-
-func validateLang(lang string) bool {
-	return validLang.MatchString(lang)
 }
 
 // GetCurrentLanguage returns the current language selected by the user

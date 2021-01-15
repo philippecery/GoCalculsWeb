@@ -2,9 +2,11 @@ package i18n
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
+	"golang.org/x/text/language/display"
 )
 
 var bundle *i18n.Bundle
@@ -12,11 +14,11 @@ var localizers map[string]*i18n.Localizer
 var languages map[string]string
 
 func init() {
-	bundle = i18n.NewBundle(language.English)
+	bundle = i18n.NewBundle(language.AmericanEnglish)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 	localizers = make(map[string]*i18n.Localizer)
-	loadMessages("i18n/messages.en.json", "en")
-	loadMessages("i18n/messages.fr.json", "fr")
+	loadMessages("i18n/messages.en-US.json", "en-US")
+	loadMessages("i18n/messages.fr-FR.json", "fr-FR")
 	initSupportedLanguages()
 }
 
@@ -44,6 +46,7 @@ func GetLocalizedMessage(lang, messageID string, data ...interface{}) string {
 func initSupportedLanguages() {
 	languages = make(map[string]string)
 	for _, languageTag := range bundle.LanguageTags() {
+		log.Printf("Supported language: %s (%s)\n", display.Self.Name(languageTag), languageTag)
 		languages[languageTag.String()] = GetLocalizedMessage(languageTag.String(), "language")
 	}
 }
