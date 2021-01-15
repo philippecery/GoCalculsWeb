@@ -2,6 +2,7 @@ package session
 
 import (
 	"container/list"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -39,6 +40,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) *HTTPSession {
 		}
 	}
 	if session == nil {
+		log.Printf("Creating new HTTP session.")
 		sessionID := util.GenerateRandomBytesToBase64(32)
 		session = &HTTPSession{id: sessionID, creationTime: &now, lastAccessedTime: &now, attributes: make(map[string]interface{}, 0)}
 		element := httpSessionStore.list.PushBack(session)
