@@ -5,11 +5,14 @@ import (
 	"log"
 	"time"
 
+	"github.com/goodsign/monday"
 	"github.com/philippecery/maths/webapp/constant"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/util"
 )
+
+const dateFormat = "Monday 02 January 2006 @ 15:04:05 GMT"
 
 func (s *socket) operation() error {
 	if session := s.getHomeworkSession(); session != nil {
@@ -158,9 +161,10 @@ func (s *socket) results(homeworkType, status, page int) error {
 				ms := d / time.Millisecond
 				duration = fmt.Sprintf("%02d:%02d,%03d", m, s, ms)
 			}
+			startTime := monday.Format(homeworkSession.StartTime, dateFormat, monday.Locale(s.getCurrentLanguageAlt()))
 			session := map[string]interface{}{
 				"sessionID":         homeworkSession.SessionID,
-				"startTime":         homeworkSession.StartTime.Format("Monday 02 January 2006 @ 15:04:05 GMT"),
+				"startTime":         startTime,
 				"type":              constant.HomeworkTypes[homeworkSession.TypeID].Logo,
 				"nbAdditions":       homeworkSession.Homework.NbAdditions,
 				"nbSubstractions":   homeworkSession.Homework.NbSubstractions,
