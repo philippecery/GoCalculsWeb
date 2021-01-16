@@ -7,8 +7,8 @@ import (
 // HTTPSession struct
 type HTTPSession struct {
 	id               string
-	creationTime     *time.Time
-	lastAccessedTime *time.Time
+	creationTime     time.Time
+	lastAccessedTime time.Time
 	attributes       map[string]interface{}
 }
 
@@ -43,7 +43,7 @@ func (s *HTTPSession) GetID() string {
 }
 
 // GetLastAccessedTime returns the last time the server accessed this session.
-func (s *HTTPSession) GetLastAccessedTime() *time.Time {
+func (s *HTTPSession) GetLastAccessedTime() time.Time {
 	return s.lastAccessedTime
 }
 

@@ -34,7 +34,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) *HTTPSession {
 	now := time.Now()
 	if cookie, err := r.Cookie(cookieName); err == nil && cookie.Value != "" {
 		if element, ok := httpSessionStore.sessions[cookie.Value]; ok {
-			element.Value.(*HTTPSession).lastAccessedTime = &now
+			element.Value.(*HTTPSession).lastAccessedTime = now
 			httpSessionStore.list.MoveToFront(element)
 			session = element.Value.(*HTTPSession)
 		} else {
@@ -48,7 +48,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) *HTTPSession {
 	if session == nil {
 		log.Printf("Creating new HTTP session.")
 		sessionID := util.GenerateRandomBytesToBase64(32)
-		session = &HTTPSession{id: sessionID, creationTime: &now, lastAccessedTime: &now, attributes: make(map[string]interface{}, 0)}
+		session = &HTTPSession{id: sessionID, creationTime: now, lastAccessedTime: now, attributes: make(map[string]interface{}, 0)}
 		element := httpSessionStore.list.PushBack(session)
 		httpSessionStore.sessions[sessionID] = element
 		sessionCookie := &http.Cookie{Name: cookieName, Value: sessionID, Path: "/", HttpOnly: true, Secure: true, SameSite: http.SameSiteStrictMode}
