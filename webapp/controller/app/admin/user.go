@@ -25,39 +25,42 @@ import (
 // Only GET requests are allowed. The user must have role Admin to access this page.
 // Displays the Users page with the list of registerd and unregistered users.
 func UserList(w http.ResponseWriter, r *http.Request) {
-	httpsession := session.GetSession(w, r)
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
-		if r.Method == "GET" {
-			vd := app.NewViewData(w, r)
-			vd.SetUser(user)
-			vd.SetErrorMessage(httpsession.GetErrorMessageID())
-			vd.SetViewData("RegisteredUsers", dataaccess.GetAllRegisteredUsers())
-			vd.SetViewData("UnregisteredUsers", dataaccess.GetAllUnregisteredUsers())
-			vd.SetDefaultLocalizedMessages().
-				AddLocalizedMessage("registeredUsers").
-				AddLocalizedMessage("unregisteredUsers").
-				AddLocalizedMessage("userid").
-				AddLocalizedMessage("firstName").
-				AddLocalizedMessage("lastName").
-				AddLocalizedMessage("emailAddress").
-				AddLocalizedMessage("role").
-				AddLocalizedMessage("lastConnection").
-				AddLocalizedMessage("disableAccount").
-				AddLocalizedMessage("enableAccount").
-				AddLocalizedMessage("deleteUser").
-				AddLocalizedMessage("token").
-				AddLocalizedMessage("expires").
-				AddLocalizedMessage("copyRegistrationLink").
-				AddLocalizedMessage("addUser").
-				AddLocalizedMessage("logout")
-			if err := app.Templates.ExecuteTemplate(w, "userList.html.tpl", vd); err != nil {
-				log.Fatalf("Error while executing template 'userList': %v\n", err)
+	if httpsession := session.GetSession(w, r); httpsession != nil {
+		if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
+			if r.Method == "GET" {
+				vd := app.NewViewData(w, r)
+				vd.SetUser(user)
+				vd.SetErrorMessage(httpsession.GetErrorMessageID())
+				vd.SetViewData("RegisteredUsers", dataaccess.GetAllRegisteredUsers())
+				vd.SetViewData("UnregisteredUsers", dataaccess.GetAllUnregisteredUsers())
+				vd.SetDefaultLocalizedMessages().
+					AddLocalizedMessage("registeredUsers").
+					AddLocalizedMessage("unregisteredUsers").
+					AddLocalizedMessage("userid").
+					AddLocalizedMessage("firstName").
+					AddLocalizedMessage("lastName").
+					AddLocalizedMessage("emailAddress").
+					AddLocalizedMessage("role").
+					AddLocalizedMessage("lastConnection").
+					AddLocalizedMessage("disableAccount").
+					AddLocalizedMessage("enableAccount").
+					AddLocalizedMessage("deleteUser").
+					AddLocalizedMessage("token").
+					AddLocalizedMessage("expires").
+					AddLocalizedMessage("copyRegistrationLink").
+					AddLocalizedMessage("addUser").
+					AddLocalizedMessage("logout")
+				if err := app.Templates.ExecuteTemplate(w, "userList.html.tpl", vd); err != nil {
+					log.Fatalf("Error while executing template 'userList': %v\n", err)
+				}
+				return
 			}
-			return
+			log.Printf("/admin/user/list: Invalid method %s\n", r.Method)
+		} else {
+			log.Println("/admin/user/list: User is not authenticated or does not have Admin role")
 		}
-		log.Printf("/admin/user/list: Invalid method %s\n", r.Method)
 	} else {
-		log.Println("/admin/user/list: User is not authenticated or does not have Admin role")
+		log.Printf("/admin/user/list: User session not found")
 	}
 	log.Println("/admin/user/list: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
@@ -90,28 +93,31 @@ func UserDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func executeAction(w http.ResponseWriter, r *http.Request, action func() error) {
-	httpsession := session.GetSession(w, r)
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
-		if r.Method == "GET" {
-			if len(r.URL.Query()["userid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
-				userID := r.URL.Query()["userid"][0]
-				actionToken := r.URL.Query()["rnd"][0]
-				if userID != "" && actionToken != "" && document.VerifyUserActionToken(actionToken, userID) {
-					var err error
-					if err = action(); err != nil {
-						httpsession.SetErrorMessageID(err.Error())
+	if httpsession := session.GetSession(w, r); httpsession != nil {
+		if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
+			if r.Method == "GET" {
+				if len(r.URL.Query()["userid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
+					userID := r.URL.Query()["userid"][0]
+					actionToken := r.URL.Query()["rnd"][0]
+					if userID != "" && actionToken != "" && document.VerifyUserActionToken(actionToken, userID) {
+						var err error
+						if err = action(); err != nil {
+							httpsession.SetErrorMessageID(err.Error())
+						}
+						return
 					}
-					return
+					log.Println("/admin/user/...: Invalid userID or token")
+				} else {
+					log.Println("/admin/user/...: Missing userID or token")
 				}
-				log.Println("/admin/user/...: Invalid userID or token")
 			} else {
-				log.Println("/admin/user/...: Missing userID or token")
+				log.Printf("/admin/user/...: Invalid method %s\n", r.Method)
 			}
 		} else {
-			log.Printf("/admin/user/...: Invalid method %s\n", r.Method)
+			log.Println("/admin/user/...: User is not authenticated or does not have Admin role")
 		}
 	} else {
-		log.Println("/admin/user/...: User is not authenticated or does not have Admin role")
+		log.Printf("/admin/user/...: User session not found")
 	}
 	log.Println("/admin/user/...: Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)
@@ -124,61 +130,64 @@ var validID = regexp.MustCompile("^[a-z]{2,}(\\.?[a-z]{2,})*$")
 //  - a GET request will display the New User form. If an error message is available in the session, it will be displayed.
 //  - a POST request will create a temporary user account if the submitted data are valid. That new account will have a token. The registration link must be sent to the user.
 func UserNew(w http.ResponseWriter, r *http.Request) {
-	httpsession := session.GetSession(w, r)
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
-		if token := httpsession.GetCSRFToken(); token != "" {
-			if r.Method == "GET" {
-				vd := app.NewViewData(w, r)
-				vd.SetErrorMessage(httpsession.GetErrorMessageID())
-				vd.SetToken(token)
-				vd.SetDefaultLocalizedMessages().
-					AddLocalizedMessage("newUser").
-					AddLocalizedMessage("userid").
-					AddLocalizedMessage("role").
-					AddLocalizedMessage("select").
-					AddLocalizedMessage("admin").
-					AddLocalizedMessage("teacher").
-					AddLocalizedMessage("student").
-					AddLocalizedMessage("save").
-					AddLocalizedMessage("cancel").
-					AddLocalizedMessage("logout")
-				if err := app.Templates.ExecuteTemplate(w, "userNew.html.tpl", vd); err != nil {
-					log.Fatalf("Error while executing template 'userNew': %v\n", err)
-				}
-				return
-			}
-			if r.Method == "POST" {
-				if r.PostFormValue("token") == token {
-					if roleID, _ := strconv.Atoi(r.PostFormValue("role")); roleID > 0 && constant.UserRole(roleID).IsValid() {
-						userID := strings.ToLower(r.PostFormValue("userId"))
-						if len(userID) <= 32 && validID.MatchString(userID) && dataaccess.IsUserIDAvailable(userID) {
-							token, expirationTime := generateUserToken(userID)
-							unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
-							if err := dataaccess.CreateNewUser(unregisteredUser); err != nil {
-								log.Printf("User creation failed. Cause: %v", err)
-								httpsession.SetErrorMessageID("errorUserCreationFailed")
-							}
-							http.Redirect(w, r, "/admin/user/list", http.StatusFound)
-							return
-						}
-						log.Printf("/admin/user/new: User %s invalid or already exists\n", userID)
-						httpsession.SetErrorMessageID("errorInvalidUserID")
-					} else {
-						log.Printf("/admin/user/new: Invalid role id %d\n", roleID)
-						httpsession.SetErrorMessageID("errorInvalidRoleID")
+	if httpsession := session.GetSession(w, r); httpsession != nil {
+		if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
+			if token := httpsession.GetCSRFToken(); token != "" {
+				if r.Method == "GET" {
+					vd := app.NewViewData(w, r)
+					vd.SetErrorMessage(httpsession.GetErrorMessageID())
+					vd.SetToken(token)
+					vd.SetDefaultLocalizedMessages().
+						AddLocalizedMessage("newUser").
+						AddLocalizedMessage("userid").
+						AddLocalizedMessage("role").
+						AddLocalizedMessage("select").
+						AddLocalizedMessage("admin").
+						AddLocalizedMessage("teacher").
+						AddLocalizedMessage("student").
+						AddLocalizedMessage("save").
+						AddLocalizedMessage("cancel").
+						AddLocalizedMessage("logout")
+					if err := app.Templates.ExecuteTemplate(w, "userNew.html.tpl", vd); err != nil {
+						log.Fatalf("Error while executing template 'userNew': %v\n", err)
 					}
-				} else {
-					log.Println("/admin/user/new: Invalid CSRF token")
+					return
 				}
-				http.Redirect(w, r, "/admin/user/new", http.StatusFound)
-				return
+				if r.Method == "POST" {
+					if r.PostFormValue("token") == token {
+						if roleID, _ := strconv.Atoi(r.PostFormValue("role")); roleID > 0 && constant.UserRole(roleID).IsValid() {
+							userID := strings.ToLower(r.PostFormValue("userId"))
+							if len(userID) <= 32 && validID.MatchString(userID) && dataaccess.IsUserIDAvailable(userID) {
+								token, expirationTime := generateUserToken(userID)
+								unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
+								if err := dataaccess.CreateNewUser(unregisteredUser); err != nil {
+									log.Printf("User creation failed. Cause: %v", err)
+									httpsession.SetErrorMessageID("errorUserCreationFailed")
+								}
+								http.Redirect(w, r, "/admin/user/list", http.StatusFound)
+								return
+							}
+							log.Printf("/admin/user/new: User %s invalid or already exists\n", userID)
+							httpsession.SetErrorMessageID("errorInvalidUserID")
+						} else {
+							log.Printf("/admin/user/new: Invalid role id %d\n", roleID)
+							httpsession.SetErrorMessageID("errorInvalidRoleID")
+						}
+					} else {
+						log.Println("/admin/user/new: Invalid CSRF token")
+					}
+					http.Redirect(w, r, "/admin/user/new", http.StatusFound)
+					return
+				}
+				log.Printf("/admin/user/new: Invalid method %s\n", r.Method)
+			} else {
+				log.Println("/admin/user/new: CSRF token not found in session")
 			}
-			log.Printf("/admin/user/new: Invalid method %s\n", r.Method)
 		} else {
-			log.Println("/admin/user/new: CSRF token not found in session")
+			log.Println("/admin/user/new: User is not authenticated or does not have Admin role")
 		}
 	} else {
-		log.Println("/admin/user/new: User is not authenticated or does not have Admin role")
+		log.Printf("/admin/user/new: User session not found")
 	}
 	log.Println("/admin/user/new: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)

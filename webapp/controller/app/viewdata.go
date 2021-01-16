@@ -1,6 +1,7 @@
 package app
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/philippecery/maths/webapp/i18n"
@@ -12,21 +13,26 @@ type ViewData map[string]interface{}
 
 // NewViewData creates a new ViewData struct, preset with language data and CSP nonce
 func NewViewData(w http.ResponseWriter, r *http.Request) ViewData {
-	vd := make(ViewData)
-	langs := i18n.GetSupportedLanguages()
-	if cookie, err := r.Cookie("lang"); err == nil && langs[cookie.Value] != "" {
-		vd["lang"] = cookie.Value
-	} else {
-		vd["lang"] = "en-US"
-	}
-	for lang := range langs {
-		if lang == vd["lang"] {
-			delete(langs, lang)
-			break
+	var vd ViewData
+	if httpsession := session.GetSession(w, r); httpsession != nil {
+		vd = make(ViewData)
+		vd["nonce"] = httpsession.GetCSPNonce()
+		langs := i18n.GetSupportedLanguages()
+		if cookie, err := r.Cookie("lang"); err == nil && langs[cookie.Value] != "" {
+			vd["lang"] = cookie.Value
+		} else {
+			vd["lang"] = "en-US"
 		}
+		for lang := range langs {
+			if lang == vd["lang"] {
+				delete(langs, lang)
+				break
+			}
+		}
+		vd["langs"] = langs
+	} else {
+		log.Printf("User session not found\n")
 	}
-	vd["langs"] = langs
-	vd["nonce"] = session.GetSession(w, r).GetCSPNonce()
 	return vd
 }
 

@@ -24,49 +24,76 @@ var httpSessionStore = &HTTPSessionStore{
 	maxInactiveInterval: defaultMaxInactiveInterval,
 }
 
+// NewSession creates a new session for the current user.
+// If a session exists, it is invalidated.
+func NewSession(w http.ResponseWriter, r *http.Request) *HTTPSession {
+	httpSessionStore.lock.Lock()
+	defer httpSessionStore.lock.Unlock()
+	return newSession(w, r)
+}
+
+func newSession(w http.ResponseWriter, r *http.Request) *HTTPSession {
+	invalidateSession(w, r)
+	log.Printf("Creating new HTTP session.")
+	now := time.Now()
+	sessionID := util.GenerateRandomBytesToBase64(32)
+	session := &HTTPSession{id: sessionID, creationTime: now, lastAccessedTime: now, attributes: make(map[string]interface{}, 0)}
+	element := httpSessionStore.list.PushBack(session)
+	httpSessionStore.sessions[sessionID] = element
+	sessionCookie := &http.Cookie{Name: cookieName, Value: sessionID, Path: "/", HttpOnly: true, Secure: true, SameSite: http.SameSiteStrictMode}
+	http.SetCookie(w, sessionCookie)
+	r.AddCookie(sessionCookie)
+	return session
+}
+
 // GetSession returns the session of the current user.
-// Retrieves the session ID from the cookie in the request.
-// If session ID is not found, a new session is created.
+// Returns nil if session does not exist.
 func GetSession(w http.ResponseWriter, r *http.Request) *HTTPSession {
 	httpSessionStore.lock.Lock()
 	defer httpSessionStore.lock.Unlock()
+	return getSession(w, r)
+}
+
+func getSession(w http.ResponseWriter, r *http.Request) *HTTPSession {
 	var session *HTTPSession
 	now := time.Now()
 	if cookie, err := r.Cookie(cookieName); err == nil && cookie.Value != "" {
-		if element, ok := httpSessionStore.sessions[cookie.Value]; ok {
+		if element, exists := httpSessionStore.sessions[cookie.Value]; exists {
 			element.Value.(*HTTPSession).lastAccessedTime = now
 			httpSessionStore.list.MoveToFront(element)
 			session = element.Value.(*HTTPSession)
 		} else {
 			log.Printf("Session %s not found\n", cookie.Value)
-			http.SetCookie(w, &http.Cookie{Name: cookieName, Path: "/", HttpOnly: true, Secure: true, Expires: time.Time{}, MaxAge: -1})
+			invalidateSession(w, r)
+			return nil
 		}
 	} else {
 		log.Printf("Session cookie not found\n")
 	}
 	if session == nil {
-		log.Printf("Creating new HTTP session.")
-		sessionID := util.GenerateRandomBytesToBase64(32)
-		session = &HTTPSession{id: sessionID, creationTime: now, lastAccessedTime: now, attributes: make(map[string]interface{}, 0)}
-		element := httpSessionStore.list.PushBack(session)
-		httpSessionStore.sessions[sessionID] = element
-		sessionCookie := &http.Cookie{Name: cookieName, Value: sessionID, Path: "/", HttpOnly: true, Secure: true, SameSite: http.SameSiteStrictMode}
-		http.SetCookie(w, sessionCookie)
-		r.AddCookie(sessionCookie)
+		session = newSession(w, r)
 	}
 	return session
 }
 
 // InvalidateSession deletes the session of the current user.
 func InvalidateSession(w http.ResponseWriter, r *http.Request) {
+	httpSessionStore.lock.Lock()
+	defer httpSessionStore.lock.Unlock()
+	invalidateSession(w, r)
+}
+
+func invalidateSession(w http.ResponseWriter, r *http.Request) {
 	if cookie, err := r.Cookie(cookieName); err == nil && cookie.Value != "" {
-		httpSessionStore.lock.Lock()
-		defer httpSessionStore.lock.Unlock()
-		if element, ok := httpSessionStore.sessions[cookie.Value]; ok {
+		if element, exists := httpSessionStore.sessions[cookie.Value]; exists {
 			delete(httpSessionStore.sessions, cookie.Value)
 			httpSessionStore.list.Remove(element)
 		}
-		http.SetCookie(w, &http.Cookie{Name: cookieName, Path: "/", HttpOnly: true, Expires: time.Now(), MaxAge: -1})
+		sessionCookie := &http.Cookie{Name: cookieName, Path: "/", HttpOnly: true, Secure: true, Expires: time.Time{}, MaxAge: -1}
+		http.SetCookie(w, sessionCookie)
+		r.AddCookie(sessionCookie)
+	} else {
+		log.Printf("No session cookie found\n")
 	}
 }
 

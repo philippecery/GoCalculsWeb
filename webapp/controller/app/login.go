@@ -18,25 +18,25 @@ import (
 //  - a GET request will display the Login form. If an error message is available in the session, it will be displayed.
 //  - a POST request will authenticate the user if the submitted credentials are valid.
 func Login(w http.ResponseWriter, r *http.Request) {
-	httpsession := session.GetSession(w, r)
-	if r.Method == "GET" {
-		vd := NewViewData(w, r)
-		vd.SetErrorMessage(httpsession.GetErrorMessageID())
-		vd.SetToken(httpsession.SetCSRFToken())
-		vd.SetDefaultLocalizedMessages().
-			AddLocalizedMessage("login").
-			AddLocalizedMessage("userid").
-			AddLocalizedMessage("password")
-		if err := Templates.ExecuteTemplate(w, "login.html.tpl", vd); err != nil {
-			log.Fatalf("Error while executing template 'login': %v\n", err)
+	if httpsession := session.GetSession(w, r); httpsession != nil {
+		if r.Method == "GET" {
+			vd := NewViewData(w, r)
+			vd.SetErrorMessage(httpsession.GetErrorMessageID())
+			vd.SetToken(httpsession.SetCSRFToken())
+			vd.SetDefaultLocalizedMessages().
+				AddLocalizedMessage("login").
+				AddLocalizedMessage("userid").
+				AddLocalizedMessage("password")
+			if err := Templates.ExecuteTemplate(w, "login.html.tpl", vd); err != nil {
+				log.Fatalf("Error while executing template 'login': %v\n", err)
+			}
+			return
 		}
-	} else {
 		if r.Method == "POST" {
 			userID := r.PostFormValue("userId")
 			if r.PostFormValue("token") == httpsession.GetCSRFToken() {
 				if user := verifyUserIDPassword(userID, r.PostFormValue("password")); user != nil {
-					session.InvalidateSession(w, r)
-					httpsession := session.GetSession(w, r)
+					httpsession := session.NewSession(w, r)
 					httpsession.SetAuthenticatedUser(user)
 					httpsession.SetCSRFToken()
 					dataaccess.UpdateLastConnection(userID)
@@ -60,8 +60,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			log.Printf("/login: Invalid method %s\n", r.Method)
 		}
 		httpsession.SetErrorMessageID("errorAuthenticationFailed")
-		http.Redirect(w, r, "/login", http.StatusFound)
+	} else {
+		log.Printf("/login: User session not found\n")
 	}
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 func verifyUserIDPassword(userID, password string) *document.User {
@@ -82,8 +84,7 @@ func verifyUserIDPassword(userID, password string) *document.User {
 
 // Logout handles requests to /logout by invalidating the session and redirecting to /login
 func Logout(w http.ResponseWriter, r *http.Request) {
-	session.InvalidateSession(w, r)
-	session.GetSession(w, r)
+	session.NewSession(w, r)
 	log.Println("/logout: Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)
 }

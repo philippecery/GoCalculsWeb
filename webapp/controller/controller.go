@@ -59,15 +59,19 @@ func handleFunc(pattern string, h func(http.ResponseWriter, *http.Request)) {
 func securityHeaders(h func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s %s", r.Method, r.RequestURI)
-		nonce := session.GetSession(w, r).SetCSPNonce()
-		w.Header().Set("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains")
-		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'; block-all-mixed-content; default-src 'none'; connect-src wss://"+config.Config.Hostname+"; font-src 'self'; img-src 'self'; style-src 'self' 'nonce-"+nonce+"'; form-action 'self'; base-uri 'self'; script-src 'nonce-"+nonce+"'")
-		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
-		w.Header().Set("Referrer-Policy", "no-referrer")
-		w.Header().Set("X-Frame-Options", "deny")
-		w.Header().Set("X-XSS-Protection", "0")
-		h(w, r)
+		if httpsession := session.GetSession(w, r); httpsession != nil {
+			nonce := httpsession.SetCSPNonce()
+			w.Header().Set("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains")
+			w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'; block-all-mixed-content; default-src 'none'; connect-src wss://"+config.Config.Hostname+"; font-src 'self'; img-src 'self'; style-src 'self' 'nonce-"+nonce+"'; form-action 'self'; base-uri 'self'; script-src 'nonce-"+nonce+"'")
+			w.Header().Set("X-Content-Type-Options", "nosniff")
+			w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
+			w.Header().Set("Referrer-Policy", "no-referrer")
+			w.Header().Set("X-Frame-Options", "deny")
+			w.Header().Set("X-XSS-Protection", "0")
+			h(w, r)
+		} else {
+			http.Redirect(w, r, "/", http.StatusFound)
+		}
 	}
 }
 

@@ -3,13 +3,10 @@ package app
 import (
 	"log"
 	"net/http"
-
-	"github.com/philippecery/maths/webapp/session"
 )
 
 // Home redirects to the login page
 func Home(w http.ResponseWriter, r *http.Request) {
-	session.GetSession(w, r)
 	if r.Method == "GET" {
 		vd := NewViewData(w, r)
 		vd.SetDefaultLocalizedMessages().

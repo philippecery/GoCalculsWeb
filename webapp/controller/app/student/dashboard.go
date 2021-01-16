@@ -12,26 +12,29 @@ import (
 // Dashboard handles requests to /student/dashboard
 // Only GET requests are allowed. The user must be authenticated and have the Student role to access the home page.
 func Dashboard(w http.ResponseWriter, r *http.Request) {
-	httpsession := session.GetSession(w, r)
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
-		if r.Method == "GET" {
-			vd := app.NewViewData(w, r)
-			vd.SetUser(user)
-			vd.SetErrorMessage(httpsession.GetErrorMessageID())
-			vd.SetViewData("Grade", dataaccess.GetStudentByID(user.UserID).Grade)
-			vd.SetDefaultLocalizedMessages().
-				AddLocalizedMessage("mentalmath").
-				AddLocalizedMessage("columnform").
-				AddLocalizedMessage("results").
-				AddLocalizedMessage("logout")
-			if err := app.Templates.ExecuteTemplate(w, "dashboard.html.tpl", vd); err != nil {
-				log.Fatalf("Error while executing template 'dashboard': %v\n", err)
+	if httpsession := session.GetSession(w, r); httpsession != nil {
+		if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
+			if r.Method == "GET" {
+				vd := app.NewViewData(w, r)
+				vd.SetUser(user)
+				vd.SetErrorMessage(httpsession.GetErrorMessageID())
+				vd.SetViewData("Grade", dataaccess.GetStudentByID(user.UserID).Grade)
+				vd.SetDefaultLocalizedMessages().
+					AddLocalizedMessage("mentalmath").
+					AddLocalizedMessage("columnform").
+					AddLocalizedMessage("results").
+					AddLocalizedMessage("logout")
+				if err := app.Templates.ExecuteTemplate(w, "dashboard.html.tpl", vd); err != nil {
+					log.Fatalf("Error while executing template 'dashboard': %v\n", err)
+				}
+				return
 			}
-			return
+			log.Printf("/student/dashboard: Invalid method %s\n", r.Method)
+		} else {
+			log.Println("/student/dashboard: User is not authenticated or does not have Student role")
 		}
-		log.Printf("/student/dashboard: Invalid method %s\n", r.Method)
 	} else {
-		log.Println("/student/dashboard: User is not authenticated or does not have Student role")
+		log.Printf("/student/dashboard: User session not found")
 	}
 	log.Println("/student/dashboard: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
