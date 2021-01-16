@@ -40,7 +40,6 @@ func GetSession(w http.ResponseWriter, r *http.Request) *HTTPSession {
 		} else {
 			log.Printf("Session %s not found\n", cookie.Value)
 			http.SetCookie(w, &http.Cookie{Name: cookieName, Path: "/", HttpOnly: true, Secure: true, Expires: time.Time{}, MaxAge: -1})
-			return nil
 		}
 	} else {
 		log.Printf("Session cookie not found\n")
