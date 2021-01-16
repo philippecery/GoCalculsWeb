@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -71,10 +70,6 @@ func (s *socket) toInt(key string) (int, error) {
 
 func (s *socket) getCurrentLanguage() string {
 	return s.language
-}
-
-func (s *socket) getCurrentLanguageAlt() string {
-	return strings.Replace(s.getCurrentLanguage(), "-", "_", 1)
 }
 
 func (s *socket) addOperation(currentOperation *document.Operation) {

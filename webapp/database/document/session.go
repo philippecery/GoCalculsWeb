@@ -1,8 +1,11 @@
 package document
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
+	"github.com/goodsign/monday"
 	"github.com/google/uuid"
 	"github.com/philippecery/maths/webapp/constant"
 )
@@ -139,4 +142,25 @@ func (s *HomeworkSession) NbUpdate(isGood bool, operatorID int) int {
 		nbUpdate = results.NbWrong
 	}
 	return nbUpdate
+}
+
+const dateFormat = "Monday 02 January 2006 @ 15:04:05 GMT"
+
+// FormattedDateTime returns the formatted and localized start datetime
+func (s *HomeworkSession) FormattedDateTime(locale string) string {
+	return monday.Format(s.StartTime, dateFormat, monday.Locale(strings.Replace(locale, "-", "_", 1)))
+}
+
+// FormattedDuration returns the formatted duration in minutes, seconds and milliseconds
+func (s *HomeworkSession) FormattedDuration() string {
+	var minutes, seconds, milliseconds time.Duration
+	if !s.EndTime.IsZero() {
+		duration := s.EndTime.Sub(s.StartTime).Round(time.Millisecond)
+		minutes = duration / time.Minute
+		duration -= minutes * time.Minute
+		seconds = duration / time.Second
+		duration -= seconds * time.Second
+		milliseconds = duration / time.Millisecond
+	}
+	return fmt.Sprintf("%02d:%02d,%03d", minutes, seconds, milliseconds)
 }

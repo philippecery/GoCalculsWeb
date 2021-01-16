@@ -5,14 +5,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/goodsign/monday"
 	"github.com/philippecery/maths/webapp/constant"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/util"
 )
-
-const dateFormat = "Monday 02 January 2006 @ 15:04:05 GMT"
 
 func (s *socket) operation() error {
 	if session := s.getHomeworkSession(); session != nil {
@@ -149,28 +146,15 @@ func (s *socket) results(homeworkType, status, page int) error {
 	if homeworkSessions, nbTotal := dataaccess.GetSessionsByUserID(s.userID, homeworkType, status, page); homeworkSessions != nil {
 		response["nbTotal"] = nbTotal
 		for _, homeworkSession := range homeworkSessions {
-			var duration string
-			if homeworkSession.EndTime.IsZero() {
-				duration = "00:00,000"
-			} else {
-				d := homeworkSession.EndTime.Sub(homeworkSession.StartTime).Round(time.Millisecond)
-				m := d / time.Minute
-				d -= m * time.Minute
-				s := d / time.Second
-				d -= s * time.Second
-				ms := d / time.Millisecond
-				duration = fmt.Sprintf("%02d:%02d,%03d", m, s, ms)
-			}
-			startTime := monday.Format(homeworkSession.StartTime, dateFormat, monday.Locale(s.getCurrentLanguageAlt()))
 			session := map[string]interface{}{
 				"sessionID":         homeworkSession.SessionID,
-				"startTime":         startTime,
+				"startTime":         homeworkSession.FormattedDateTime(s.getCurrentLanguage()),
 				"type":              constant.HomeworkTypes[homeworkSession.TypeID].Logo,
 				"nbAdditions":       homeworkSession.Homework.NbAdditions,
 				"nbSubstractions":   homeworkSession.Homework.NbSubstractions,
 				"nbMultiplications": homeworkSession.Homework.NbMultiplications,
 				"nbDivisions":       homeworkSession.Homework.NbDivisions,
-				"duration":          duration,
+				"duration":          homeworkSession.FormattedDuration(),
 				"status":            homeworkSession.Status.Logo(),
 			}
 			sessions = append(sessions, session)
