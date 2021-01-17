@@ -8,6 +8,7 @@ import (
 	"github.com/philippecery/maths/webapp/controller/api"
 	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/controller/app/admin"
+	"github.com/philippecery/maths/webapp/controller/app/common"
 	"github.com/philippecery/maths/webapp/controller/app/student"
 	"github.com/philippecery/maths/webapp/controller/app/teacher"
 	"github.com/philippecery/maths/webapp/session"
@@ -44,6 +45,8 @@ func SetupRoutes() {
 	handleFunc("/student/dashboard", noCache(student.Dashboard))
 	handleFunc("/student/operations", noCache(student.Operations))
 	handleFunc("/student/results", noCache(student.Results))
+
+	handleFunc("/profile", noCache(common.Profile))
 
 	handleFunc("/websocket", api.Endpoints)
 }

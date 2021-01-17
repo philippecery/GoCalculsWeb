@@ -126,7 +126,8 @@
     "noResults": "No results",
     "loading": "Loading...",
 
-    "profile": "My Profile",
+    "profile": "Profile",
+    "viewProfile": "View Profile",
 
     "errorGenericMessage": "An error occurred. Please contact the administrator.",
     "errDisabled": "This feature is not available in this page.",

@@ -19,6 +19,9 @@
     <div class="container">
       <div class="text-right col-sm-12">
         {{ if .User }}
+        <a class="btn btn-xs btn-primary" href="/profile" role="button">
+          <span class="glyphicon glyphicon-user"></span>&nbsp;<span>{{ .i18n_viewProfile }}</span>
+        </a>
         <a class="btn btn-xs btn-danger" href="/logout" role="button">
           <span class="glyphicon glyphicon-log-out"></span>&nbsp;<span>{{ .i18n_logout }}</span>
         </a>

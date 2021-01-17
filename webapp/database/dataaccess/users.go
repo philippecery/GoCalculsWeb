@@ -137,10 +137,20 @@ func GetUserByToken(token string) *document.User {
 
 // RegisterUser retrieves and replaces the User document where userid field equals the one in the new User document
 func RegisterUser(newUser *document.RegisteredUser, token string) error {
-	if _, err := collection.Users.ReplaceOne(context.TODO(), bson.M{"userid": newUser.UserID}, newUser); err != nil {
+	if _, err := collection.Users.ReplaceOne(context.TODO(), bson.M{"userid": newUser.UserID, "token": token}, newUser); err != nil {
 		log.Printf("Unable to replace user %s. Cause: %v", newUser.UserID, err)
 		return errors.New("User creation failed")
 	}
 	log.Printf("User %s is created", newUser.UserID)
+	return nil
+}
+
+// UpdateUserProfile updates the User document where userid field equals the one in the new User document
+func UpdateUserProfile(userProfile *document.User) error {
+	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": userProfile.UserID}, bson.M{"$set": bson.M{"firstname": userProfile.FirstName, "lastname": userProfile.LastName, "emailaddress": userProfile.EmailAddress}}); err != nil {
+		log.Printf("Unable to update user %s. Cause: %v", userProfile.UserID, err)
+		return errors.New("User creation failed")
+	}
+	log.Printf("User %s is created", userProfile.UserID)
 	return nil
 }
