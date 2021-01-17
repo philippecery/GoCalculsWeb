@@ -2,12 +2,11 @@ package document
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
-	"github.com/goodsign/monday"
 	"github.com/google/uuid"
 	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/i18n"
 )
 
 // HomeworkSession represents a homwework session.
@@ -148,7 +147,7 @@ const dateFormat = "Monday 02 January 2006 @ 15:04:05 GMT"
 
 // FormattedDateTime returns the formatted and localized start datetime
 func (s *HomeworkSession) FormattedDateTime(locale string) string {
-	return monday.Format(s.StartTime, dateFormat, monday.Locale(strings.Replace(locale, "-", "_", 1)))
+	return i18n.FormatDateTime(s.StartTime, locale)
 }
 
 // FormattedDuration returns the formatted duration in minutes, seconds and milliseconds
