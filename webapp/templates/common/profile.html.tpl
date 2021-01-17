@@ -3,6 +3,8 @@
 	{{ template "header.html" . }}
     <div class="col-sm-12 text-center"><h2><span class="glyphicon glyphicon-user"></span>&nbsp;<span>{{ .i18n_profile }}</span></h2></div>
 	{{ template "error.html" . }}
+    <div class="col-sm-12 text-center"><span class="glyphicon glyphicon-info-sign"></span>&nbsp;<span>{{ .i18n_lastConnection }}: {{ .LastConnection }}</span></div>
+    <div class="col-sm-12 text-center">&nbsp;</div>
     <div class="col-sm-12">
         <form id="profileForm" method="POST" action="/profile" class="form-horizontal">
             <input type="hidden" name="token" value="{{ .Token }}"/>
