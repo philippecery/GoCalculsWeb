@@ -103,10 +103,13 @@
             var socket = new WebSocket('wss://' + document.domain + ':' + location.port + namespace);
             var type = {{ .TypeID }};
 
-            {{ $i18n_errDisabled := .i18n_errDisabled }}
+            function disableLink(id) {
+                $('#'+id).addClass('disabled');
+                $('#'+id).click(function(event) { window.alert(`{{ .i18n_errDisabled }}`) });
+            }
+            disableLink('profile');
             {{ range $key, $value := .langs }}
-            $('#lang_{{ $key }}').addClass('disabled');
-            $('#lang_{{ $key }}').click(function(event) { window.alert(`{{ $i18n_errDisabled }}`) });
+            disableLink('lang_{{ $key }}');
             {{ end }}
 
             $('div#keyboard button[id^=keynum]').click(function(event) {
