@@ -32,8 +32,7 @@ func Results(w http.ResponseWriter, r *http.Request) {
 						AddLocalizedMessage("previous").
 						AddLocalizedMessage("next").
 						AddLocalizedMessage("close").
-						AddLocalizedMessage("quit").
-						AddLocalizedMessage("logout")
+						AddLocalizedMessage("quit")
 					httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
 					if err := app.Templates.ExecuteTemplate(w, "results.html.tpl", vd); err != nil {
 						log.Fatalf("Error while executing template 'results': %v\n", err)

@@ -76,7 +76,7 @@ func (vd ViewData) SetLocalizedMessage(key, messageID string) {
 
 // SetDefaultLocalizedMessages sets localized messages passed to all templates.
 func (vd ViewData) SetDefaultLocalizedMessages() ViewData {
-	return vd.AddLocalizedMessage("title")
+	return vd.AddLocalizedMessage("title").AddLocalizedMessage("viewProfile").AddLocalizedMessage("logout")
 }
 
 // AddLocalizedMessage retrieves and sets the localized message for the provided messageID in the user's selected language.

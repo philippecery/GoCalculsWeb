@@ -22,8 +22,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 				vd.SetDefaultLocalizedMessages().
 					AddLocalizedMessage("mentalmath").
 					AddLocalizedMessage("columnform").
-					AddLocalizedMessage("results").
-					AddLocalizedMessage("logout")
+					AddLocalizedMessage("results")
 				if err := app.Templates.ExecuteTemplate(w, "dashboard.html.tpl", vd); err != nil {
 					log.Fatalf("Error while executing template 'dashboard': %v\n", err)
 				}

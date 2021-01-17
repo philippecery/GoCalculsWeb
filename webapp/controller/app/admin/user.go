@@ -46,8 +46,7 @@ func UserList(w http.ResponseWriter, r *http.Request) {
 					AddLocalizedMessage("token").
 					AddLocalizedMessage("expires").
 					AddLocalizedMessage("copyRegistrationLink").
-					AddLocalizedMessage("addUser").
-					AddLocalizedMessage("logout")
+					AddLocalizedMessage("addUser")
 				if err := app.Templates.ExecuteTemplate(w, "userList.html.tpl", vd); err != nil {
 					log.Fatalf("Error while executing template 'userList': %v\n", err)
 				}
@@ -142,8 +141,7 @@ func UserNew(w http.ResponseWriter, r *http.Request) {
 						AddLocalizedMessage("teacher").
 						AddLocalizedMessage("student").
 						AddLocalizedMessage("save").
-						AddLocalizedMessage("cancel").
-						AddLocalizedMessage("logout")
+						AddLocalizedMessage("cancel")
 					if err := app.Templates.ExecuteTemplate(w, "userNew.html.tpl", vd); err != nil {
 						log.Fatalf("Error while executing template 'userNew': %v\n", err)
 					}

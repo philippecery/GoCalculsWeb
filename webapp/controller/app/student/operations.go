@@ -72,8 +72,7 @@ func Operations(w http.ResponseWriter, r *http.Request) {
 									AddLocalizedMessage("timeout").
 									AddLocalizedMessage("success").
 									AddLocalizedMessage("failure").
-									AddLocalizedMessage("errDisabled").
-									AddLocalizedMessage("logout")
+									AddLocalizedMessage("errDisabled")
 								homeworkSession := document.NewHomeworkSession(user.UserID, typeID, *homework)
 								dataaccess.NewHomeworkSession(homeworkSession)
 								httpsession.SetAttribute("HomeworkSessionID", homeworkSession.SessionID)

@@ -29,8 +29,7 @@ func StudentList(w http.ResponseWriter, r *http.Request) {
 					AddLocalizedMessage("mentalmath").
 					AddLocalizedMessage("columnform").
 					AddLocalizedMessage("nograde").
-					AddLocalizedMessage("setGrade").
-					AddLocalizedMessage("logout")
+					AddLocalizedMessage("setGrade")
 				if err := app.Templates.ExecuteTemplate(w, "studentList.html.tpl", vd); err != nil {
 					log.Fatalf("Error while executing template 'studentList': %v\n", err)
 				}
@@ -74,8 +73,7 @@ func StudentGrade(w http.ResponseWriter, r *http.Request) {
 								AddLocalizedMessage("nograde").
 								AddLocalizedMessage("mentalmath").
 								AddLocalizedMessage("columnform").
-								AddLocalizedMessage("assignGrade").
-								AddLocalizedMessage("logout")
+								AddLocalizedMessage("assignGrade")
 							if err := app.Templates.ExecuteTemplate(w, "studentGrade.html.tpl", vd); err != nil {
 								log.Fatalf("Error while executing template 'studentGrade': %v\n", err)
 							}

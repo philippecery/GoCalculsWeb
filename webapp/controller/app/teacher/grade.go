@@ -34,8 +34,7 @@ func GradeList(w http.ResponseWriter, r *http.Request) {
 					AddLocalizedMessage("editGrade").
 					AddLocalizedMessage("copyGrade").
 					AddLocalizedMessage("deleteGrade").
-					AddLocalizedMessage("addGrade").
-					AddLocalizedMessage("logout")
+					AddLocalizedMessage("addGrade")
 				if err := app.Templates.ExecuteTemplate(w, "gradeList.html.tpl", vd); err != nil {
 					log.Fatalf("Error while executing template 'gradeList': %v\n", err)
 				}
@@ -82,8 +81,7 @@ func GradeStudents(w http.ResponseWriter, r *http.Request) {
 								AddLocalizedMessage("nograde").
 								AddLocalizedMessage("unassignGrade").
 								AddLocalizedMessage("save").
-								AddLocalizedMessage("cancel").
-								AddLocalizedMessage("logout")
+								AddLocalizedMessage("cancel")
 							if err := app.Templates.ExecuteTemplate(w, "gradeStudents.html.tpl", vd); err != nil {
 								log.Fatalf("Error while executing template 'gradeStudents': %v\n", err)
 							}
@@ -154,8 +152,7 @@ func GradeNew(w http.ResponseWriter, r *http.Request) {
 						AddLocalizedMessage("nbDivisions").
 						AddLocalizedMessage("timeInMinutes").
 						AddLocalizedMessage("save").
-						AddLocalizedMessage("cancel").
-						AddLocalizedMessage("logout")
+						AddLocalizedMessage("cancel")
 					vd.SetLocalizedMessage("gradeFormTitle", "newGrade")
 					vd.SetViewData("Operation", "New")
 					vd.SetViewData("Grade", &document.Grade{
@@ -220,8 +217,7 @@ func GradeCopy(w http.ResponseWriter, r *http.Request) {
 								AddLocalizedMessage("nbDivisions").
 								AddLocalizedMessage("timeInMinutes").
 								AddLocalizedMessage("save").
-								AddLocalizedMessage("cancel").
-								AddLocalizedMessage("logout")
+								AddLocalizedMessage("cancel")
 							vd.SetLocalizedMessage("gradeFormTitle", "copyGrade")
 							vd.SetViewData("Operation", "Copy")
 							vd.SetViewData("Grade", grade)
@@ -277,8 +273,7 @@ func GradeEdit(w http.ResponseWriter, r *http.Request) {
 								AddLocalizedMessage("nbDivisions").
 								AddLocalizedMessage("timeInMinutes").
 								AddLocalizedMessage("save").
-								AddLocalizedMessage("cancel").
-								AddLocalizedMessage("logout")
+								AddLocalizedMessage("cancel")
 							vd.SetLocalizedMessage("gradeFormTitle", "editGrade")
 							vd.SetViewData("Operation", "Edit")
 							vd.SetViewData("Grade", grade)
