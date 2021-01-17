@@ -1,13 +1,9 @@
 package app
 
 import (
-	"crypto/rand"
-	hash "crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/philippecery/maths/webapp/constant"
@@ -15,16 +11,6 @@ import (
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/session"
 )
-
-var validEmailAddress = regexp.MustCompile("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$")
-var validName = regexp.MustCompile("([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+")
-
-var validPassword = []*regexp.Regexp{
-	regexp.MustCompile("^.*[0-9]+.*$"),
-	regexp.MustCompile("^.*[a-z]+.*$"),
-	regexp.MustCompile("^.*[A-Z]+.*$"),
-	regexp.MustCompile("^.*[^0-9a-zA-Z]+.*$"),
-}
 
 // Register handles requests to /register
 // Only GET and POST requests are allowed.
@@ -92,79 +78,24 @@ func validateUserInput(r *http.Request) (*document.RegisteredUser, string, error
 		return nil, "", fmt.Errorf("Token expired")
 	}
 	newUser := document.RegisteredUser{}
-	if newUser.UserID, newUser.Role, err = validateUserID(r.PostFormValue("userId"), userToken); err != nil {
+	if r.PostFormValue("userId") == userToken.UserID {
+		newUser.UserID = userToken.UserID
+		newUser.Role = userToken.Role
+	} else {
 		return nil, "", err
 	}
-	if newUser.EmailAddress, err = validateEmailAddress(r.PostFormValue("emailAddress")); err != nil {
-		return nil, "errorInvalidEmailAddress", err
+	if newUser.EmailAddress, err = ValidateEmailAddress(r.PostFormValue("emailAddress")); err != nil {
+		return nil, err.Error(), err
 	}
-	if newUser.Password, err = validatePassword(r.PostFormValue("password"), r.PostFormValue("passwordConfirm")); err != nil {
-		return nil, "errorPassword", err
+	if newUser.Password, err = ValidatePassword(r.PostFormValue("password"), r.PostFormValue("passwordConfirm")); err != nil {
+		return nil, err.Error(), err
 	}
-	if newUser.FirstName, err = validateName(r.PostFormValue("firstName")); err != nil {
-		return nil, "errorInvalidFirstName", err
+	if newUser.FirstName, err = ValidateName(r.PostFormValue("firstName")); err != nil {
+		return nil, err.Error(), err
 	}
-	if newUser.LastName, err = validateName(r.PostFormValue("lastName")); err != nil {
-		return nil, "errorInvalidLastName", err
+	if newUser.LastName, err = ValidateName(r.PostFormValue("lastName")); err != nil {
+		return nil, err.Error(), err
 	}
 	newUser.Status = constant.Enabled
 	return &newUser, "", nil
-}
-
-func validateUserID(userID string, userToken *document.User) (string, constant.UserRole, error) {
-	if userID == userToken.UserID {
-		return userID, userToken.Role, nil
-	}
-	return "", 0, fmt.Errorf("Invalid user id")
-}
-
-func validateEmailAddress(emailAddress string) (string, error) {
-	if len(emailAddress) <= 254 && validEmailAddress.MatchString(emailAddress) {
-		return emailAddress, nil
-	}
-	return "", fmt.Errorf("Invalid email address")
-}
-
-func validatePassword(password, passwordConfirm string) (string, error) {
-	if password == passwordConfirm {
-		if validatePasswordStrength(password) {
-			salt := make([]byte, 32)
-			rand.Read(salt)
-			h := hash.New()
-			h.Write(salt)
-			h.Write([]byte(password))
-			hashedPwd := make([]byte, 0)
-			hashedPwd = append(hashedPwd, salt...)
-			hashedPwd = append(hashedPwd, h.Sum(nil)...)
-			return base64.StdEncoding.EncodeToString(hashedPwd), nil
-		}
-		return "", fmt.Errorf("Invalid password strength")
-	}
-	return "", fmt.Errorf("Password and confirmation password are different")
-}
-
-func validatePasswordStrength(password string) bool {
-	if len(password) < 8 {
-		return false
-	}
-	for _, regex := range validPassword {
-		if !regex.MatchString(password) {
-			return false
-		}
-	}
-	return true
-}
-
-func validateName(name string) (string, error) {
-	if validName.MatchString(name) {
-		return name, nil
-	}
-	return "", fmt.Errorf("Invalid characters in name")
-}
-
-func validateDate(date string) (*time.Time, error) {
-	if date, err := time.Parse("2000-12-31", date); err == nil {
-		return &date, nil
-	}
-	return nil, fmt.Errorf("Invalid date")
 }

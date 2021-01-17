@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -123,8 +121,6 @@ func executeAction(w http.ResponseWriter, r *http.Request, action func() error) 
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
-var validID = regexp.MustCompile("^[a-z]{2,}(\\.?[a-z]{2,})*$")
-
 // UserNew handles requests to /admin/user/new
 // Only GET and POST requests are allowed. The user must have role Admin to access this page.
 //  - a GET request will display the New User form. If an error message is available in the session, it will be displayed.
@@ -155,9 +151,11 @@ func UserNew(w http.ResponseWriter, r *http.Request) {
 				}
 				if r.Method == "POST" {
 					if r.PostFormValue("token") == token {
-						if roleID, _ := strconv.Atoi(r.PostFormValue("role")); roleID > 0 && constant.UserRole(roleID).IsValid() {
-							userID := strings.ToLower(r.PostFormValue("userId"))
-							if len(userID) <= 32 && validID.MatchString(userID) && dataaccess.IsUserIDAvailable(userID) {
+						var err error
+						var roleID int
+						var userID string
+						if roleID, err = app.ValidateRoleID(r.PostFormValue("role")); err == nil {
+							if userID, err = app.ValidateUserID(strings.ToLower(r.PostFormValue("userId"))); userID != "" && dataaccess.IsUserIDAvailable(userID) {
 								token, expirationTime := generateUserToken(userID)
 								unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
 								if err := dataaccess.CreateNewUser(unregisteredUser); err != nil {
@@ -167,12 +165,11 @@ func UserNew(w http.ResponseWriter, r *http.Request) {
 								http.Redirect(w, r, "/admin/user/list", http.StatusFound)
 								return
 							}
-							log.Printf("/admin/user/new: User %s invalid or already exists\n", userID)
-							httpsession.SetErrorMessageID("errorInvalidUserID")
+							log.Printf("/admin/user/new: User %s invalid or already exists\n", r.PostFormValue("userId"))
 						} else {
-							log.Printf("/admin/user/new: Invalid role id %d\n", roleID)
-							httpsession.SetErrorMessageID("errorInvalidRoleID")
+							log.Printf("/admin/user/new: Invalid role id %s\n", r.PostFormValue("role"))
 						}
+						httpsession.SetErrorMessageID(err.Error())
 					} else {
 						log.Println("/admin/user/new: Invalid CSRF token")
 					}

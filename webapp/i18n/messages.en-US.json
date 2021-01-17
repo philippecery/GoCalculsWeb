@@ -126,6 +126,8 @@
     "noResults": "No results",
     "loading": "Loading...",
 
+    "profile": "My Profile",
+
     "errorGenericMessage": "An error occurred. Please contact the administrator.",
     "errDisabled": "This feature is not available in this page.",
 
@@ -137,8 +139,8 @@
     "errorRegistrationFailed": "Registration failed due to a technical issue. Please try again later or contact the administrator.",
     "errorInvalidEmailAddress": "Invalid email address.",
     "errorPassword": "Invalid password.",
-    "errorInvalidFirstName": "Invalid first name.",
-    "errorInvalidLastName": "Invalid last name.",
+    "errorInvalidName": "Invalid name.",
+    "errorInvalidDate": "Invalid date.",
     "errorUserDeletionFailed": "User deletion failed.",
     "errorUserStatusUpdateFailed": "User status update failed.",
 

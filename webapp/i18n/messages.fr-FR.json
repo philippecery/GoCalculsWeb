@@ -126,6 +126,8 @@
     "noResults": "Aucun résultats",
     "loading": "Chargement en cours...",
 
+    "profile": "Mon Profil",
+
     "errorGenericMessage": "Une erreur est survenue. Veuillez contacter l'administrateur.",
     "errDisabled": "Cette fonctionalité n'est pas disponible sur cette page.",
 
@@ -137,8 +139,8 @@
     "errorRegistrationFailed": "Votre inscription a échoué à cause d'un problème technique. Veuillez réessayer plus tard ou contacter l'administrateur.",
     "errorInvalidEmailAddress": "Cette addresse email est invalide.",
     "errorPassword": "Ce mot de passe n'est pas suffisamentt complexe.",
-    "errorInvalidFirstName": "Ce prénom est invalide.",
-    "errorInvalidLastName": "Ce nom est invalide.",
+    "errorInvalidName": "Ce nom est invalide.",
+    "errorInvalidDate": "Cette date est invalide.",
     "errorUserDeletionFailed": "La suppression de cet utilisateur a échoué.",
     "errorUserStatusUpdateFailed": "La modification du statut de cet utilisateur a échoué.",
 
