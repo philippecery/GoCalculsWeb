@@ -4,8 +4,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ .i18n_title }}</title>
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/range.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/img/maths.png"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/range.css">
     <style nonce="{{ .nonce }}">
       div.percentAll {
         height: 40px;
@@ -17,7 +18,12 @@
   </head>
   <body>
     <div class="container">
-      <div class="text-right col-sm-12">
+      <div class="text-left col-sm-6">
+        {{ range $key, $value := .langs }}
+        <a id="lang_{{ $key }}" role="button"><img src="/img/{{ $key }}.svg" alt="{{ $value }}"></a>
+        {{ end }}
+      </div>
+      <div class="text-right col-sm-6">
         {{ if .User }}
         <a class="btn btn-xs btn-primary" id="profile" href="/profile" role="button">
           <span class="glyphicon glyphicon-user"></span>&nbsp;<span>{{ .i18n_viewProfile }}</span>
@@ -26,11 +32,6 @@
           <span class="glyphicon glyphicon-log-out"></span>&nbsp;<span>{{ .i18n_logout }}</span>
         </a>
         {{ end }}
-        <div class="btn-group" role="group">
-            {{ range $key, $value := .langs }}
-              <a class="btn btn-xs btn-default" id="lang_{{ $key }}" role="button"><span>{{ $value }}</span></a>
-            {{ end }}
-        </div>
       </div>
       <h1 class="text-center alert alert-danger"><span class="glyphicon glyphicon-education"></span>&nbsp;{{ .i18n_title }}</h1>
 {{ end }}

@@ -19,6 +19,7 @@ func SetupRoutes() {
 	handleStatic("css")
 	handleStatic("fonts")
 	handleStatic("js")
+	handleStatic("img")
 
 	handleFunc("/", noCache(app.Home))
 	handleFunc("/register", noCache(app.Register))
