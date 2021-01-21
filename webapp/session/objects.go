@@ -34,13 +34,13 @@ func (u *UserInformation) HasRole(role constant.UserRole) bool {
 	return u.Role == role
 }
 
-// CheckRoleByURI returns true if this user has the required role to access that URI
+// HasAccessTo returns true if this user has the required role to access that URI
 // A URI starting with:
 //  - /admin requires Admin role
 //  - /teacher requires Teacher role
 //  - /student requires Student role
 //  - /user is accessible to all authenticated users
-func (u *UserInformation) CheckRoleByURI(uri string) bool {
+func (u *UserInformation) HasAccessTo(uri string) bool {
 	path := strings.Split(uri, "/")
 	if len(path) > 1 {
 		switch path[1] {

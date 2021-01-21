@@ -83,11 +83,11 @@ func securityHeaders(h func(http.ResponseWriter, *http.Request, *session.HTTPSes
 func accessControl(h func(http.ResponseWriter, *http.Request, *session.HTTPSession, *session.UserInformation)) func(http.ResponseWriter, *http.Request, *session.HTTPSession) {
 	return func(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
 		if user := httpsession.GetAuthenticatedUser(); user != nil {
-			if user.CheckRoleByURI(r.RequestURI) {
+			if user.HasAccessTo(r.RequestURI) {
 				h(w, r, httpsession, user)
 				return
 			}
-			log.Println("User does not have the required role")
+			log.Printf("User %s does not have access to %s", user.UserID, r.RequestURI)
 		} else {
 			log.Println("User is not authenticated")
 		}
