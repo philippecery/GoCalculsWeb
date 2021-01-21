@@ -86,7 +86,7 @@ func (s *HTTPSession) GetCSPNonce() string {
 	return ""
 }
 
-var pagesToIgnore = []string{"/register", "/login", "/profile", "/student/operations"}
+var pagesToIgnore = []string{"/register", "/login", "/user/profile", "/student/operations"}
 
 // SetLastVisitedPage stores the URI of the last visited page
 func (s *HTTPSession) SetLastVisitedPage(uri string) {
