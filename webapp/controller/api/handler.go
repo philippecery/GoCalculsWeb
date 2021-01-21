@@ -14,99 +14,95 @@ import (
 
 // Endpoints controller
 func Endpoints(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
-	if user.IsStudent() {
-		if token := httpsession.GetCSWHToken(); token != "" {
-			if r.FormValue("token") == token {
-				upgrader := websocket.Upgrader{}
-				upgrader.CheckOrigin = func(r *http.Request) bool {
-					origin := r.Header["Origin"]
-					if len(origin) == 0 {
-						return false
-					}
-					u, err := url.Parse(origin[0])
-					if err != nil {
-						return false
-					}
-					return equalASCIIFold(u.Host, r.Host)
+	if token := httpsession.GetCSWHToken(); token != "" {
+		if r.FormValue("token") == token {
+			upgrader := websocket.Upgrader{}
+			upgrader.CheckOrigin = func(r *http.Request) bool {
+				origin := r.Header["Origin"]
+				if len(origin) == 0 {
+					return false
 				}
-				conn, err := upgrader.Upgrade(w, r, nil)
+				u, err := url.Parse(origin[0])
 				if err != nil {
-					log.Println(err)
-					http.Redirect(w, r, "/student/dashboard", http.StatusFound)
-					return
+					return false
 				}
-				log.Println("/student/websocket: Client Connected")
-				socket := &socket{
-					userID:            user.UserID,
-					language:          httpsession.GetStringAttribute("Lang"),
-					homeworkSessionID: httpsession.GetStringAttribute("HomeworkSessionID"),
-					conn:              conn,
-				}
-				for {
-					var messageType int
-					var requestMessage []byte
-					var err error
-					if messageType, requestMessage, err = conn.ReadMessage(); err == nil {
-						switch messageType {
-						case websocket.TextMessage:
-							log.Printf("/student/websocket: Request received: %s\n", string(requestMessage))
-							if err = json.Unmarshal(requestMessage, &socket.message); err == nil {
-								if cswhToken, isString := socket.message["token"].(string); isString && cswhToken == token {
-									if requestType, isString := socket.message["request"].(string); isString {
-										switch requestType {
-										case "operation":
-											err = socket.operation()
-										case "answer":
-											err = socket.answer()
-										case "toggle":
-											err = socket.toggle()
-										case "end":
-											err = socket.end()
-										case "results":
-											var homeworkType, status, page int
-											if homeworkType, err = socket.getInt("type"); err != nil {
-												homeworkType = -1
-											}
-											if status, err = socket.getInt("status"); err != nil {
-												status = -1
-											}
-											page, _ = socket.getInt("page")
-											err = socket.results(homeworkType, status, page)
-										case "details":
-											if sessionID, isString := socket.message["sessionID"].(string); isString {
-												err = socket.details(sessionID)
-											}
-										default:
-											err = fmt.Errorf("/student/websocket: Invalid request type: %s", requestType)
-										}
-									} else {
-										err = fmt.Errorf("/student/websocket: Request type is not a string")
-									}
-								} else {
-									err = fmt.Errorf("/student/websocket: Invalid CSWH token in message")
-								}
-							}
-						case websocket.CloseMessage:
-							log.Printf("/student/websocket: Close message received\n")
-							break
-						default:
-							err = fmt.Errorf("/student/websocket: Expected a text message, got type %d", messageType)
-						}
-					}
-					if err != nil {
-						log.Println(err)
-						break
-					}
-				}
-				conn.Close()
+				return equalASCIIFold(u.Host, r.Host)
+			}
+			conn, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Println(err)
+				http.Redirect(w, r, "/student/dashboard", http.StatusFound)
 				return
 			}
-			log.Println("/student/websocket: Invalid CSWH token in URL")
-		} else {
-			log.Println("/student/websocket: CSWH token not found in session")
+			log.Println("/student/websocket: Client Connected")
+			socket := &socket{
+				userID:            user.UserID,
+				language:          httpsession.GetStringAttribute("Lang"),
+				homeworkSessionID: httpsession.GetStringAttribute("HomeworkSessionID"),
+				conn:              conn,
+			}
+			for {
+				var messageType int
+				var requestMessage []byte
+				var err error
+				if messageType, requestMessage, err = conn.ReadMessage(); err == nil {
+					switch messageType {
+					case websocket.TextMessage:
+						log.Printf("/student/websocket: Request received: %s\n", string(requestMessage))
+						if err = json.Unmarshal(requestMessage, &socket.message); err == nil {
+							if cswhToken, isString := socket.message["token"].(string); isString && cswhToken == token {
+								if requestType, isString := socket.message["request"].(string); isString {
+									switch requestType {
+									case "operation":
+										err = socket.operation()
+									case "answer":
+										err = socket.answer()
+									case "toggle":
+										err = socket.toggle()
+									case "end":
+										err = socket.end()
+									case "results":
+										var homeworkType, status, page int
+										if homeworkType, err = socket.getInt("type"); err != nil {
+											homeworkType = -1
+										}
+										if status, err = socket.getInt("status"); err != nil {
+											status = -1
+										}
+										page, _ = socket.getInt("page")
+										err = socket.results(homeworkType, status, page)
+									case "details":
+										if sessionID, isString := socket.message["sessionID"].(string); isString {
+											err = socket.details(sessionID)
+										}
+									default:
+										err = fmt.Errorf("/student/websocket: Invalid request type: %s", requestType)
+									}
+								} else {
+									err = fmt.Errorf("/student/websocket: Request type is not a string")
+								}
+							} else {
+								err = fmt.Errorf("/student/websocket: Invalid CSWH token in message")
+							}
+						}
+					case websocket.CloseMessage:
+						log.Printf("/student/websocket: Close message received\n")
+						break
+					default:
+						err = fmt.Errorf("/student/websocket: Expected a text message, got type %d", messageType)
+					}
+				}
+				if err != nil {
+					log.Println(err)
+					break
+				}
+			}
+			conn.Close()
+			return
 		}
+		log.Println("/student/websocket: Invalid CSWH token in URL")
 	} else {
-		log.Println("/student/websocket: User does not have Student role")
+		log.Println("/student/websocket: CSWH token not found in session")
 	}
 	log.Println("/student/websocket: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
