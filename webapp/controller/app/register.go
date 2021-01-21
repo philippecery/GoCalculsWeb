@@ -16,55 +16,51 @@ import (
 // Only GET and POST requests are allowed.
 //  - a GET request will display the registration form if the submitted token exists and is not expired.
 //  - a POST request will store the user's data if the token exists and is still not expired.
-func Register(w http.ResponseWriter, r *http.Request) {
-	if httpsession := session.GetSession(w, r); httpsession != nil {
-		if r.Method == "GET" {
-			if userToken := dataaccess.GetUserByToken(r.URL.Query()["token"][0]); userToken != nil {
-				vd := NewViewData(w, r)
-				if userToken.Expires.Before(time.Now()) {
-					httpsession.SetErrorMessageID("errorRegistrationTokenExpired")
-				}
-				vd.SetUserID(userToken.UserID)
-				vd.SetErrorMessage(httpsession.GetErrorMessageID())
-				vd.SetToken(userToken.Token)
-				vd.SetDefaultLocalizedMessages().
-					AddLocalizedMessage("registration").
-					AddLocalizedMessage("userid").
-					AddLocalizedMessage("firstName").
-					AddLocalizedMessage("lastName").
-					AddLocalizedMessage("emailAddress").
-					AddLocalizedMessage("password").
-					AddLocalizedMessage("passwordConfirm").
-					AddLocalizedMessage("register")
-				if err := Templates.ExecuteTemplate(w, "registration.html.tpl", vd); err != nil {
-					log.Fatalf("Error while executing template 'registration': %v\n", err)
-				}
-				return
+func Register(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
+	if r.Method == "GET" {
+		if userToken := dataaccess.GetUserByToken(r.URL.Query()["token"][0]); userToken != nil {
+			vd := NewViewData(w, r)
+			if userToken.Expires.Before(time.Now()) {
+				httpsession.SetErrorMessageID("errorRegistrationTokenExpired")
 			}
-		} else {
-			if r.Method == "POST" {
-				token := r.PostFormValue("token")
-				if newUser, errorMessageID, err := validateUserInput(r); err == nil {
-					if err = dataaccess.RegisterUser(newUser, token); err != nil {
-						log.Printf("/register: User creation failed. Cause: %v", err)
-						httpsession.SetErrorMessageID("errorRegistrationFailed")
-					} else {
-						http.Redirect(w, r, "/login", http.StatusFound)
-						return
-					}
-				} else {
-					log.Printf("/register: Input validation failed. Cause: %v", err)
-					if errorMessageID != "" {
-						httpsession.SetErrorMessageID(errorMessageID)
-					}
-				}
-				http.Redirect(w, r, "/register?token="+token, http.StatusFound)
-				return
+			vd.SetUserID(userToken.UserID)
+			vd.SetErrorMessage(httpsession.GetErrorMessageID())
+			vd.SetToken(userToken.Token)
+			vd.SetDefaultLocalizedMessages().
+				AddLocalizedMessage("registration").
+				AddLocalizedMessage("userid").
+				AddLocalizedMessage("firstName").
+				AddLocalizedMessage("lastName").
+				AddLocalizedMessage("emailAddress").
+				AddLocalizedMessage("password").
+				AddLocalizedMessage("passwordConfirm").
+				AddLocalizedMessage("register")
+			if err := Templates.ExecuteTemplate(w, "registration.html.tpl", vd); err != nil {
+				log.Fatalf("Error while executing template 'registration': %v\n", err)
 			}
-			log.Printf("/register: Invalid method %s\n", r.Method)
+			return
 		}
 	} else {
-		log.Printf("/register: User session not found")
+		if r.Method == "POST" {
+			token := r.PostFormValue("token")
+			if newUser, errorMessageID, err := validateUserInput(r); err == nil {
+				if err = dataaccess.RegisterUser(newUser, token); err != nil {
+					log.Printf("/register: User creation failed. Cause: %v", err)
+					httpsession.SetErrorMessageID("errorRegistrationFailed")
+				} else {
+					http.Redirect(w, r, "/login", http.StatusFound)
+					return
+				}
+			} else {
+				log.Printf("/register: Input validation failed. Cause: %v", err)
+				if errorMessageID != "" {
+					httpsession.SetErrorMessageID(errorMessageID)
+				}
+			}
+			http.Redirect(w, r, "/register?token="+token, http.StatusFound)
+			return
+		}
+		log.Printf("/register: Invalid method %s\n", r.Method)
 	}
 }
 

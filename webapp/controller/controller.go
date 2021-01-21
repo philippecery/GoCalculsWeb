@@ -56,11 +56,11 @@ func handleStatic(path string) {
 	http.Handle("/"+path+"/", http.StripPrefix("/"+path+"/", http.FileServer(http.Dir("./static/"+path))))
 }
 
-func handleFunc(pattern string, h func(http.ResponseWriter, *http.Request)) {
+func handleFunc(pattern string, h func(http.ResponseWriter, *http.Request, *session.HTTPSession)) {
 	http.HandleFunc(pattern, securityHeaders(h))
 }
 
-func securityHeaders(h func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+func securityHeaders(h func(http.ResponseWriter, *http.Request, *session.HTTPSession)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s %s", r.Method, r.RequestURI)
 		if httpsession := session.GetSession(w, r); httpsession != nil {
@@ -72,18 +72,21 @@ func securityHeaders(h func(http.ResponseWriter, *http.Request)) func(http.Respo
 			w.Header().Set("Referrer-Policy", "no-referrer")
 			w.Header().Set("X-Frame-Options", "deny")
 			w.Header().Set("X-XSS-Protection", "0")
-			h(w, r)
+			h(w, r, httpsession)
 		} else {
 			http.Redirect(w, r, "/", http.StatusFound)
 		}
 	}
 }
 
-func noCache(h func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func noCache(h func(http.ResponseWriter, *http.Request, *session.HTTPSession)) func(http.ResponseWriter, *http.Request, *session.HTTPSession) {
+	return func(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
+		if r.Method == "GET" {
+			httpsession.SetLastVisitedPage(r.RequestURI)
+		}
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
-		h(w, r)
+		h(w, r, httpsession)
 	}
 }

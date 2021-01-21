@@ -1,6 +1,8 @@
 package session
 
 import (
+	"strings"
+
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/util"
 )
@@ -82,4 +84,19 @@ func (s *HTTPSession) GetCSPNonce() string {
 		return nonce
 	}
 	return ""
+}
+
+var pagesToIgnore = []string{"/register", "/login", "/profile", "/student/operations"}
+
+func (s *HTTPSession) SetLastVisitedPage(uri string) {
+	var toIgnore bool
+	for _, pageToIgnore := range pagesToIgnore {
+		if strings.HasPrefix(uri, pageToIgnore) {
+			toIgnore = true
+			break
+		}
+	}
+	if !toIgnore {
+		s.SetAttribute("lastVisitedPage", uri)
+	}
 }
