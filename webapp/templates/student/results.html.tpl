@@ -91,7 +91,7 @@
     <script nonce="{{ .nonce }}" type="text/javascript" charset="utf-8">
 		$(document).ready(function(){
 			var token = '{{ .Token }}';
-			var namespace = '/websocket?token='+token;
+			var namespace = '/student/websocket?token='+token;
 			var socket = new WebSocket('wss://' + document.domain + ':' + location.port + namespace);
 			var nbTotal = 0;
 			var homeworkType = -1;

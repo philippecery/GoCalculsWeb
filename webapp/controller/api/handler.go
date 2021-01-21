@@ -35,7 +35,7 @@ func Endpoints(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 					http.Redirect(w, r, "/student/dashboard", http.StatusFound)
 					return
 				}
-				log.Println("/websocket: Client Connected")
+				log.Println("/student/websocket: Client Connected")
 				socket := &socket{
 					userID:            user.UserID,
 					language:          httpsession.GetStringAttribute("Lang"),
@@ -49,7 +49,7 @@ func Endpoints(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 					if messageType, requestMessage, err = conn.ReadMessage(); err == nil {
 						switch messageType {
 						case websocket.TextMessage:
-							log.Printf("/websocket: Request received: %s\n", string(requestMessage))
+							log.Printf("/student/websocket: Request received: %s\n", string(requestMessage))
 							if err = json.Unmarshal(requestMessage, &socket.message); err == nil {
 								if cswhToken, isString := socket.message["token"].(string); isString && cswhToken == token {
 									if requestType, isString := socket.message["request"].(string); isString {
@@ -77,20 +77,20 @@ func Endpoints(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 												err = socket.details(sessionID)
 											}
 										default:
-											err = fmt.Errorf("/websocket: Invalid request type: %s", requestType)
+											err = fmt.Errorf("/student/websocket: Invalid request type: %s", requestType)
 										}
 									} else {
-										err = fmt.Errorf("/websocket: Request type is not a string")
+										err = fmt.Errorf("/student/websocket: Request type is not a string")
 									}
 								} else {
-									err = fmt.Errorf("/websocket: Invalid CSWH token in message")
+									err = fmt.Errorf("/student/websocket: Invalid CSWH token in message")
 								}
 							}
 						case websocket.CloseMessage:
-							log.Printf("/websocket: Close message received\n")
+							log.Printf("/student/websocket: Close message received\n")
 							break
 						default:
-							err = fmt.Errorf("/websocket: Expected a text message, got type %d", messageType)
+							err = fmt.Errorf("/student/websocket: Expected a text message, got type %d", messageType)
 						}
 					}
 					if err != nil {
@@ -101,14 +101,14 @@ func Endpoints(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 				conn.Close()
 				return
 			}
-			log.Println("/websocket: Invalid CSWH token in URL")
+			log.Println("/student/websocket: Invalid CSWH token in URL")
 		} else {
-			log.Println("/websocket: CSWH token not found in session")
+			log.Println("/student/websocket: CSWH token not found in session")
 		}
 	} else {
-		log.Println("/websocket: User does not have Student role")
+		log.Println("/student/websocket: User does not have Student role")
 	}
-	log.Println("/websocket: Redirecting to Login page")
+	log.Println("/student/websocket: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 

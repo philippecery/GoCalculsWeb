@@ -42,12 +42,12 @@ func (s *socket) operation() error {
 					"operator":      operator.Symbol,
 				})
 			}
-			log.Printf("/websocket[operation]: session completed")
+			log.Printf("/student/websocket[operation]: session completed")
 		} else {
-			log.Printf("/websocket[operation]: Invalid type ID")
+			log.Printf("/student/websocket[operation]: Invalid type ID")
 		}
 	} else {
-		log.Printf("/websocket[operation]: No HomeworkSession found in database")
+		log.Printf("/student/websocket[operation]: No HomeworkSession found in database")
 	}
 	return s.emitErrorMessage("errorGenericMessage")
 }
@@ -81,7 +81,7 @@ func (s *socket) answer() error {
 			"nbTotalRemaining": nbTotalRemaining,
 		})
 	}
-	log.Printf("/websocket[answer]: No HomeworkSession found in database")
+	log.Printf("/student/websocket[answer]: No HomeworkSession found in database")
 	return s.emitErrorMessage("errorGenericMessage")
 }
 
@@ -106,9 +106,9 @@ func (s *socket) toggle() error {
 				"answer2":    answer2,
 			})
 		}
-		log.Printf("/websocket[toggle]: Invalid 'show' parameter")
+		log.Printf("/student/websocket[toggle]: Invalid 'show' parameter")
 	} else {
-		log.Printf("/websocket[toggle]: No HomeworkSession found in database")
+		log.Printf("/student/websocket[toggle]: No HomeworkSession found in database")
 	}
 	return s.emitErrorMessage("errorGenericMessage")
 }
@@ -136,7 +136,7 @@ func (s *socket) end() error {
 		s.summary(session)
 		return nil
 	}
-	log.Printf("/websocket[end]: No HomeworkSession found in database")
+	log.Printf("/student/websocket[end]: No HomeworkSession found in database")
 	return s.emitErrorMessage("errorGenericMessage")
 }
 
@@ -169,7 +169,7 @@ func (s *socket) details(sessionID string) error {
 		s.summary(session)
 		return nil
 	}
-	log.Printf("/websocket[end]: HomeworkSession %s not found in DB", sessionID)
+	log.Printf("/student/websocket[end]: HomeworkSession %s not found in DB", sessionID)
 	return s.emitErrorMessage("errorGenericMessage")
 }
 

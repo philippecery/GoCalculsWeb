@@ -25,7 +25,7 @@
       </div>
       <div class="text-right col-sm-6">
         {{ if .User }}
-        <a class="btn btn-xs btn-primary" id="profile" href="/profile" role="button">
+        <a class="btn btn-xs btn-primary" id="profile" href="/user/profile" role="button">
           <span class="glyphicon glyphicon-user"></span>&nbsp;<span>{{ .i18n_viewProfile }}</span>
         </a>
         <a class="btn btn-xs btn-danger" href="/logout" role="button">

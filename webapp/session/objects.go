@@ -1,6 +1,10 @@
 package session
 
-import "github.com/philippecery/maths/webapp/constant"
+import (
+	"strings"
+
+	"github.com/philippecery/maths/webapp/constant"
+)
 
 // UserInformation contains only the user information we want to keep in the user session
 type UserInformation struct {
@@ -10,17 +14,39 @@ type UserInformation struct {
 	Role      constant.UserRole
 }
 
-// IsAdmin returns true is this user's role is Admin
+// IsAdmin returns true if this user's role is Admin
 func (u *UserInformation) IsAdmin() bool {
-	return u.Role == constant.Admin
+	return u.HasRole(constant.Admin)
 }
 
-// IsTeacher returns true is this user's role is Teacher
+// IsTeacher returns true if this user's role is Teacher
 func (u *UserInformation) IsTeacher() bool {
-	return u.Role == constant.Teacher
+	return u.HasRole(constant.Teacher)
 }
 
-// IsStudent returns true is this user's role is Student
+// IsStudent returns true if this user's role is Student
 func (u *UserInformation) IsStudent() bool {
-	return u.Role == constant.Student
+	return u.HasRole(constant.Student)
+}
+
+// HasRole returns true if this user has the specified role
+func (u *UserInformation) HasRole(role constant.UserRole) bool {
+	return u.Role == role
+}
+
+func (u *UserInformation) CheckRoleByURI(uri string) bool {
+	path := strings.Split(uri, "/")
+	if len(path) > 1 {
+		switch path[1] {
+		case "admin":
+			return u.IsAdmin()
+		case "teacher":
+			return u.IsTeacher()
+		case "student":
+			return u.IsStudent()
+		case "user":
+			return true
+		}
+	}
+	return false
 }

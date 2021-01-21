@@ -12,7 +12,7 @@ import (
 	"github.com/philippecery/maths/webapp/session"
 )
 
-// Profile handles requests to /profile
+// Profile handles requests to /user/profile
 // Only GET and POST requests are allowed. The user must be authenticated to access this page.
 //  - a GET request will display the Profile form. If an error message is available in the session, it will be displayed.
 //  - a POST request will update the User document in database if the submitted data are valid.
@@ -50,21 +50,21 @@ func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 						} else {
 							httpsession.SetErrorMessageID(err.Error())
 						}
-						http.Redirect(w, r, "/profile", http.StatusFound)
+						http.Redirect(w, r, "/user/profile", http.StatusFound)
 						return
 					}
-					log.Println("/profile: Invalid User ID")
+					log.Println("/user/profile: Invalid User ID")
 				} else {
-					log.Println("/profile: Invalid CSRF token")
+					log.Println("/user/profile: Invalid CSRF token")
 				}
 			} else {
-				log.Printf("/profile: Invalid method %s\n", r.Method)
+				log.Printf("/user/profile: Invalid method %s\n", r.Method)
 			}
 		} else {
-			log.Println("/profile: CSRF token not found in session")
+			log.Println("/user/profile: CSRF token not found in session")
 		}
 	} else {
-		log.Println("/profile: User not found in database")
+		log.Println("/user/profile: User not found in database")
 	}
 	log.Println("/profile: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)

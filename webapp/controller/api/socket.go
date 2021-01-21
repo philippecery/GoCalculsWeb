@@ -97,7 +97,7 @@ func (s *socket) emit(messageType int, message interface{}) error {
 	var err error
 	if responseMessage, err = json.Marshal(message); err == nil {
 		if err = s.conn.WriteMessage(messageType, responseMessage); err == nil {
-			log.Printf("/websocket: Response sent: %s\n", string(responseMessage))
+			log.Printf("/student/websocket: Response sent: %s\n", string(responseMessage))
 		}
 	}
 	return err
