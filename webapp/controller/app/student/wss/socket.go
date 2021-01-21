@@ -1,4 +1,4 @@
-package api
+package wss
 
 import (
 	"encoding/json"

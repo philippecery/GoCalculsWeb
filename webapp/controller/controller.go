@@ -4,8 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/philippecery/maths/webapp/controller/app/student/wss"
+
 	"github.com/philippecery/maths/webapp/config"
-	"github.com/philippecery/maths/webapp/controller/api"
 	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/controller/app/admin"
 	"github.com/philippecery/maths/webapp/controller/app/common"
@@ -46,7 +47,7 @@ func SetupRoutes() {
 	handleFunc("/student/dashboard", noCache(accessControl(student.Dashboard)))
 	handleFunc("/student/operations", noCache(accessControl(student.Operations)))
 	handleFunc("/student/results", noCache(accessControl(student.Results)))
-	handleFunc("/student/websocket", accessControl(api.Endpoints))
+	handleFunc("/student/websocket", accessControl(wss.Endpoints))
 
 	handleFunc("/user/profile", noCache(accessControl(common.Profile)))
 
