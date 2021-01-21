@@ -88,6 +88,7 @@ func (s *HTTPSession) GetCSPNonce() string {
 
 var pagesToIgnore = []string{"/register", "/login", "/profile", "/student/operations"}
 
+// SetLastVisitedPage stores the URI of the last visited page
 func (s *HTTPSession) SetLastVisitedPage(uri string) {
 	var toIgnore bool
 	for _, pageToIgnore := range pagesToIgnore {
@@ -99,4 +100,9 @@ func (s *HTTPSession) SetLastVisitedPage(uri string) {
 	if !toIgnore {
 		s.SetAttribute("lastVisitedPage", uri)
 	}
+}
+
+// GetLastVisitedPage returns the URI of the last visited page
+func (s *HTTPSession) GetLastVisitedPage() string {
+	return s.GetStringAttribute("lastVisitedPage")
 }
