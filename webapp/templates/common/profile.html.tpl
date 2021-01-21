@@ -36,7 +36,7 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <div class="btn-group" role="group">
                         <button id="saveProfile" type="submit" class="btn btn-lg btn-primary">{{ .i18n_save }}</button>
-                        <a class="btn btn-lg btn-default" href="/profile" role="button"><span>{{ .i18n_cancel }}</span></a>
+                        <a class="btn btn-lg btn-default" href="{{ .LastVisitedPage }}" role="button"><span>{{ .i18n_cancel }}</span></a>
                     </div>
                 </div>
             </div>

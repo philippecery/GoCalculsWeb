@@ -24,6 +24,7 @@ func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 				vd.SetUser(user)
 				vd.SetViewData("UserProfile", userProfile)
 				vd.SetViewData("LastConnection", i18n.FormatDateTime(userProfile.LastConnection, vd.GetCurrentLanguage()))
+				vd.SetViewData("LastVisitedPage", httpsession.GetLastVisitedPage())
 				vd.SetToken(token)
 				vd.SetErrorMessage(httpsession.GetErrorMessageID())
 				vd.SetDefaultLocalizedMessages().
