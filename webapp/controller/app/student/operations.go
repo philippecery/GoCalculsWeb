@@ -38,8 +38,8 @@ func init() {
 
 // Operations handles requests to /student/operations
 // Only GET requests are allowed
-func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
+func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsStudent() {
 		if token := httpsession.NewCSWHToken(); token != "" {
 			if r.Method == "GET" {
 				if typeID := validateTypeID(r.FormValue("type")); typeID > 0 {
@@ -97,7 +97,7 @@ func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTT
 			log.Println("/student/operations: Unable to generate a new CSWH token")
 		}
 	} else {
-		log.Println("/student/operations: User is not authenticated or does not have Student role")
+		log.Println("/student/operations: User does not have Student role")
 	}
 	log.Println("/student/operations: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)

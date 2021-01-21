@@ -26,30 +26,30 @@ func SetupRoutes() {
 	handleFunc("/login", noCache(app.Login))
 	handleFunc("/logout", app.Logout)
 
-	handleFunc("/admin/user/list", noCache(admin.UserList))
-	handleFunc("/admin/user/new", noCache(admin.UserNew))
-	handleFunc("/admin/user/status", admin.UserStatus)
-	handleFunc("/admin/user/delete", admin.UserDelete)
+	handleFunc("/admin/user/list", noCache(authenticated(admin.UserList)))
+	handleFunc("/admin/user/new", noCache(authenticated(admin.UserNew)))
+	handleFunc("/admin/user/status", authenticated(admin.UserStatus))
+	handleFunc("/admin/user/delete", authenticated(admin.UserDelete))
 
-	handleFunc("/teacher/grade/list", noCache(teacher.GradeList))
-	handleFunc("/teacher/grade/new", noCache(teacher.GradeNew))
-	handleFunc("/teacher/grade/edit", noCache(teacher.GradeEdit))
-	handleFunc("/teacher/grade/copy", noCache(teacher.GradeCopy))
-	handleFunc("/teacher/grade/save", noCache(teacher.GradeSave))
-	handleFunc("/teacher/grade/students", noCache(teacher.GradeStudents))
-	handleFunc("/teacher/grade/unassign", teacher.GradeUnassign)
-	handleFunc("/teacher/grade/delete", teacher.GradeDelete)
-	handleFunc("/teacher/student/list", noCache(teacher.StudentList))
-	handleFunc("/teacher/student/grade", noCache(teacher.StudentGrade))
-	handleFunc("/teacher/student/assign", teacher.GradeAssign)
+	handleFunc("/teacher/grade/list", noCache(authenticated(teacher.GradeList)))
+	handleFunc("/teacher/grade/new", noCache(authenticated(teacher.GradeNew)))
+	handleFunc("/teacher/grade/edit", noCache(authenticated(teacher.GradeEdit)))
+	handleFunc("/teacher/grade/copy", noCache(authenticated(teacher.GradeCopy)))
+	handleFunc("/teacher/grade/save", noCache(authenticated(teacher.GradeSave)))
+	handleFunc("/teacher/grade/students", noCache(authenticated(teacher.GradeStudents)))
+	handleFunc("/teacher/grade/unassign", authenticated(teacher.GradeUnassign))
+	handleFunc("/teacher/grade/delete", authenticated(teacher.GradeDelete))
+	handleFunc("/teacher/student/list", noCache(authenticated(teacher.StudentList)))
+	handleFunc("/teacher/student/grade", noCache(authenticated(teacher.StudentGrade)))
+	handleFunc("/teacher/student/assign", authenticated(teacher.GradeAssign))
 
-	handleFunc("/student/dashboard", noCache(student.Dashboard))
-	handleFunc("/student/operations", noCache(student.Operations))
-	handleFunc("/student/results", noCache(student.Results))
+	handleFunc("/student/dashboard", noCache(authenticated(student.Dashboard)))
+	handleFunc("/student/operations", noCache(authenticated(student.Operations)))
+	handleFunc("/student/results", noCache(authenticated(student.Results)))
 
-	handleFunc("/profile", noCache(common.Profile))
+	handleFunc("/profile", noCache(authenticated(common.Profile)))
 
-	handleFunc("/websocket", api.Endpoints)
+	handleFunc("/websocket", authenticated(api.Endpoints))
 }
 
 func handleStatic(path string) {
@@ -75,6 +75,17 @@ func securityHeaders(h func(http.ResponseWriter, *http.Request, *session.HTTPSes
 			h(w, r, httpsession)
 		} else {
 			http.Redirect(w, r, "/", http.StatusFound)
+		}
+	}
+}
+
+func authenticated(h func(http.ResponseWriter, *http.Request, *session.HTTPSession, *session.UserInformation)) func(http.ResponseWriter, *http.Request, *session.HTTPSession) {
+	return func(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
+		if user := httpsession.GetAuthenticatedUser(); user != nil {
+			h(w, r, httpsession, user)
+		} else {
+			log.Println("User is not authenticated")
+			http.Redirect(w, r, "/logout", http.StatusFound)
 		}
 	}
 }

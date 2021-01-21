@@ -13,8 +13,8 @@ import (
 )
 
 // Endpoints controller
-func Endpoints(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
+func Endpoints(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsStudent() {
 		if token := httpsession.GetCSWHToken(); token != "" {
 			if r.FormValue("token") == token {
 				upgrader := websocket.Upgrader{}
@@ -106,7 +106,7 @@ func Endpoints(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 			log.Println("/websocket: CSWH token not found in session")
 		}
 	} else {
-		log.Println("/websocket: User is not authenticated or does not have Student role")
+		log.Println("/websocket: User does not have Student role")
 	}
 	log.Println("/websocket: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)

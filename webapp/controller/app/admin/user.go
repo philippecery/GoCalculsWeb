@@ -22,8 +22,8 @@ import (
 // UserList handles requests to /admin/user/list
 // Only GET requests are allowed. The user must have role Admin to access this page.
 // Displays the Users page with the list of registerd and unregistered users.
-func UserList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
+func UserList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsAdmin() {
 		if r.Method == "GET" {
 			vd := app.NewViewData(w, r)
 			vd.SetUser(user)
@@ -53,7 +53,7 @@ func UserList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 		}
 		log.Printf("/admin/user/list: Invalid method %s\n", r.Method)
 	} else {
-		log.Println("/admin/user/list: User is not authenticated or does not have Admin role")
+		log.Println("/admin/user/list: User does not have Admin role")
 	}
 	log.Println("/admin/user/list: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
@@ -62,8 +62,8 @@ func UserList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 // UserStatus handles requests to /admin/user/status
 // Only GET requests are allowed. The user must have role Admin to access this page.
 // Toggles the status of the selected user if the token is valid
-func UserStatus(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	executeAction(w, r, httpsession, func() error {
+func UserStatus(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	executeAction(w, r, httpsession, user, func() error {
 		if err := dataaccess.ToggleUserStatus(r.URL.Query()["userid"][0]); err != nil {
 			return errors.New("errorUserStatusUpdateFailed")
 		}
@@ -75,8 +75,8 @@ func UserStatus(w http.ResponseWriter, r *http.Request, httpsession *session.HTT
 // UserDelete handles requests to /admin/user/delete
 // Only GET requests are allowed. The user must have role Admin to access this page.
 // Deletes the selected user if the token is valid
-func UserDelete(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	executeAction(w, r, httpsession, func() error {
+func UserDelete(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	executeAction(w, r, httpsession, user, func() error {
 		if err := dataaccess.DeleteUser(r.URL.Query()["userid"][0]); err != nil {
 			return errors.New("errorUserDeletionFailed")
 		}
@@ -85,8 +85,8 @@ func UserDelete(w http.ResponseWriter, r *http.Request, httpsession *session.HTT
 	})
 }
 
-func executeAction(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, action func() error) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
+func executeAction(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation, action func() error) {
+	if user.IsAdmin() {
 		if r.Method == "GET" {
 			if len(r.URL.Query()["userid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
 				userID := r.URL.Query()["userid"][0]
@@ -106,7 +106,7 @@ func executeAction(w http.ResponseWriter, r *http.Request, httpsession *session.
 			log.Printf("/admin/user/...: Invalid method %s\n", r.Method)
 		}
 	} else {
-		log.Println("/admin/user/...: User is not authenticated or does not have Admin role")
+		log.Println("/admin/user/...: User does not have Admin role")
 	}
 	log.Println("/admin/user/...: Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)
@@ -116,8 +116,8 @@ func executeAction(w http.ResponseWriter, r *http.Request, httpsession *session.
 // Only GET and POST requests are allowed. The user must have role Admin to access this page.
 //  - a GET request will display the New User form. If an error message is available in the session, it will be displayed.
 //  - a POST request will create a temporary user account if the submitted data are valid. That new account will have a token. The registration link must be sent to the user.
-func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsAdmin() {
+func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsAdmin() {
 		if token := httpsession.GetCSRFToken(); token != "" {
 			if r.Method == "GET" {
 				vd := app.NewViewData(w, r)
@@ -170,7 +170,7 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 			log.Println("/admin/user/new: CSRF token not found in session")
 		}
 	} else {
-		log.Println("/admin/user/new: User is not authenticated or does not have Admin role")
+		log.Println("/admin/user/new: User does not have Admin role")
 	}
 	log.Println("/admin/user/new: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)

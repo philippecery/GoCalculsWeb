@@ -11,8 +11,8 @@ import (
 
 // Dashboard handles requests to /student/dashboard
 // Only GET requests are allowed. The user must be authenticated and have the Student role to access the home page.
-func Dashboard(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
+func Dashboard(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsStudent() {
 		if r.Method == "GET" {
 			vd := app.NewViewData(w, r)
 			vd.SetUser(user)
@@ -29,7 +29,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 		}
 		log.Printf("/student/dashboard: Invalid method %s\n", r.Method)
 	} else {
-		log.Println("/student/dashboard: User is not authenticated or does not have Student role")
+		log.Println("/student/dashboard: User does not have Student role")
 	}
 	log.Println("/student/dashboard: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)

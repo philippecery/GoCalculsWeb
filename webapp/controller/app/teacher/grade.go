@@ -16,8 +16,8 @@ import (
 
 // GradeList handles requests to /teacher/grade/list
 // Only GET requests are allowed. The user must have role Teacher to access this page.
-func GradeList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+func GradeList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsTeacher() {
 		if r.Method == "GET" {
 			vd := app.NewViewData(w, r)
 			vd.SetUser(user)
@@ -41,7 +41,7 @@ func GradeList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 		}
 		log.Printf("/teacher/grade/list: Invalid method %s\n", r.Method)
 	} else {
-		log.Println("/teacher/grade/list: User is not authenticated or does not have Teacher role")
+		log.Println("/teacher/grade/list: User does not have Teacher role")
 	}
 	log.Println("/teacher/grade/list: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
@@ -51,8 +51,8 @@ func GradeList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 // Only GET and POST requests are allowed. The user must have role Teacher to access this page.
 //  - a GET request will display the Grade Students page. If an error message is available in the session, it will be displayed.
 //  - a POST request will assign the grade to the selected students if the submitted data are valid.
-func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsTeacher() {
 		if token := httpsession.GetCSRFToken(); token != "" {
 			if r.Method == "GET" {
 				if len(r.URL.Query()["gradeid"]) == 1 {
@@ -114,7 +114,7 @@ func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.
 			log.Println("/teacher/grade/students: CSRF token not found in session")
 		}
 	} else {
-		log.Println("/teacher/grade/students: User is not authenticated or does not have Teacher role")
+		log.Println("/teacher/grade/students: User does not have Teacher role")
 	}
 	log.Println("/teacher/grade/students: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
@@ -123,8 +123,8 @@ func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.
 // GradeNew handles requests to /teacher/grade/new
 // Only GET requests are allowed. The user must have role Teacher to access this page.
 // Displays an empty Grade form. If an error message is available in the session, it will be displayed.
-func GradeNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+func GradeNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsTeacher() {
 		if token := httpsession.GetCSRFToken(); token != "" {
 			if r.Method == "GET" {
 				vd := app.NewViewData(w, r)
@@ -172,7 +172,7 @@ func GradeNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 			log.Println("/teacher/grade/new: CSRF token not found in session")
 		}
 	} else {
-		log.Println("/teacher/grade/new: User is not authenticated or does not have Teacher role")
+		log.Println("/teacher/grade/new: User does not have Teacher role")
 	}
 	log.Println("/teacher/grade/new: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
@@ -181,8 +181,8 @@ func GradeNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 // GradeCopy handles requests to /teacher/grade/copy
 // Only GET requests are allowed. The user must have role Teacher to access this page.
 // Displays the selected grade to copy. If an error message is available in the session, it will be displayed.
-func GradeCopy(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+func GradeCopy(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsTeacher() {
 		if token := httpsession.GetCSRFToken(); token != "" {
 			if r.Method == "GET" {
 				if len(r.URL.Query()["gradeid"]) == 1 {
@@ -224,7 +224,7 @@ func GradeCopy(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 			log.Println("/teacher/grade/copy: CSRF token not found in session")
 		}
 	} else {
-		log.Println("/teacher/grade/copy: User is not authenticated or does not have Teacher role")
+		log.Println("/teacher/grade/copy: User does not have Teacher role")
 	}
 	log.Println("/teacher/grade/copy: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
@@ -233,8 +233,8 @@ func GradeCopy(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 // GradeEdit handles requests to /teacher/grade/edit
 // Only GET requests are allowed. The user must have role Teacher to access this page.
 // Displays the selected grade. If an error message is available in the session, it will be displayed.
-func GradeEdit(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+func GradeEdit(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsTeacher() {
 		if token := httpsession.GetCSRFToken(); token != "" {
 			if r.Method == "GET" {
 				if len(r.URL.Query()["gradeid"]) == 1 {
@@ -276,7 +276,7 @@ func GradeEdit(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 			log.Println("/teacher/grade/edit: CSRF token not found in session")
 		}
 	} else {
-		log.Println("/teacher/grade/edit: User is not authenticated or does not have Teacher role")
+		log.Println("/teacher/grade/edit: User does not have Teacher role")
 	}
 	log.Println("/teacher/grade/edit: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
@@ -285,8 +285,8 @@ func GradeEdit(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 // GradeSave handles requests to /teacher/grade/save
 // Only POST requests are allowed. The user must have role Teacher to access this page.
 // Creates a new grade or updates the existing one, if the submitted data are valid.
-func GradeSave(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+func GradeSave(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsTeacher() {
 		if token := httpsession.GetCSRFToken(); token != "" {
 			if r.Method == "POST" {
 				if r.PostFormValue("token") == token {
@@ -340,7 +340,7 @@ func GradeSave(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 			log.Println("/teacher/grade/save: CSRF token not found in session")
 		}
 	} else {
-		log.Println("/teacher/grade/save: User is not authenticated or does not have Teacher role")
+		log.Println("/teacher/grade/save: User does not have Teacher role")
 	}
 	log.Println("/teacher/grade/save: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
@@ -349,8 +349,8 @@ func GradeSave(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 // GradeDelete handles requests to /teacher/grade/delete
 // Only GET requests are allowed. The user must have role Teacher to access this page.
 // Deletes the selected grade if the token is valid
-func GradeDelete(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+func GradeDelete(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsTeacher() {
 		if r.Method == "GET" {
 			if len(r.URL.Query()["gradeid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
 				gradeID := r.URL.Query()["gradeid"][0]
@@ -370,7 +370,7 @@ func GradeDelete(w http.ResponseWriter, r *http.Request, httpsession *session.HT
 			log.Printf("/teacher/grade/delete: Invalid method %s\n", r.Method)
 		}
 	} else {
-		log.Println("/teacher/grade/delete: User is not authenticated or does not have Teacher role")
+		log.Println("/teacher/grade/delete: User does not have Teacher role")
 	}
 	log.Println("/teacher/grade/delete: Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)
@@ -379,8 +379,8 @@ func GradeDelete(w http.ResponseWriter, r *http.Request, httpsession *session.HT
 // GradeUnassign handles requests to /teacher/grade/unassign
 // Only GET requests are allowed. The user must have role Teacher to access this page.
 // Resets the grade id for the selected student if the token is valid
-func GradeUnassign(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsTeacher() {
+func GradeUnassign(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsTeacher() {
 		if r.Method == "GET" {
 			if len(r.URL.Query()["gradeid"]) == 1 && len(r.URL.Query()["userid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
 				gradeID := r.URL.Query()["gradeid"][0]
@@ -401,7 +401,7 @@ func GradeUnassign(w http.ResponseWriter, r *http.Request, httpsession *session.
 			log.Printf("/teacher/grade/unassign: Invalid method %s\n", r.Method)
 		}
 	} else {
-		log.Println("/teacher/grade/unassign: User is not authenticated or does not have Teacher role")
+		log.Println("/teacher/grade/unassign: User does not have Teacher role")
 	}
 	log.Println("/teacher/grade/unassign: Redirecting to Login page")
 	http.Redirect(w, r, "/login", http.StatusFound)

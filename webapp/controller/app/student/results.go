@@ -10,8 +10,8 @@ import (
 
 // Results handles requests to /student/results
 // Only GET requests are allowed. The user must be authenticated and have the Student role to access the home page.
-func Results(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
-	if user := httpsession.GetAuthenticatedUser(); user != nil && user.IsStudent() {
+func Results(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+	if user.IsStudent() {
 		if token := httpsession.NewCSWHToken(); token != "" {
 			if r.Method == "GET" {
 				vd := app.NewViewData(w, r)
@@ -44,7 +44,7 @@ func Results(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 		}
 		log.Printf("/student/results: Invalid method %s\n", r.Method)
 	} else {
-		log.Println("/student/results: User is not authenticated or does not have Student role")
+		log.Println("/student/results: User does not have Student role")
 	}
 	log.Println("/student/results: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
