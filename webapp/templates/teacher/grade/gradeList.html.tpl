@@ -63,11 +63,4 @@
 		</a>
 	</div>
 	{{ template "footer.html" . }}
-	<script nonce="{{ .nonce }}" type="text/javascript" src="/js/jquery-2.2.2.min.js"></script>
-	<script nonce="{{ .nonce }}" type="text/javascript" src="/js/bootstrap.min.js"></script>
-	<script nonce="{{ .nonce }}">
-	$(document).ready(function(){
-		$('[data-toggle="tooltip"]').tooltip();
-	});
-	</script>
 </html>

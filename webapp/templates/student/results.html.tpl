@@ -86,8 +86,6 @@
 	</div>
 
 	{{ template "footer.html" . }}
-    <script nonce="{{ .nonce }}" type="text/javascript" src="/js/jquery-2.2.2.min.js"></script>
-    <script nonce="{{ .nonce }}" type="text/javascript" src="/js/bootstrap.min.js"></script>
     <script nonce="{{ .nonce }}" type="text/javascript" charset="utf-8">
 		$(document).ready(function(){
 			var token = '{{ .Token }}';
