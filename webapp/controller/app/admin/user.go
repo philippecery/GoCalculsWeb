@@ -113,7 +113,6 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 		if r.Method == "GET" {
 			vd := app.NewViewData(w, r)
 			vd.SetErrorMessage(httpsession.GetErrorMessageID())
-			vd.SetToken(token)
 			vd.SetDefaultLocalizedMessages().
 				AddLocalizedMessage("newUser").
 				AddLocalizedMessage("userid").

@@ -55,7 +55,6 @@ func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.
 				if grade := dataaccess.GetGradeByID(gradeID); grade != nil {
 					vd := app.NewViewData(w, r)
 					vd.SetUser(user)
-					vd.SetToken(token)
 					vd.SetErrorMessage(httpsession.GetErrorMessageID())
 					vd.SetViewData("Grade", grade)
 					vd.SetViewData("Students", dataaccess.GetAllStudents())
@@ -120,7 +119,6 @@ func GradeNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 		if r.Method == "GET" {
 			vd := app.NewViewData(w, r)
 			vd.SetUser(user)
-			vd.SetToken(token)
 			vd.SetDefaultLocalizedMessages().
 				AddLocalizedMessage("students").
 				AddLocalizedMessage("grades").
@@ -177,7 +175,6 @@ func GradeCopy(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 				if grade := dataaccess.GetGradeByID(gradeID); grade != nil {
 					vd := app.NewViewData(w, r)
 					vd.SetUser(user)
-					vd.SetToken(token)
 					vd.SetDefaultLocalizedMessages().
 						AddLocalizedMessage("students").
 						AddLocalizedMessage("grades").
@@ -225,7 +222,6 @@ func GradeEdit(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 				if grade := dataaccess.GetGradeByID(gradeID); grade != nil {
 					vd := app.NewViewData(w, r)
 					vd.SetUser(user)
-					vd.SetToken(token)
 					vd.SetDefaultLocalizedMessages().
 						AddLocalizedMessage("students").
 						AddLocalizedMessage("grades").

@@ -50,7 +50,6 @@ func StudentGrade(w http.ResponseWriter, r *http.Request, httpsession *session.H
 				if student := dataaccess.GetStudentByID(userID); student != nil {
 					vd := app.NewViewData(w, r)
 					vd.SetUser(user)
-					vd.SetToken(token)
 					vd.SetViewData("Student", student)
 					vd.SetViewData("Grades", dataaccess.GetAllGrades())
 					vd.SetDefaultLocalizedMessages().
