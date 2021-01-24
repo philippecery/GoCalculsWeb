@@ -3,6 +3,7 @@ package i18n
 import (
 	"encoding/json"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -61,6 +62,14 @@ func GetSupportedLanguages() map[string]string {
 		languagesCopy[key] = value
 	}
 	return languagesCopy
+}
+
+// GetSelectedLanguage returns the selected language retrieved from the cookie
+func GetSelectedLanguage(r *http.Request) string {
+	if cookie, err := r.Cookie("lang"); err == nil && languages[cookie.Value] != "" {
+		return cookie.Value
+	}
+	return "en-US"
 }
 
 const dateFormat = "Monday 02 January 2006"

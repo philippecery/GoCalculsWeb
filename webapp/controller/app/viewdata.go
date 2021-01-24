@@ -18,12 +18,8 @@ func NewViewData(w http.ResponseWriter, r *http.Request) ViewData {
 		vd = make(ViewData)
 		vd["nonce"] = httpsession.GetCSPNonce()
 		vd.SetToken(httpsession.GetCSRFToken())
+		vd["lang"] = i18n.GetSelectedLanguage(r)
 		langs := i18n.GetSupportedLanguages()
-		if cookie, err := r.Cookie("lang"); err == nil && langs[cookie.Value] != "" {
-			vd["lang"] = cookie.Value
-		} else {
-			vd["lang"] = "en-US"
-		}
 		for lang := range langs {
 			if lang == vd["lang"] {
 				delete(langs, lang)
