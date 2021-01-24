@@ -1,9 +1,6 @@
 package app
 
 import (
-	"bytes"
-	hash "crypto/sha256"
-	"encoding/base64"
 	"log"
 	"net/http"
 
@@ -11,6 +8,7 @@ import (
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/session"
+	"github.com/philippecery/maths/webapp/util"
 )
 
 // Login handles requests to /login
@@ -64,16 +62,11 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 
 func verifyUserIDPassword(userID, password string) *document.User {
 	if user := dataaccess.GetUserByID(userID); user != nil {
-		if hashedPwd, err := base64.StdEncoding.DecodeString(user.Password); err == nil {
-			h := hash.New()
-			h.Write(hashedPwd[:32])
-			h.Write([]byte(password))
-			if bytes.Equal(h.Sum(nil), hashedPwd[32:]) && user.Status == constant.Enabled {
-				// TODO: reset number of attempts to 0
-				return user
-			}
-			// TODO: increment number of attempts and update status if more than 5 failed attempts.
+		if util.VerifyPassword(password, user.Password) && user.Status == constant.Enabled {
+			// TODO: reset number of attempts to 0
+			return user
 		}
+		// TODO: increment number of attempts and update status if more than 5 failed attempts.
 	}
 	return nil
 }

@@ -1,21 +1,19 @@
 package app
 
 import (
-	"crypto/rand"
-	hash "crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/util"
 )
 
 var validUserID = regexp.MustCompile("^[a-z]{2,}(\\.?[a-z]{2,})*$")
 
 var validEmailAddress = regexp.MustCompile("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$")
-var validName = regexp.MustCompile("([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+")
+var validName = regexp.MustCompile("^[A-ZÀ-ÿa-z][-,. 'A-ZÀ-ÿa-z]*$")
 
 var validPassword = []*regexp.Regexp{
 	regexp.MustCompile("^.*[0-9]+.*$"),
@@ -52,15 +50,7 @@ func ValidateEmailAddress(emailAddress string) (string, error) {
 func ValidatePassword(password, passwordConfirm string) (string, error) {
 	if password == passwordConfirm {
 		if validatePasswordStrength(password) {
-			salt := make([]byte, 32)
-			rand.Read(salt)
-			h := hash.New()
-			h.Write(salt)
-			h.Write([]byte(password))
-			hashedPwd := make([]byte, 0)
-			hashedPwd = append(hashedPwd, salt...)
-			hashedPwd = append(hashedPwd, h.Sum(nil)...)
-			return base64.StdEncoding.EncodeToString(hashedPwd), nil
+			return util.ProtectPassword(password), nil
 		}
 	}
 	return "", fmt.Errorf("errorPassword")
