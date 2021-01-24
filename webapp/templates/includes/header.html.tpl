@@ -18,19 +18,17 @@
   </head>
   <body>
     <div class="container">
-      <div class="text-left col-sm-6">
-        {{ range $key, $value := .langs }}
-        <a id="lang_{{ $key }}" role="button"><img src="/img/{{ $key }}.svg" alt="{{ $value }}"></a>
-        {{ end }}
-      </div>
-      <div class="text-right col-sm-6">
+      <div class="text-right col-sm-12">
         {{ if .User }}
-        <a class="btn btn-xs btn-primary" id="profile" href="/user/profile" role="button">
+        <a class="btn btn-xs btn-primary" id="openSettings" role="button">
           <span class="glyphicon glyphicon-user"></span>&nbsp;<span>{{ .i18n_viewProfile }}</span>
         </a>
         <a class="btn btn-xs btn-danger" href="/logout" role="button">
           <span class="glyphicon glyphicon-log-out"></span>&nbsp;<span>{{ .i18n_logout }}</span>
         </a>
+        {{ end }}
+        {{ range $key, $value := .langs }}
+        <a id="lang_{{ $key }}" role="button"><img src="/img/{{ $key }}.svg" alt="{{ $value }}"></a>
         {{ end }}
       </div>
       <h1 class="text-center alert alert-danger"><span class="glyphicon glyphicon-education"></span>&nbsp;{{ .i18n_title }}</h1>

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -14,44 +15,49 @@ import (
 
 // Profile handles requests to /user/profile
 // Only GET and POST requests are allowed. The user must be authenticated to access this page.
-//  - a GET request will display the Profile form. If an error message is available in the session, it will be displayed.
+//  - a GET request will return the UserProfile in JSON format.
 //  - a POST request will update the User document in database if the submitted data are valid.
 func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
-	if userProfile := dataaccess.GetUserByID(user.UserID); userProfile != nil {
+	if userProfile := dataaccess.GetUserProfileByID(user.UserID); userProfile != nil {
 		if token := httpsession.GetCSRFToken(); token != "" {
 			if r.Method == "GET" {
-				vd := app.NewViewData(w, r)
-				vd.SetUser(user)
-				vd.SetViewData("UserProfile", userProfile)
-				vd.SetViewData("LastConnection", i18n.FormatDateTime(userProfile.LastConnection, vd.GetCurrentLanguage()))
-				vd.SetViewData("LastVisitedPage", httpsession.GetLastVisitedPage())
-				vd.SetToken(token)
-				vd.SetErrorMessage(httpsession.GetErrorMessageID())
-				vd.SetDefaultLocalizedMessages().
-					AddLocalizedMessage("profile").
-					AddLocalizedMessage("userid").
-					AddLocalizedMessage("lastConnection").
-					AddLocalizedMessage("firstName").
-					AddLocalizedMessage("lastName").
-					AddLocalizedMessage("emailAddress").
-					AddLocalizedMessage("save").
-					AddLocalizedMessage("cancel")
-				if err := app.Templates.ExecuteTemplate(w, "profile.html.tpl", vd); err != nil {
-					log.Fatalf("Error while executing template 'profile': %v\n", err)
+				response := map[string]interface{}{
+					"UserProfile":    userProfile,
+					"LastConnection": i18n.FormatDateTime(userProfile.LastConnection, i18n.GetSelectedLanguage(r)),
+				}
+				if responseMessage, err := json.Marshal(response); err == nil {
+					if _, err = w.Write(responseMessage); err == nil {
+						log.Printf("/user/profile: Response sent: %s\n", string(responseMessage))
+					}
 				}
 				return
 			}
 			if r.Method == "POST" {
 				if r.PostFormValue("token") == token {
 					if r.PostFormValue("userId") == user.UserID {
-						if userProfile, err := validateUserInput(r); err == nil {
+						var messageID string
+						var result int
+						if userProfile, err := validateProfileFormUserInput(r); err == nil {
 							if err := dataaccess.UpdateUserProfile(userProfile); err != nil {
-								httpsession.SetErrorMessageID("errorGenericMessage")
+								messageID = "errorGenericMessage"
+								result = 2
 							}
 						} else {
-							httpsession.SetErrorMessageID(err.Error())
+							messageID = err.Error()
+							result = 1
 						}
-						http.Redirect(w, r, "/user/profile", http.StatusFound)
+						if messageID == "" {
+							messageID = "successProfileSaved"
+						}
+						response := map[string]interface{}{
+							"Message": i18n.GetLocalizedMessage(i18n.GetSelectedLanguage(r), messageID),
+							"Result":  result,
+						}
+						if responseMessage, err := json.Marshal(response); err == nil {
+							if _, err = w.Write(responseMessage); err == nil {
+								log.Printf("/user/profile: Response sent: %s\n", string(responseMessage))
+							}
+						}
 						return
 					}
 					log.Println("/user/profile: Invalid User ID")
@@ -67,11 +73,11 @@ func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 	} else {
 		log.Println("/user/profile: User not found in database")
 	}
-	log.Println("/profile: Redirecting to Login page")
+	log.Println("/user/profile: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 
-func validateUserInput(r *http.Request) (*document.User, error) {
+func validateProfileFormUserInput(r *http.Request) (*document.User, error) {
 	var err error
 	userProfile := &document.User{UserID: r.PostFormValue("userId")}
 	if userProfile.EmailAddress, err = app.ValidateEmailAddress(r.PostFormValue("emailAddress")); err == nil {

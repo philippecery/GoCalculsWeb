@@ -50,7 +50,7 @@ func SetupRoutes() {
 	handleFunc("/student/websocket", accessControl(wss.Endpoints))
 
 	handleFunc("/user/profile", noCache(accessControl(common.Profile)))
-
+	handleFunc("/user/changePassword", noCache(accessControl(common.ChangePassword)))
 }
 
 func handleStatic(path string) {

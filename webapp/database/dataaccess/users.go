@@ -40,10 +40,31 @@ func GetUserByID(id string) *document.User {
 	return user
 }
 
+// GetUserProfileByID returns the User document from the Users collection where userid field is the provided id
+func GetUserProfileByID(id string) *document.UserProfile {
+	user := new(document.UserProfile)
+	if err := collection.Users.FindOne(context.TODO(), bson.M{"userid": id}).Decode(user); err != nil {
+		log.Printf("Unable to find User with id %s. Cause: %v", id, err)
+		return nil
+	}
+	return user
+}
+
 // UpdateLastConnection updates the lastconnection field to current datetime for the User document where userid field is the provided id
 func UpdateLastConnection(id string) {
 	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": id}, bson.M{"$set": bson.M{"lastconnection": time.Now()}}); err != nil {
 		log.Printf("Unable to update %s's last connection time. Cause: %v", id, err)
+	}
+}
+
+// UpdateFailedAttempts updates the number of failed login attempts for the User document where userid field is the provided id
+func UpdateFailedAttempts(id string, failedAttempts int) {
+	updates := bson.M{"failedattempts": failedAttempts}
+	if failedAttempts > 5 {
+		updates["status"] = constant.Disabled
+	}
+	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": id}, bson.M{"$set": updates}); err != nil {
+		log.Printf("Unable to update %s's number of failed attempts. Cause: %v", id, err)
 	}
 }
 
@@ -149,8 +170,18 @@ func RegisterUser(newUser *document.RegisteredUser, token string) error {
 func UpdateUserProfile(userProfile *document.User) error {
 	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": userProfile.UserID}, bson.M{"$set": bson.M{"firstname": userProfile.FirstName, "lastname": userProfile.LastName, "emailaddress": userProfile.EmailAddress}}); err != nil {
 		log.Printf("Unable to update user %s. Cause: %v", userProfile.UserID, err)
-		return errors.New("User creation failed")
+		return errors.New("User profile update failed")
 	}
-	log.Printf("User %s is created", userProfile.UserID)
+	log.Printf("Profile of user %s is updated", userProfile.UserID)
+	return nil
+}
+
+// UpdateUserPassword updates the User document where userid field equals the one in the new User document
+func UpdateUserPassword(userPassword *document.User) error {
+	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": userPassword.UserID}, bson.M{"$set": bson.M{"password": userPassword.Password, "passworddate": time.Now()}}); err != nil {
+		log.Printf("Unable to update user %s. Cause: %v", userPassword.UserID, err)
+		return errors.New("User profile update failed")
+	}
+	log.Printf("Password of user %s is changed", userPassword.UserID)
 	return nil
 }

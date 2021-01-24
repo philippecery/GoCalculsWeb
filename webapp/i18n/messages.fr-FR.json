@@ -128,6 +128,13 @@
 
     "profile": "Profil",
     "viewProfile": "Voir Profil",
+    "changePassword": "Changer mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "newPasswordConfirm": "Confirmation du nouveau mot de passe",
+
+    "successProfileSaved": "Profil sauvegardé",
+    "successPasswordChanged": "Nouveau mot de passe enregistré",
 
     "errorGenericMessage": "Une erreur est survenue. Veuillez contacter l'administrateur.",
     "errDisabled": "Cette fonctionalité n'est pas disponible sur cette page.",
