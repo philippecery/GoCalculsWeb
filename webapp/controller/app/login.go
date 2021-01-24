@@ -32,7 +32,7 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 	if r.Method == "POST" {
 		userID := r.PostFormValue("userId")
 		if r.PostFormValue("token") == httpsession.GetCSRFToken() {
-			if user := verifyUserIDPassword(userID, r.PostFormValue("password")); user != nil {
+			if user := VerifyUserIDPassword(userID, r.PostFormValue("password")); user != nil {
 				httpsession := session.NewSession(w, r)
 				httpsession.SetAuthenticatedUser(user)
 				httpsession.SetCSRFToken()
@@ -60,13 +60,19 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
-func verifyUserIDPassword(userID, password string) *document.User {
+// VerifyUserIDPassword returns the user retrieved from database if authentication is successful. Otherwise, returns nil.
+// If authentication failed, increments the number of attempts. If authentication is successful, reset the number of attempts to 0.
+func VerifyUserIDPassword(userID, password string) *document.User {
 	if user := dataaccess.GetUserByID(userID); user != nil {
 		if util.VerifyPassword(password, user.Password) && user.Status == constant.Enabled {
-			// TODO: reset number of attempts to 0
+			user.FailedAttempts = 0
+		} else {
+			user.FailedAttempts++
+		}
+		dataaccess.UpdateFailedAttempts(userID, user.FailedAttempts)
+		if user.FailedAttempts == 0 {
 			return user
 		}
-		// TODO: increment number of attempts and update status if more than 5 failed attempts.
 	}
 	return nil
 }
