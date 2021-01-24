@@ -19,6 +19,17 @@ type User struct {
 	Token          string
 	Expires        time.Time
 	GradeID        string
+	FailedAttempts int
+	PasswordDate   time.Time
+}
+
+// UserProfile document
+type UserProfile struct {
+	UserID         string
+	EmailAddress   string
+	FirstName      string
+	LastName       string
+	LastConnection time.Time
 }
 
 // UnregisteredUser document
@@ -42,6 +53,7 @@ type RegisteredUser struct {
 	Role           constant.UserRole
 	Status         constant.UserStatus
 	LastConnection time.Time
+	PasswordDate   time.Time
 }
 
 // Student document
