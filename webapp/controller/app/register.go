@@ -86,6 +86,7 @@ func validateUserInput(r *http.Request) (*document.RegisteredUser, string, error
 	if newUser.Password, err = ValidatePassword(r.PostFormValue("password"), r.PostFormValue("passwordConfirm")); err != nil {
 		return nil, err.Error(), err
 	}
+	newUser.PasswordDate = time.Now()
 	if newUser.FirstName, err = ValidateName(r.PostFormValue("firstName")); err != nil {
 		return nil, err.Error(), err
 	}
