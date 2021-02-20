@@ -14,7 +14,7 @@ import (
 
 // NewHomeworkSession stores the current homework session
 func NewHomeworkSession(newSession *document.HomeworkSession) error {
-	if _, err := collection.Sessions.InsertOne(context.TODO(), newSession); err != nil {
+	if _, err := collection.Homework.InsertOne(context.TODO(), newSession); err != nil {
 		return errors.New("HomeworkSession creation failed")
 	}
 	log.Printf("Session stored.")
@@ -25,7 +25,7 @@ func NewHomeworkSession(newSession *document.HomeworkSession) error {
 func UpdateHomeworkSession(newSession *document.HomeworkSession) error {
 	var err error
 	var result *mongo.UpdateResult
-	if result, err = collection.Sessions.ReplaceOne(context.TODO(), bson.M{"sessionid": newSession.SessionID}, newSession); err != nil {
+	if result, err = collection.Homework.ReplaceOne(context.TODO(), bson.M{"sessionid": newSession.SessionID}, newSession); err != nil {
 		return errors.New("HomeworkSession update failed")
 	}
 	if result.MatchedCount == 1 && result.ModifiedCount == 1 {
@@ -50,7 +50,7 @@ func GetSessionsByUserID(userID string, homeworkType, status, page int) ([]*docu
 		filters["status"] = status
 	}
 	findOptions := options.Find().SetSort(bson.M{"starttime": -1}).SetLimit(nbSessionsPerPage).SetSkip(int64((page - 1) * nbSessionsPerPage))
-	if cursor, err = collection.Sessions.Find(context.TODO(), filters, findOptions); err != nil {
+	if cursor, err = collection.Homework.Find(context.TODO(), filters, findOptions); err != nil {
 		log.Printf("Unable to find HomeworkSession documents for user %s. Cause: %v", userID, err)
 		return nil, 0
 	}
@@ -60,7 +60,7 @@ func GetSessionsByUserID(userID string, homeworkType, status, page int) ([]*docu
 		return nil, 0
 	}
 	var nbTotal int64
-	if nbTotal, err = collection.Sessions.CountDocuments(context.TODO(), bson.M{"userid": userID}); err != nil {
+	if nbTotal, err = collection.Homework.CountDocuments(context.TODO(), bson.M{"userid": userID}); err != nil {
 		log.Printf("Unable to count HomeworkSession documents. Cause: %v", err)
 		return nil, 0
 	}
@@ -70,7 +70,7 @@ func GetSessionsByUserID(userID string, homeworkType, status, page int) ([]*docu
 // GetSessionByID returns the homework sessions for the specified user
 func GetSessionByID(id string) *document.HomeworkSession {
 	homeworkSession := new(document.HomeworkSession)
-	if err := collection.Sessions.FindOne(context.TODO(), bson.M{"sessionid": id}).Decode(homeworkSession); err != nil {
+	if err := collection.Homework.FindOne(context.TODO(), bson.M{"sessionid": id}).Decode(homeworkSession); err != nil {
 		log.Printf("Unable to find HomeworkSession with id %s. Cause: %v", id, err)
 		return nil
 	}

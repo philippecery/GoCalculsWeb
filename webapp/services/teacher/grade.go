@@ -8,9 +8,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -18,7 +18,7 @@ import (
 // Only GET requests are allowed. The user must have role Teacher to access this page.
 func GradeList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if r.Method == "GET" {
-		vd := app.NewViewData(w, r)
+		vd := services.NewViewData(w, r)
 		vd.SetUser(user)
 		vd.SetErrorMessage(httpsession.GetErrorMessageID())
 		vd.SetViewData("Grades", dataaccess.GetAllGrades())
@@ -33,7 +33,7 @@ func GradeList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 			AddLocalizedMessage("copyGrade").
 			AddLocalizedMessage("deleteGrade").
 			AddLocalizedMessage("addGrade")
-		if err := app.Templates.ExecuteTemplate(w, "gradeList.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "gradeList.html.tpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'gradeList': %v\n", err)
 		}
 		return
@@ -53,7 +53,7 @@ func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.
 			if len(r.URL.Query()["gradeid"]) == 1 {
 				gradeID := r.URL.Query()["gradeid"][0]
 				if grade := dataaccess.GetGradeByID(gradeID); grade != nil {
-					vd := app.NewViewData(w, r)
+					vd := services.NewViewData(w, r)
 					vd.SetUser(user)
 					vd.SetErrorMessage(httpsession.GetErrorMessageID())
 					vd.SetViewData("Grade", grade)
@@ -71,7 +71,7 @@ func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.
 						AddLocalizedMessage("unassignGrade").
 						AddLocalizedMessage("save").
 						AddLocalizedMessage("cancel")
-					if err := app.Templates.ExecuteTemplate(w, "gradeStudents.html.tpl", vd); err != nil {
+					if err := services.Templates.ExecuteTemplate(w, "gradeStudents.html.tpl", vd); err != nil {
 						log.Fatalf("Error while executing template 'gradeStudents': %v\n", err)
 					}
 					return
@@ -117,7 +117,7 @@ func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.
 func GradeNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if token := httpsession.GetCSRFToken(); token != "" {
 		if r.Method == "GET" {
-			vd := app.NewViewData(w, r)
+			vd := services.NewViewData(w, r)
 			vd.SetUser(user)
 			vd.SetDefaultLocalizedMessages().
 				AddLocalizedMessage("students").
@@ -151,7 +151,7 @@ func GradeNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 					Time:              30,
 				},
 			})
-			if err := app.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
+			if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
 				log.Fatalf("/teacher/grade/new: Error while executing template 'gradeForm': %v\n", err)
 			}
 			return
@@ -173,7 +173,7 @@ func GradeCopy(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 			if len(r.URL.Query()["gradeid"]) == 1 {
 				gradeID := r.URL.Query()["gradeid"][0]
 				if grade := dataaccess.GetGradeByID(gradeID); grade != nil {
-					vd := app.NewViewData(w, r)
+					vd := services.NewViewData(w, r)
 					vd.SetUser(user)
 					vd.SetDefaultLocalizedMessages().
 						AddLocalizedMessage("students").
@@ -192,7 +192,7 @@ func GradeCopy(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 					vd.SetLocalizedMessage("gradeFormTitle", "copyGrade")
 					vd.SetViewData("Operation", "Copy")
 					vd.SetViewData("Grade", grade)
-					if err := app.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
+					if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
 						log.Fatalf("/teacher/grade/copy: Error while executing template 'gradeForm': %v\n", err)
 					}
 					return
@@ -220,7 +220,7 @@ func GradeEdit(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 			if len(r.URL.Query()["gradeid"]) == 1 {
 				gradeID := r.URL.Query()["gradeid"][0]
 				if grade := dataaccess.GetGradeByID(gradeID); grade != nil {
-					vd := app.NewViewData(w, r)
+					vd := services.NewViewData(w, r)
 					vd.SetUser(user)
 					vd.SetDefaultLocalizedMessages().
 						AddLocalizedMessage("students").
@@ -239,7 +239,7 @@ func GradeEdit(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 					vd.SetLocalizedMessage("gradeFormTitle", "editGrade")
 					vd.SetViewData("Operation", "Edit")
 					vd.SetViewData("Grade", grade)
-					if err := app.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
+					if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
 						log.Fatalf("/teacher/grade/edit: Error while executing template 'gradeForm': %v\n", err)
 					}
 					return

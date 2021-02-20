@@ -13,7 +13,10 @@
         "password": "<mongodb password>"
     },
     "keys": {
-        "createUserToken": "<password used to generate a HMAC key>",
-        "actionToken": "<password used to generate a HMAC key>"
-    }
+        "userId": "<HMAC key used to protect the userId, should be 32 random bytes>",
+        "pii": "<PII data symmetric encryption key, must be 32 random bytes>",
+        "userToken": "<HMAC key used to generate a user token, should be 32 random bytes>",
+        "actionToken": "<HMAC key used to generate an action token, should be 32 random bytes>"
+    },
+    "userTokenValidity": 48
 }

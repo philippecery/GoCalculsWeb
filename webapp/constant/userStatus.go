@@ -3,6 +3,9 @@ package constant
 // UserStatus type
 type UserStatus uint8
 
+// MaxFailedAttempts is the number of times the user is allowed to enter a wrong password before getting his/her account disabled
+const MaxFailedAttempts = 5
+
 // List of user status
 const (
 	Unregistered UserStatus = iota

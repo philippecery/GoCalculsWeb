@@ -3,6 +3,7 @@ package document
 import (
 	"time"
 
+	"github.com/philippecery/maths/webapp/config"
 	"github.com/philippecery/maths/webapp/constant"
 )
 
@@ -69,6 +70,11 @@ type Student struct {
 // Link returns the registration link
 func (u *User) Link() string {
 	return "/register?token=" + u.Token
+}
+
+// Link returns the registration link
+func (u *UnregisteredUser) Link() string {
+	return "https://" + config.Config.Hostname + "/register?token=" + u.Token
 }
 
 // Enabled returns true if this user's status is Enabled.

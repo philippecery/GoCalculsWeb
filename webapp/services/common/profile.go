@@ -9,7 +9,7 @@ import (
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/i18n"
 
-	"github.com/philippecery/maths/webapp/controller/app"
+	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -80,9 +80,9 @@ func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 func validateProfileFormUserInput(r *http.Request) (*document.User, error) {
 	var err error
 	userProfile := &document.User{UserID: r.PostFormValue("userId")}
-	if userProfile.EmailAddress, err = app.ValidateEmailAddress(r.PostFormValue("emailAddress")); err == nil {
-		if userProfile.FirstName, err = app.ValidateName(r.PostFormValue("firstName")); err == nil {
-			if userProfile.LastName, err = app.ValidateName(r.PostFormValue("lastName")); err == nil {
+	if userProfile.EmailAddress, err = services.ValidateEmailAddress(r.PostFormValue("emailAddress")); err == nil {
+		if userProfile.FirstName, err = services.ValidateName(r.PostFormValue("firstName")); err == nil {
+			if userProfile.LastName, err = services.ValidateName(r.PostFormValue("lastName")); err == nil {
 				return userProfile, nil
 			}
 		}

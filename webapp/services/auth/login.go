@@ -1,4 +1,4 @@
-package app
+package auth
 
 import (
 	"log"
@@ -7,6 +7,7 @@ import (
 	"github.com/philippecery/maths/webapp/constant"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
 	"github.com/philippecery/maths/webapp/util"
 )
@@ -17,14 +18,14 @@ import (
 //  - a POST request will authenticate the user if the submitted credentials are valid.
 func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession) {
 	if r.Method == "GET" {
-		vd := NewViewData(w, r)
+		vd := services.NewViewData(w, r)
 		vd.SetErrorMessage(httpsession.GetErrorMessageID())
 		vd.SetToken(httpsession.SetCSRFToken())
 		vd.SetDefaultLocalizedMessages().
 			AddLocalizedMessage("login").
 			AddLocalizedMessage("userid").
 			AddLocalizedMessage("password")
-		if err := Templates.ExecuteTemplate(w, "login.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "login.html.tpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'login': %v\n", err)
 		}
 		return
@@ -72,6 +73,9 @@ func VerifyUserIDPassword(userID, password string) *document.User {
 		dataaccess.UpdateFailedAttempts(userID, user.FailedAttempts)
 		if user.FailedAttempts == 0 {
 			return user
+		}
+		if user.FailedAttempts == constant.MaxFailedAttempts {
+			// util.SendAccountDisabledEmail()
 		}
 	}
 	return nil
