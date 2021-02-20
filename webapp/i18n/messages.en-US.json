@@ -1,0 +1,162 @@
+{
+    "language": "Translate to English",
+    "title": "Maths",
+    "mentalmath": "Mental Math",
+    "columnform": "Column Form Operation",
+
+    "Addition": {
+        "one": "addition",
+        "other": "additions"
+    },
+    "Substraction": {
+        "one": "substraction",
+        "other": "substractions"
+    },
+    "Multiplication": {
+        "one": "multiplication",
+        "other": "multiplications"
+    },
+    "Division": {
+        "one": "division",
+        "other": "divisions"
+    },
+
+    "addition": "Addition",
+    "substraction": "Substraction",
+    "multiplication": "Multiplication",
+    "division": "Division",
+
+    "additions": "Additions",
+    "substractions": "Substractions",
+    "multiplications": "Multiplications",
+    "divisions": "Divisions",
+
+    "save": "Save",
+    "cancel": "Cancel",
+    "logout": "Logout",
+
+    "welcome": "Welcome",
+    "introduction": "Introduction",
+    "learnMore": "Learn More...",
+    "getStarted": "Click here to get started",
+
+    "login": "Login",
+    "userid": "User ID",
+    "password": "Password",
+
+    "registeredUsers": "Registered Users",
+    "unregisteredUsers": "Unregistered Users",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "emailAddress": "Email Address",
+    "role": "Role",
+    "lastConnection": "Last Connection",
+    "disableAccount": "Disable Account",
+    "enableAccount": "Enable Account",
+    "token": "Token",
+    "expires": "Expires",
+    "copyRegistrationLink": "Copy RegistrationLink",
+    "addUser": "Add User",
+    "deleteUser": "Delete",
+
+    "newUser": "New User",
+    "select": "Select...",
+    "admin": "Admin",
+    "teacher": "Teacher",
+    "student": "Student",
+
+    "results": "Results",
+
+    "registration": "Registration",
+    "passwordConfirm": "Password Confirmation",
+    "register": "Register",
+
+    "students": "Students",
+    "setGrade": "Set Grade",
+    "nograde": "No grade assigned",
+    "assignGrade": "Assign Grade",
+    "unassignGrade": "Unassign Grade",
+    "otherStudents": "Other Students",
+    "currentGrade": "Current Grade",
+
+    "grades": "Grades",
+    "addGrade": "Add",
+    "newGrade": "New Grade",
+    "manageStudents": "Students",
+    "editGrade": "Edit",
+    "copyGrade": "Copy",
+    "deleteGrade": "Delete",
+
+    "gradeName": "Grade",
+    "gradeDescription": "Description",
+    "nbAdditions": "Additions",
+    "nbSubstractions": "Substractions",
+    "nbMultiplications": "Multiplications",
+    "nbDivisions": "Divisions",
+    "timeInMinutes": "Time (min)",
+
+    "remainder": "Remainder",
+    "check": "Check",
+    "continue": "Continue",
+    "restart": "Restart",
+    "retry": "Retry",
+    "quit": "Quit",
+    "close": "Close",
+    "timeout": "You took too much time. Try again...",
+    "success": "Congratulations!",
+    "failure": "Try again...",
+    "summaryOperationsTodo": "You had {{ .nbTotal }} {{ .operationsType }} to complete",
+    "summaryOperationsGood": {
+        "one": "{{ .nbGood }} is correct",
+        "other": "{{ .nbGood }} are correct"
+    },
+    "summaryOperationsWrong": {
+        "one": "{{ .nbWrong }} is not",
+        "other": "{{ .nbWrong }} are not"
+    },
+
+    "allStatuses": "All",
+    "allTypes": "All",
+    "personalBest": "Personal Best",
+    "gradeBest": "Grade Best",
+    "startDate": "Date",
+    "duration": "Duration",
+    "previous": "Newer",
+    "next": "Older",
+    "noResults": "No results",
+    "loading": "Loading...",
+
+    "profile": "Profile",
+    "viewProfile": "View Profile",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "newPasswordConfirm": "New Password Confirmation",
+
+    "successProfileSaved": "Profile saved",
+    "successPasswordChanged": "Password changed",
+
+    "errorGenericMessage": "An error occurred. Please contact the administrator.",
+    "errDisabled": "This feature is not available in this page.",
+
+    "errorAuthenticationFailed": "Authentication Failed.",
+    "errorUserCreationFailed": "User creation failed.",
+    "errorInvalidUserID": "User ID is invalid or already exists.",
+    "errorInvalidRoleID": "Please select a role.",
+    "errorRegistrationTokenExpired": "Registration link is expired. Please contact the administrator.",
+    "errorRegistrationFailed": "Registration failed due to a technical issue. Please try again later or contact the administrator.",
+    "errorInvalidEmailAddress": "Invalid email address.",
+    "errorPassword": "Invalid password.",
+    "errorInvalidName": "Invalid name.",
+    "errorInvalidDate": "Invalid date.",
+    "errorUserDeletionFailed": "User deletion failed.",
+    "errorUserStatusUpdateFailed": "User status update failed.",
+
+    "errorGradeCreationFailed": "Grade creation failed.",
+    "errorGradeUpdateFailed": "Grade update failed.",
+    "errorGradeDeletionFailed": "Grade deletion failed.",
+    "errorGradeStudentUpdateFailed": "Grade update failed for selected students.",
+
+    "errorNoHomeworkOfType1": "You don't have mental math operations assigned to you.",
+    "errorNoHomeworkOfType2": "You don't have column form operations assigned to you."
+}

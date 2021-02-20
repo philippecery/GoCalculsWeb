@@ -1,0 +1,9 @@
+[ CA_server_cert_ext ]
+basicConstraints = CA:TRUE, pathlen:1
+keyUsage = critical, cRLSign, keyCertSign
+
+[ server_cert_ext ]
+basicConstraints = critical, CA:FALSE
+keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = critical, serverAuth
+subjectAltName = DNS:localhost

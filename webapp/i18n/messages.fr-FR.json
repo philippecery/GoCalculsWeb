@@ -1,0 +1,161 @@
+{
+    "language": "Traduire en français",
+    "title": "Mathématiques",
+    "mentalmath": "Calcul Mentaux",
+    "columnform": "Opérations Posées",
+
+    "Addition": {
+        "one": "addition",
+        "other": "additions"
+    },
+    "Substraction": {
+        "one": "soustraction",
+        "other": "soustractions"
+    },
+    "Multiplication": {
+        "one": "multiplication",
+        "other": "multiplications"
+    },
+    "Division": {
+        "one": "division",
+        "other": "divisions"
+    },
+
+    "addition": "Addition",
+    "substraction": "Soustraction",
+    "multiplication": "Multiplication",
+    "division": "Division",
+
+    "additions": "Additions",
+    "substractions": "Soustractions",
+    "multiplications": "Multiplications",
+    "divisions": "Divisions",
+
+    "save": "Sauvegarder",
+    "cancel": "Abandonner",
+    "logout": "Se déconnecter",
+
+    "welcome": "Bienvenue",
+    "introduction": "Introduction",
+    "learnMore": "En savoir plus...",
+    "getStarted": "Cliquez ici pour commencer",
+
+    "login": "Se connecter",
+    "userid": "Identifiant",
+    "password": "Mot de passe",
+
+    "registeredUsers": "Utilisateurs inscrits",
+    "unregisteredUsers": "Utilisateurs non inscrits",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "emailAddress": "Addresse Email",
+    "role": "Rôle",
+    "lastConnection": "Dernière Connexion",
+    "disableAccount": "Désactiver le compte",
+    "enableAccount": "Activer le compte",
+    "token": "Jeton",
+    "expires": "Expire",
+    "copyRegistrationLink": "Copier le lien d'inscription",
+    "addUser": "Ajouter un utilisateur",
+    "deleteUser": "Supprimer",
+
+    "newUser": "Nouvel utilisateur",
+    "select": "Sélectionez...",
+    "admin": "Administrateur",
+    "teacher": "Enseignant",
+    "student": "Étudiant",
+
+    "results": "Résultats",
+
+    "registration": "Inscription",
+    "passwordConfirm": "Confirmation du mot de passe",
+    "register": "S'inscrire",
+
+    "students": "Étudiants",
+    "setGrade": "Niveau",
+    "nograde": "Pas de niveau assigné",
+    "assignGrade": "Assigner Niveau",
+    "unassignGrade": "Enlever Niveau",
+    "otherStudents": "Autres Étudiants",
+    "currentGrade": "Niveau Actuel",
+
+    "grades": "Niveaux",
+    "addGrade": "Ajouter",
+    "newGrade": "Nouveau niveau",
+    "manageStudents": "Étudiants",
+    "editGrade": "Éditer",
+    "copyGrade": "Copier",
+    "deleteGrade": "Supprimer",
+
+    "gradeName": "Niveau",
+    "gradeDescription": "Description",
+    "nbAdditions": "Additions",
+    "nbSubstractions": "Soustractions",
+    "nbMultiplications": "Multiplications",
+    "nbDivisions": "Divisions",
+    "timeInMinutes": "Temps (min)",
+
+    "remainder": "Reste",
+    "check": "Vérifier",
+    "continue": "Continuer",
+    "restart": "Recommencer",
+    "retry": "Ré-essayer",
+    "quit": "Quitter",
+    "close": "Fermer",
+    "timeout": "Tu as pris trop de temps. Essaye encore...",
+    "success": "Félicitations!",
+    "failure": "Essaye encore...",
+    "summaryOperationsTodo": "Tu avais {{ .nbTotal }} {{ .operationsType }} à faire",
+    "summaryOperationsGood": {
+        "one": "{{ .nbGood }} est correcte",
+        "other": "{{ .nbGood }} sont correctes"
+    },
+    "summaryOperationsWrong": {
+        "one": "{{ .nbWrong }} est incorrecte",
+        "other": "{{ .nbWrong }} sont incorrectes"
+    },
+
+    "allStatuses": "Tous",
+    "allTypes": "Tous",
+    "personalBest": "Record Personnel",
+    "gradeBest": "Record du Niveau",
+    "startDate": "Date",
+    "duration": "Durée",
+    "previous": "Plus récents",
+    "next": "Plus anciens",
+    "noResults": "Aucun résultats",
+    "loading": "Chargement en cours...",
+
+    "profile": "Profil",
+    "viewProfile": "Voir Profil",
+    "changePassword": "Changer mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "newPasswordConfirm": "Confirmation du nouveau mot de passe",
+
+    "successProfileSaved": "Profil sauvegardé",
+    "successPasswordChanged": "Nouveau mot de passe enregistré",
+
+    "errorGenericMessage": "Une erreur est survenue. Veuillez contacter l'administrateur.",
+    "errDisabled": "Cette fonctionalité n'est pas disponible sur cette page.",
+
+    "errorAuthenticationFailed": "Echec d'authentification.",
+    "errorUserCreationFailed": "La création de l'utilisateur a échoué.",
+    "errorInvalidUserID": "Cet identifiant d'utilisateur est invalide ou déjà utilisé.",
+    "errorInvalidRoleID": "Veuillez sélectionner un rôle dans la liste.",
+    "errorRegistrationTokenExpired": "Votre lien d'inscription n'est plus valide. Veuillez contacter l'administrateur.",
+    "errorRegistrationFailed": "Votre inscription a échoué à cause d'un problème technique. Veuillez réessayer plus tard ou contacter l'administrateur.",
+    "errorInvalidEmailAddress": "Cette addresse email est invalide.",
+    "errorPassword": "Ce mot de passe n'est pas suffisamentt complexe.",
+    "errorInvalidName": "Ce nom est invalide.",
+    "errorInvalidDate": "Cette date est invalide.",
+    "errorUserDeletionFailed": "La suppression de cet utilisateur a échoué.",
+    "errorUserStatusUpdateFailed": "La modification du statut de cet utilisateur a échoué.",
+
+    "errorGradeCreationFailed": "La création du niveau a échoué.",
+    "errorGradeUpdateFailed": "La modification du niveau a échoué.",
+    "errorGradeDeletionFailed": "La suppression de ce niveau a échoué.",
+
+    "errorNoHomeworkOfType1": "Tu n'as pas de calculs mentaux assignés.",
+    "errorNoHomeworkOfType2": "Tu n'as pas d'opérations posées assignées."
+}
