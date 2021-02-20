@@ -60,7 +60,7 @@ func UpdateLastConnection(id string) {
 // UpdateFailedAttempts updates the number of failed login attempts for the User document where userid field is the provided id
 func UpdateFailedAttempts(id string, failedAttempts int) {
 	updates := bson.M{"failedattempts": failedAttempts}
-	if failedAttempts > 5 {
+	if failedAttempts > constant.MaxFailedAttempts {
 		updates["status"] = constant.Disabled
 	}
 	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": id}, bson.M{"$set": updates}); err != nil {
