@@ -8,11 +8,18 @@ import (
 )
 
 type configStruct struct {
-	Port     int
-	Hostname string
-	SSL      *sslConfigStruct
-	DB       *dbConfigStruct
-	Keys     *keysConfigStruct
+	Port              int
+	Hostname          string
+	SSL               *sslConfigStruct
+	DB                *dbConfigStruct
+	Keys              *keysConfigStruct
+	Gmail             *gmailConfigStruct
+	UserTokenValidity int
+}
+
+type sslConfigStruct struct {
+	Keystore string
+	Password string
 }
 
 type dbConfigStruct struct {
@@ -23,14 +30,23 @@ type dbConfigStruct struct {
 	Password      string
 }
 
-type sslConfigStruct struct {
-	Keystore string
-	Password string
+type keysConfigStruct struct {
+	UserID      string
+	PII         string
+	UserToken   string
+	ActionToken string
 }
 
-type keysConfigStruct struct {
-	CreateUserToken string
-	ActionToken     string
+type gmailConfigStruct struct {
+	Oauth2 *oauth2ConfigStruct
+	Bcc    string
+}
+
+type oauth2ConfigStruct struct {
+	ClientID     string
+	ClientSecret string
+	AccessToken  string
+	RefreshToken string
 }
 
 // Config is loaded at application startup from provided JSON configuration file
