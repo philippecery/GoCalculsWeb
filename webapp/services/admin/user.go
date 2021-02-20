@@ -13,9 +13,10 @@ import (
 
 	"github.com/philippecery/maths/webapp/config"
 	"github.com/philippecery/maths/webapp/constant"
-	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/i18n"
+	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -24,7 +25,7 @@ import (
 // Displays the Users page with the list of registerd and unregistered users.
 func UserList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if r.Method == "GET" {
-		vd := app.NewViewData(w, r)
+		vd := services.NewViewData(w, r)
 		vd.SetUser(user)
 		vd.SetErrorMessage(httpsession.GetErrorMessageID())
 		vd.SetViewData("RegisteredUsers", dataaccess.GetAllRegisteredUsers())
@@ -45,7 +46,7 @@ func UserList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 			AddLocalizedMessage("expires").
 			AddLocalizedMessage("copyRegistrationLink").
 			AddLocalizedMessage("addUser")
-		if err := app.Templates.ExecuteTemplate(w, "userList.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "userList.html.tpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'userList': %v\n", err)
 		}
 		return
@@ -111,7 +112,7 @@ func executeAction(w http.ResponseWriter, r *http.Request, httpsession *session.
 func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if token := httpsession.GetCSRFToken(); token != "" {
 		if r.Method == "GET" {
-			vd := app.NewViewData(w, r)
+			vd := services.NewViewData(w, r)
 			vd.SetErrorMessage(httpsession.GetErrorMessageID())
 			vd.SetDefaultLocalizedMessages().
 				AddLocalizedMessage("newUser").
@@ -123,7 +124,7 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 				AddLocalizedMessage("student").
 				AddLocalizedMessage("save").
 				AddLocalizedMessage("cancel")
-			if err := app.Templates.ExecuteTemplate(w, "userNew.html.tpl", vd); err != nil {
+			if err := services.Templates.ExecuteTemplate(w, "userNew.html.tpl", vd); err != nil {
 				log.Fatalf("Error while executing template 'userNew': %v\n", err)
 			}
 			return
@@ -133,11 +134,16 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 				var err error
 				var roleID int
 				var userID string
-				if roleID, err = app.ValidateRoleID(r.PostFormValue("role")); err == nil {
-					if userID, err = app.ValidateUserID(strings.ToLower(r.PostFormValue("userId"))); userID != "" && dataaccess.IsUserIDAvailable(userID) {
+				if roleID, err = services.ValidateRoleID(r.PostFormValue("role")); err == nil {
+					if userID, err = services.ValidateUserID(strings.ToLower(r.PostFormValue("userId"))); userID != "" && dataaccess.IsUserIDAvailable(userID) {
 						token, expirationTime := generateUserToken(userID)
 						unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
-						if err := dataaccess.CreateNewUser(unregisteredUser); err != nil {
+						if err = dataaccess.CreateNewUser(unregisteredUser); err == nil {
+							if err = sendConfirmationEmail(services.NewEmailViewData(w, r), unregisteredUser); err != nil {
+								log.Printf("Email address confirmation message was not sent. Cause: %v", err)
+								httpsession.SetErrorMessageID("errorEmailAddressConfirmationNotSent")
+							}
+						} else {
 							log.Printf("User creation failed. Cause: %v", err)
 							httpsession.SetErrorMessageID("errorUserCreationFailed")
 						}
@@ -164,9 +170,23 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 }
 
 func generateUserToken(userID string) (string, time.Time) {
-	expirationTime := time.Now().Add(time.Hour * 24)
-	mac := hmac.New(hash.New, []byte(config.Config.Keys.CreateUserToken))
+	expirationTime := time.Now().Add(time.Hour * time.Duration(config.Config.UserTokenValidity))
+	mac := hmac.New(hash.New, []byte(config.Config.Keys.UserToken))
 	mac.Write([]byte(userID))
 	mac.Write([]byte(fmt.Sprintf("%d", expirationTime.Unix())))
 	return base64.URLEncoding.EncodeToString(mac.Sum(nil)), expirationTime
+}
+
+func sendConfirmationEmail(vd services.ViewData, unregisteredUser *document.UnregisteredUser) error {
+	vd.SetViewData("RegistrationURL", unregisteredUser.Link())
+	vd.SetEmailDefaultLocalizedMessages().
+		AddLocalizedMessage("emailConfirmationTitle").
+		AddLocalizedMessage("emailConfirmationPreHeader").
+		AddLocalizedMessage("emailConfirmationMessage1").
+		AddLocalizedMessage("emailConfirmationMessage2").
+		AddLocalizedMessage("emailConfirmationContinueRegistration").
+		AddLocalizedMessage("emailConfirmationLinkWillExpire", config.Config.UserTokenValidity, map[string]interface{}{
+			"nbHours": config.Config.UserTokenValidity,
+		})
+	return services.SendEmail(unregisteredUser.UserID, "", config.Config.Gmail.Bcc, i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tpl", vd)
 }

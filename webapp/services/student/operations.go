@@ -8,8 +8,8 @@ import (
 	"github.com/philippecery/maths/webapp/database/document"
 
 	"github.com/philippecery/maths/webapp/constant"
-	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
+	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -43,7 +43,7 @@ func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTT
 		if r.Method == "GET" {
 			if typeID := validateTypeID(r.FormValue("type")); typeID > 0 {
 				if grade := dataaccess.GetStudentByID(user.UserID).Grade; grade != nil {
-					vd := app.NewViewData(w, r)
+					vd := services.NewViewData(w, r)
 					vd.SetUser(user)
 					vd.SetToken(token)
 					vd.SetViewData("TypeID", typeID)
@@ -75,7 +75,7 @@ func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTT
 						dataaccess.NewHomeworkSession(homeworkSession)
 						httpsession.SetAttribute("HomeworkSessionID", homeworkSession.SessionID)
 						httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
-						if err := app.Templates.ExecuteTemplate(w, "operations.html.tpl", vd); err != nil {
+						if err := services.Templates.ExecuteTemplate(w, "operations.html.tpl", vd); err != nil {
 							log.Fatalf("Error while executing template 'operations': %v\n", err)
 						}
 						return

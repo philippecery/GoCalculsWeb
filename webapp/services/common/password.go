@@ -6,10 +6,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/i18n"
+	"github.com/philippecery/maths/webapp/services"
+	"github.com/philippecery/maths/webapp/services/auth"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -63,9 +64,9 @@ func ChangePassword(w http.ResponseWriter, r *http.Request, httpsession *session
 func validateChangePasswordFormUserInput(userID string, r *http.Request) (*document.User, error) {
 	var err error
 	userPassword := &document.User{UserID: userID}
-	if app.VerifyUserIDPassword(userID, r.PostFormValue("password")) != nil {
+	if auth.VerifyUserIDPassword(userID, r.PostFormValue("password")) != nil {
 		if r.PostFormValue("password") != r.PostFormValue("newPassword") {
-			if userPassword.Password, err = app.ValidatePassword(r.PostFormValue("newPassword"), r.PostFormValue("newPasswordConfirm")); err == nil {
+			if userPassword.Password, err = services.ValidatePassword(r.PostFormValue("newPassword"), r.PostFormValue("newPasswordConfirm")); err == nil {
 				return userPassword, nil
 			}
 		} else {

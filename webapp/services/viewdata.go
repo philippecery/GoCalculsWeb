@@ -1,4 +1,4 @@
-package app
+package services
 
 import (
 	"log"
@@ -27,6 +27,18 @@ func NewViewData(w http.ResponseWriter, r *http.Request) ViewData {
 			}
 		}
 		vd["langs"] = langs
+	} else {
+		log.Printf("User session not found\n")
+	}
+	return vd
+}
+
+// NewEmailViewData creates a new ViewData struct, preset with language
+func NewEmailViewData(w http.ResponseWriter, r *http.Request) ViewData {
+	var vd ViewData
+	if httpsession := session.GetSession(w, r); httpsession != nil {
+		vd = make(ViewData)
+		vd["lang"] = i18n.GetSelectedLanguage(r)
 	} else {
 		log.Printf("User session not found\n")
 	}
@@ -67,8 +79,8 @@ func (vd ViewData) SetViewData(key string, data interface{}) {
 
 // SetLocalizedMessage retrieves the localized message for the provided messageID in the user's selected language.
 // The provided key is prefixed with "i18n_" to avoid conflicts.
-func (vd ViewData) SetLocalizedMessage(key, messageID string) {
-	vd["i18n_"+key] = i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), messageID)
+func (vd ViewData) SetLocalizedMessage(key, messageID string, data ...interface{}) {
+	vd["i18n_"+key] = i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), messageID, data...)
 }
 
 // SetDefaultLocalizedMessages sets localized messages passed to all templates.
@@ -92,8 +104,15 @@ func (vd ViewData) SetDefaultLocalizedMessages() ViewData {
 		AddLocalizedMessage("cancel")
 }
 
+// SetEmailDefaultLocalizedMessages sets localized messages passed to all templates.
+func (vd ViewData) SetEmailDefaultLocalizedMessages() ViewData {
+	return vd.
+		AddLocalizedMessage("emailSignature").
+		AddLocalizedMessage("emailFooter")
+}
+
 // AddLocalizedMessage retrieves and sets the localized message for the provided messageID in the user's selected language.
-func (vd ViewData) AddLocalizedMessage(messageID string) ViewData {
-	vd.SetLocalizedMessage(messageID, messageID)
+func (vd ViewData) AddLocalizedMessage(messageID string, data ...interface{}) ViewData {
+	vd.SetLocalizedMessage(messageID, messageID, data...)
 	return vd
 }

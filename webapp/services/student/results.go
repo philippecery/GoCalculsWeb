@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/philippecery/maths/webapp/controller/app"
+	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -13,7 +13,7 @@ import (
 func Results(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if token := httpsession.NewCSWHToken(); token != "" {
 		if r.Method == "GET" {
-			vd := app.NewViewData(w, r)
+			vd := services.NewViewData(w, r)
 			vd.SetUser(user)
 			vd.SetToken(token)
 			vd.SetDefaultLocalizedMessages().
@@ -32,7 +32,7 @@ func Results(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 				AddLocalizedMessage("close").
 				AddLocalizedMessage("quit")
 			httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
-			if err := app.Templates.ExecuteTemplate(w, "results.html.tpl", vd); err != nil {
+			if err := services.Templates.ExecuteTemplate(w, "results.html.tpl", vd); err != nil {
 				log.Fatalf("Error while executing template 'results': %v\n", err)
 			}
 			return

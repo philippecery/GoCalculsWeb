@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/philippecery/maths/webapp/controller/app"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
 )
 
@@ -15,7 +15,7 @@ import (
 // Displays the Students page with the list of students.
 func StudentList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if r.Method == "GET" {
-		vd := app.NewViewData(w, r)
+		vd := services.NewViewData(w, r)
 		vd.SetUser(user)
 		vd.SetViewData("Students", dataaccess.GetAllStudents())
 		vd.SetDefaultLocalizedMessages().
@@ -28,7 +28,7 @@ func StudentList(w http.ResponseWriter, r *http.Request, httpsession *session.HT
 			AddLocalizedMessage("columnform").
 			AddLocalizedMessage("nograde").
 			AddLocalizedMessage("setGrade")
-		if err := app.Templates.ExecuteTemplate(w, "studentList.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "studentList.html.tpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'studentList': %v\n", err)
 		}
 		return
@@ -48,7 +48,7 @@ func StudentGrade(w http.ResponseWriter, r *http.Request, httpsession *session.H
 			if len(r.URL.Query()["userid"]) == 1 {
 				userID := r.URL.Query()["userid"][0]
 				if student := dataaccess.GetStudentByID(userID); student != nil {
-					vd := app.NewViewData(w, r)
+					vd := services.NewViewData(w, r)
 					vd.SetUser(user)
 					vd.SetViewData("Student", student)
 					vd.SetViewData("Grades", dataaccess.GetAllGrades())
@@ -63,7 +63,7 @@ func StudentGrade(w http.ResponseWriter, r *http.Request, httpsession *session.H
 						AddLocalizedMessage("mentalmath").
 						AddLocalizedMessage("columnform").
 						AddLocalizedMessage("assignGrade")
-					if err := app.Templates.ExecuteTemplate(w, "studentGrade.html.tpl", vd); err != nil {
+					if err := services.Templates.ExecuteTemplate(w, "studentGrade.html.tpl", vd); err != nil {
 						log.Fatalf("Error while executing template 'studentGrade': %v\n", err)
 					}
 					return
