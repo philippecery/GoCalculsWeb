@@ -133,6 +133,26 @@
     "newPassword": "New Password",
     "newPasswordConfirm": "New Password Confirmation",
 
+    "emailSalutations": "Hi {{ .firstName }},",
+    "emailSignature": "The Maths admin team.",
+    "emailFooter": "Maths by Philippe D. Céry",
+
+    "emailConfirmationTitle": "Email address confirmation.",
+    "emailConfirmationPreHeader": "Please click on the link below to complete your registration.",
+    "emailConfirmationMessage1": "You receive this email because your email address was used to register on the Maths application.",
+    "emailConfirmationMessage2": "To proceed with your registration, please click on the link below.",
+    "emailConfirmationContinueRegistration": "Complete registration...",
+    "emailConfirmationLinkWillExpire": {
+        "one": "(This link will expire in {{ .nbHours }} hour)",
+        "other": "(This link will expire in {{ .nbHours }} hours)"
+    },
+
+    "emailAlreadyRegisteredTitle": "Already registered. Forgot your password?",
+    "emailAlreadyRegisteredPreHeader": "You are already registered. Do you want to reset your password?",
+    "emailAlreadyRegisteredMessage1": "You receive this email because you are already registered on the Maths application, and someone tried to register again with your email address.",
+    "emailAlreadyRegisteredMessage2": "If that was you, were you trying to register again because you forgot your password? In that case, you can reset your password. Please click on the link below and follow the instructions.",
+    "emailAlreadyRegisteredResetPassword": "Reset your password...",
+
     "successProfileSaved": "Profile saved",
     "successPasswordChanged": "Password changed",
 
@@ -158,5 +178,7 @@
     "errorGradeStudentUpdateFailed": "Grade update failed for selected students.",
 
     "errorNoHomeworkOfType1": "You don't have mental math operations assigned to you.",
-    "errorNoHomeworkOfType2": "You don't have column form operations assigned to you."
+    "errorNoHomeworkOfType2": "You don't have column form operations assigned to you.",
+
+    "errorEmailAddressConfirmationNotSent": "The email address confirmation message was not sent."
 }

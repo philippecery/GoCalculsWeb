@@ -133,6 +133,26 @@
     "newPassword": "Nouveau mot de passe",
     "newPasswordConfirm": "Confirmation du nouveau mot de passe",
 
+    "emailSalutations": "Salut {{ .firstName }},",
+    "emailSignature": "L'équipe admin de Maths.",
+    "emailFooter": "Maths par Philippe D. Céry",
+
+    "emailConfirmationTitle": "Confirmation de l'adresse mail.",
+    "emailConfirmationPreHeader": "Veuillez cliquer sur le lien ci-dessous pour terminer votre inscription.",
+    "emailConfirmationMessage1": "Vous avez reçu ce message parceque votre adresse mail a été utilisée pour s'inscrire sur l'application Maths.",
+    "emailConfirmationMessage2": "Pour poursuivre votre inscription, veuillez cliquer sur le lien ci-dessous.",
+    "emailConfirmationContinueRegistration": "Terminer votre inscription...",
+    "emailConfirmationLinkWillExpire": {
+        "one": "(Ce lien expirera dans {{ .nbHours }} heure)",
+        "other": "(Ce lien expirera dans {{ .nbHours }} heures)"
+    },
+
+    "emailAlreadyRegisteredTitle": "Déjà inscrit. Avez-vous oublié votre mot de passe?",
+    "emailAlreadyRegisteredPreHeader": "Vous êtes déjà inscrit. Souhaitez-vous ré-initializer votre mot de passe?",
+    "emailAlreadyRegisteredMessage1": "Vous avez reçu ce message parceque vous êtes déjà inscrit sur l'application Maths, et quelqu'un a tenté de s'inscrire à nouveau avec votre adresse mail.",
+    "emailAlreadyRegisteredMessage2": "Si c'était vous, vouliez-vous vous inscrire à nouveau parceque vous avez oublié votre mot de passe? Si c'est le cas, vous pouvez ré-initialiser votre mot de passe. Il vous suffit de cliquer sur le lien ci-dessous et de suivre les instructions.",
+    "emailAlreadyRegisteredResetPassword": "Ré-initializer votre mot de passe...",
+
     "successProfileSaved": "Profil sauvegardé",
     "successPasswordChanged": "Nouveau mot de passe enregistré",
 
