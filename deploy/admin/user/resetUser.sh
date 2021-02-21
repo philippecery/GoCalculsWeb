@@ -1,17 +1,21 @@
 #!/bin/bash
 
-# Reset admin user
-printf "Enter the admin password:"
+printf "Enter the admin email address: "
+read emailAddress
+adminId=$(cd ../../tools/protect/;go run protect.go ../../../config/config.json -userId $emailAddress)
+adminEmail=$(cd ../../tools/protect/;go run protect.go ../../../config/config.json -pii $emailAddress)
+
+printf "\nEnter the admin password:"
 read -s password
 if [ ${#password} -ge 8 ]; then
     printf "\nEnter the admin password again:"
     read -s confirmPassword
     if [ "$password" = "$confirmPassword" ]; then
-        printf "\nUser 'admin', if existing, will be reset. Enter YES to confirm, anything else to cancel: "
+        printf "\nAdmin user, if exists, will be reset. Enter YES to confirm, anything else to cancel: "
         read confirmReset
         if [ "$confirmReset" = "YES" ]; then
-            hashPassword=$(go run hashPassword.go $password)
-            mongo --eval 'var adminPassword = "'"$hashPassword"'"; var uri = "localhost:27017";' resetUser.js
+            adminPassword=$(cd ../../tools/protect/;go run protect.go ../../../config/config.json -password $password)
+            mongo --eval 'var adminId = "'"$adminId"'"; var adminEmail = "'"$adminEmail"'"; var adminPassword = "'"$adminPassword"'";' resetUser.js
         else
             printf "User 'admin' reset was CANCELLED\n"
             exit 11

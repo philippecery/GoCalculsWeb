@@ -1,18 +1,16 @@
 try {
-    conn = new Mongo(uri);
+    conn = new Mongo("localhost:27017");
     db = conn.getDB("maths");
     db.auth("maths_rw", passwordPrompt());
     db.users.deleteMany(
-        { userid: "admin" }
+        { userid: adminId }
     );
     db.users.insertOne(
         {
-            userid: "admin",
-            emailaddress: "admin@maths.com",
+            userid: adminId,
+            emailaddress: adminEmail,
             password: adminPassword,
-            firstname: "Admin",
-            lastname: "Admin",
-            role: 1,
+            role: 4,
             status: 2
         }
     );
