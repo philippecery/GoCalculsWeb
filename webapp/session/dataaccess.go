@@ -3,8 +3,8 @@ package session
 import (
 	"strings"
 
+	"github.com/philippecery/libs/crng"
 	"github.com/philippecery/maths/webapp/database/document"
-	"github.com/philippecery/maths/webapp/util"
 )
 
 // SetAuthenticatedUser stores the non-sensitive data of the authenticated user in this session.
@@ -42,7 +42,7 @@ func (s *HTTPSession) GetErrorMessageID() string {
 
 // SetCSRFToken generates a random token and stores it in this session.
 func (s *HTTPSession) SetCSRFToken() string {
-	token := util.GenerateRandomBytesToBase64(32)
+	token, _ := crng.GetBytesBase64(32)
 	s.SetAttribute("csrf", token)
 	return token
 }
@@ -57,7 +57,7 @@ func (s *HTTPSession) GetCSRFToken() string {
 
 // NewCSWHToken generates a random token and stores it in this session.
 func (s *HTTPSession) NewCSWHToken() string {
-	token := util.GenerateRandomBytesToBase64(32)
+	token, _ := crng.GetBytesBase64(32)
 	s.SetAttribute("cswh", token)
 	return token
 }
@@ -72,7 +72,7 @@ func (s *HTTPSession) GetCSWHToken() string {
 
 // SetCSPNonce generates a random nonce for strict CSP and stores it in this session.
 func (s *HTTPSession) SetCSPNonce() string {
-	nonce := util.GenerateRandomBytesToBase64(32)
+	nonce, _ := crng.GetBytesBase64(32)
 	s.SetAttribute("nonce", nonce)
 	return nonce
 }

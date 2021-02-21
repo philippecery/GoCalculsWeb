@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/philippecery/maths/webapp/util"
+	"github.com/philippecery/libs/crng"
 )
 
 // HTTPSessionStore struct
@@ -36,7 +36,7 @@ func newSession(w http.ResponseWriter, r *http.Request) *HTTPSession {
 	invalidateSession(w, r)
 	log.Printf("Creating new HTTP session.")
 	now := time.Now()
-	sessionID := util.GenerateRandomBytesToBase64(32)
+	sessionID, _ := crng.GetBytesBase64(32)
 	session := &HTTPSession{id: sessionID, creationTime: now, lastAccessedTime: now, attributes: make(map[string]interface{}, 0)}
 	element := httpSessionStore.list.PushBack(session)
 	httpSessionStore.sessions[sessionID] = element

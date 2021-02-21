@@ -6,13 +6,14 @@ import (
 	hash "crypto/sha256"
 	"encoding/base64"
 
+	"github.com/philippecery/libs/crng"
+
 	"github.com/philippecery/maths/webapp/config"
-	"github.com/philippecery/maths/webapp/util"
 )
 
 // ActionToken generates and returns a unique ID to pass as a query parameter for CSRF protection.
 func (u *User) ActionToken() string {
-	salt := util.GenerateRandomBytes(32)
+	salt, _ := crng.GetBytes(32)
 	token := make([]byte, 0)
 	token = append(token, salt...)
 	token = append(token, generateActionToken(salt, u.UserID)...)
@@ -26,7 +27,7 @@ func VerifyUserActionToken(actionToken string, userID string) bool {
 
 // ActionToken generates and returns a unique ID to pass as a query parameter for CSRF protection.
 func (s *Student) ActionToken() string {
-	salt := util.GenerateRandomBytes(32)
+	salt, _ := crng.GetBytes(32)
 	token := make([]byte, 0)
 	token = append(token, salt...)
 	token = append(token, generateActionToken(salt, s.UserID, s.GradeID)...)
@@ -40,7 +41,7 @@ func VerifyStudentActionToken(actionToken string, userID, gradeID string) bool {
 
 // ActionToken generates and returns a unique ID to pass as a query parameter for CSRF protection.
 func (g *Grade) ActionToken() string {
-	salt := util.GenerateRandomBytes(32)
+	salt, _ := crng.GetBytes(32)
 	token := make([]byte, 0)
 	token = append(token, salt...)
 	token = append(token, generateActionToken(salt, g.GradeID)...)
