@@ -1,13 +1,14 @@
 package util
 
 import (
-	"bytes"
+	b "bytes"
 	"crypto/rand"
 	hash "crypto/sha256"
 	"encoding/base64"
 	"encoding/binary"
 
-	memory "github.com/philippecery/libs/bytes"
+	"github.com/philippecery/libs/bytes"
+	"github.com/philippecery/libs/crng"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -20,19 +21,19 @@ const (
 func ProtectPassword(password string) string {
 	salt := make([]byte, hash.Size)
 	rand.Read(salt)
-	iter, _ := GetNumberInRange(minIterations, maxIterations)
+	iter, _ := crng.GetNumberInRange(minIterations, maxIterations)
 	hashedPwd := hashPassword([]byte(password), salt, iter)
-	defer memory.Clear(&hashedPwd, &salt)
+	defer bytes.Clear(&hashedPwd, &salt)
 	iterBytes := make([]byte, 2)
 	binary.BigEndian.PutUint16(iterBytes, uint16(iter))
-	return base64.StdEncoding.EncodeToString(Concat(salt, iterBytes, hashedPwd))
+	return base64.StdEncoding.EncodeToString(bytes.Concat(salt, iterBytes, hashedPwd))
 }
 
 // VerifyPassword verifies the submitted password against the actual one
 func VerifyPassword(submitted, base64Blob string) bool {
 	if blob, err := base64.StdEncoding.DecodeString(base64Blob); err == nil {
 		iter := int(binary.BigEndian.Uint16(blob[hash.Size : hash.Size+2]))
-		return bytes.Equal(hashPassword([]byte(submitted), blob[:hash.Size], iter), blob[hash.Size+2:])
+		return b.Equal(hashPassword([]byte(submitted), blob[:hash.Size], iter), blob[hash.Size+2:])
 	}
 	return false
 }
