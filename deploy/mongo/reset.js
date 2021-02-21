@@ -2,9 +2,8 @@ try {
     conn = new Mongo("localhost:27017");
     db = conn.getDB("maths");
     db.auth("maths_rw", passwordPrompt());
-    db.users.deleteMany(
-        { userid: adminId }
-    );
+    db.dropDatabase();
+    db.dropAllUsers();
     db.users.insertOne(
         {
             userid: adminId,

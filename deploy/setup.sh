@@ -7,11 +7,11 @@ if [ "$startdb" == "Y" ]; then
     ( cd ../scripts/database; sh ./restart.sh )
 fi
 
-printf "\n\n### Reset admin user? [Y/N]"
-read resetAdmin
-if [ "$resetAdmin" == "Y" ]; then
-    # Reset admin user
-    ( cd ./admin/user; sh ./resetUser.sh )
+printf "\n\n### Reset database? [Y/N]"
+read resetDB
+if [ "$resetDB" == "Y" ]; then
+    # Reset database
+    ( cd ./mongo; sh ./reset.sh )
     if [ $? -ne 0 ]; then
         exit 1
     fi
