@@ -5,10 +5,10 @@ import (
 	"log"
 	"time"
 
+	"github.com/philippecery/libs/crng"
 	"github.com/philippecery/maths/webapp/constant"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
-	"github.com/philippecery/maths/webapp/util"
 )
 
 func (s *socket) operation() error {
@@ -17,7 +17,7 @@ func (s *socket) operation() error {
 			operatorIDs := session.OperatorIDs()
 			if len(operatorIDs) > 0 {
 				fmt.Printf("Remaining operators: %v\n", operatorIDs)
-				rndIdx, _ := util.GetNumber(len(operatorIDs))
+				rndIdx, _ := crng.GetNumber(len(operatorIDs))
 				nextOperation := &document.Operation{OperatorID: operatorIDs[rndIdx], Status: constant.Todo}
 				var operandRange *constant.OperandRanges
 				switch nextOperation.OperatorID {
@@ -30,8 +30,8 @@ func (s *socket) operation() error {
 				case 4:
 					operandRange = homeworkType.DivisionRange
 				}
-				nextOperation.Operand1, _ = util.GetNumberInRange(operandRange.Operand1.RangeMin, operandRange.Operand1.RangeMax)
-				nextOperation.Operand2, _ = util.GetNumberInRange(operandRange.Operand2.RangeMin, operandRange.Operand2.RangeMax)
+				nextOperation.Operand1, _ = crng.GetNumberInRange(operandRange.Operand1.RangeMin, operandRange.Operand1.RangeMax)
+				nextOperation.Operand2, _ = crng.GetNumberInRange(operandRange.Operand2.RangeMin, operandRange.Operand2.RangeMax)
 				s.addOperation(nextOperation)
 				operator := constant.Operators[nextOperation.OperatorID]
 				return s.emitTextMessage(map[string]interface{}{
