@@ -7,9 +7,11 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/nicksnyder/go-i18n/v2 v2.1.1
-	github.com/philippecery/libs/bytes v0.0.0-20201109144343-e0a5bb75243c
-	github.com/philippecery/libs/crng v0.0.0-20201109144343-e0a5bb75243c
+	github.com/philippecery/libs/bytes v0.0.0-20210111124205-7a0a0a1973c5
+	github.com/philippecery/libs/cipher v0.0.0-20210220133104-8f39d306f3b2
+	github.com/philippecery/libs/crng v0.0.0-20210111124205-7a0a0a1973c5
 	github.com/philippecery/libs/hkdf v0.0.0-20210111124205-7a0a0a1973c5
+	github.com/philippecery/libs/hmac v0.0.0-20210111124205-7a0a0a1973c5
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a
 	go.mongodb.org/mongo-driver v1.4.3
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
