@@ -11,28 +11,28 @@ import (
 )
 
 // ProtectUserID protects the email address used as a user identifier
-func ProtectUserID(userID string) string {
+func ProtectUserID(userID string) (string, error) {
 	macKey, err := base64.StdEncoding.DecodeString(config.Config.Keys.UserID)
 	if err == nil {
-		return base64.StdEncoding.EncodeToString(hmac.Generate(&macKey, []byte(userID)))
+		return base64.StdEncoding.EncodeToString(hmac.Generate(&macKey, []byte(userID))), nil
 	}
-	return ""
+	return "", err
 }
 
 // ProtectPII protects PII data at rest
-func ProtectPII(pii string) string {
+func ProtectPII(pii string) (string, error) {
 	var err error
 	var piiKey, ciphertext []byte
 	piiBytes := []byte(pii)
 	piiKey, err = base64.StdEncoding.DecodeString(config.Config.Keys.PII)
 	if err == nil {
 		ciphertext, err = cipher.Encrypt(&piiKey, &piiBytes)
-		return base64.StdEncoding.EncodeToString(ciphertext)
+		return base64.StdEncoding.EncodeToString(ciphertext), nil
 	}
-	return ""
+	return "", err
 }
 
-func UnprotectPII(protectedPII string) string {
+func UnprotectPII(protectedPII string) (string, error) {
 	var err error
 	var piiKey, protectedPIIBytes, piiBytes []byte
 	piiKey, err = base64.StdEncoding.DecodeString(config.Config.Keys.PII)
@@ -41,8 +41,8 @@ func UnprotectPII(protectedPII string) string {
 		if err == nil {
 			piiBytes, err = cipher.Decrypt(&piiKey, protectedPIIBytes)
 			defer bytes.Clear(&piiBytes)
-			return string(piiBytes)
+			return string(piiBytes), nil
 		}
 	}
-	return ""
+	return "", err
 }
