@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 
+	memory "github.com/philippecery/libs/bytes"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -21,8 +22,7 @@ func ProtectPassword(password string) string {
 	rand.Read(salt)
 	iter, _ := GetNumberInRange(minIterations, maxIterations)
 	hashedPwd := hashPassword([]byte(password), salt, iter)
-	defer Clear(&hashedPwd)
-	defer Clear(&salt)
+	defer memory.Clear(&hashedPwd, &salt)
 	iterBytes := make([]byte, 2)
 	binary.BigEndian.PutUint16(iterBytes, uint16(iter))
 	return base64.StdEncoding.EncodeToString(Concat(salt, iterBytes, hashedPwd))

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/philippecery/maths/webapp/util"
+	"github.com/philippecery/libs/bytes"
 
 	"github.com/youmark/pkcs8"
 )
@@ -17,7 +17,7 @@ type KeyPair struct {
 }
 
 func loadKeyPair(pemFilePath string, keyPassword *[]byte) (*KeyPair, error) {
-	defer util.Clear(keyPassword)
+	defer bytes.Clear(keyPassword)
 	remainder, err := ioutil.ReadFile(pemFilePath)
 	if err != nil {
 		return nil, err
