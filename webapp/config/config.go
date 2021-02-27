@@ -15,6 +15,7 @@ type configStruct struct {
 	Keys              *keysConfigStruct
 	Gmail             *gmailConfigStruct
 	UserTokenValidity int
+	DefaultLanguage   string
 }
 
 type sslConfigStruct struct {
