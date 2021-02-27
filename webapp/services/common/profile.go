@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -23,7 +24,7 @@ func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 			if r.Method == "GET" {
 				response := map[string]interface{}{
 					"UserProfile":    userProfile,
-					"LastConnection": i18n.FormatDateTime(userProfile.LastConnection, i18n.GetSelectedLanguage(r)),
+					"LastConnection": i18n.FormatDateTime(userProfile.LastConnection, httpsession.GetUserLanguage()),
 				}
 				if responseMessage, err := json.Marshal(response); err == nil {
 					if _, err = w.Write(responseMessage); err == nil {
@@ -37,7 +38,7 @@ func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 					if r.PostFormValue("userId") == user.UserID {
 						var messageID string
 						var result int
-						if userProfile, err := validateProfileFormUserInput(r); err == nil {
+						if userProfile, err := validateProfileFormUserInput(w, r); err == nil {
 							if err := dataaccess.UpdateUserProfile(userProfile); err != nil {
 								messageID = "errorGenericMessage"
 								result = 2
@@ -50,7 +51,7 @@ func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 							messageID = "successProfileSaved"
 						}
 						response := map[string]interface{}{
-							"Message": i18n.GetLocalizedMessage(i18n.GetSelectedLanguage(r), messageID),
+							"Message": i18n.GetLocalizedMessage(httpsession.GetUserLanguage(), messageID),
 							"Result":  result,
 						}
 						if responseMessage, err := json.Marshal(response); err == nil {
@@ -77,14 +78,18 @@ func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 
-func validateProfileFormUserInput(r *http.Request) (*document.User, error) {
+func validateProfileFormUserInput(w http.ResponseWriter, r *http.Request) (*document.User, error) {
 	var err error
+	var emailAddress string
 	userProfile := &document.User{UserID: r.PostFormValue("userId")}
-	if userProfile.EmailAddress, err = services.ValidateEmailAddress(r.PostFormValue("emailAddress")); err == nil {
-		if userProfile.FirstName, err = services.ValidateName(r.PostFormValue("firstName")); err == nil {
-			if userProfile.LastName, err = services.ValidateName(r.PostFormValue("lastName")); err == nil {
-				return userProfile, nil
-			}
+	if emailAddress, err = services.ValidateEmailAddress(r.PostFormValue("emailAddress")); err == nil {
+		if err = services.SendValidationEmail(services.NewEmailViewData(w, r), userProfile); err != nil {
+			log.Printf("Email address confirmation message was not sent. Cause: %v", err)
+			return nil, fmt.Errorf("errorGenericMessage")
+		}
+		userProfile.EmailAddressTmp = document.PII(emailAddress)
+		if userProfile.Name, err = services.ValidateName(r.PostFormValue("name")); err == nil {
+			return userProfile, nil
 		}
 	}
 	return nil, err

@@ -10,6 +10,10 @@ import (
 	"github.com/philippecery/libs/crng"
 )
 
+const defaultMaxInactiveInterval = 900 // 15 minutes
+
+const cookieName = "__Host-SessionID"
+
 // HTTPSessionStore struct
 type HTTPSessionStore struct {
 	lock                sync.Mutex

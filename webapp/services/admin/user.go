@@ -1,23 +1,17 @@
 package admin
 
 import (
-	"crypto/hmac"
-	hash "crypto/sha256"
-	"encoding/base64"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/philippecery/maths/webapp/config"
-	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
-	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
+	"github.com/philippecery/maths/webapp/util"
 )
 
 // UserList handles requests to /admin/user/list
@@ -109,7 +103,7 @@ func executeAction(w http.ResponseWriter, r *http.Request, httpsession *session.
 // Only GET and POST requests are allowed. The user must have role Admin to access this page.
 //  - a GET request will display the New User form. If an error message is available in the session, it will be displayed.
 //  - a POST request will create a temporary user account if the submitted data are valid. That new account will have a token. The registration link must be sent to the user.
-func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
+func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, userInfo *session.UserInformation) {
 	if token := httpsession.GetCSRFToken(); token != "" {
 		if r.Method == "GET" {
 			vd := services.NewViewData(w, r)
@@ -135,11 +129,11 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 				var roleID int
 				var userID string
 				if roleID, err = services.ValidateRoleID(r.PostFormValue("role")); err == nil {
-					if userID, err = services.ValidateUserID(strings.ToLower(r.PostFormValue("userId"))); userID != "" && dataaccess.IsUserIDAvailable(userID) {
-						token, expirationTime := generateUserToken(userID)
-						unregisteredUser := &document.UnregisteredUser{UserID: userID, Token: token, Expires: expirationTime, Role: constant.UserRole(roleID), Status: constant.Unregistered}
+					if userID, err = services.ValidateEmailAddress(strings.ToLower(r.PostFormValue("emailAddress"))); userID != "" && dataaccess.IsUserIDAvailable(userID) {
+						token, expirationTime := util.GenerateUserToken(userID)
+						unregisteredUser := &document.User{UserID: userID, Token: token, Expires: expirationTime, Role: user.Role(roleID), Status: user.Unregistered}
 						if err = dataaccess.CreateNewUser(unregisteredUser); err == nil {
-							if err = sendConfirmationEmail(services.NewEmailViewData(w, r), unregisteredUser); err != nil {
+							if err = services.SendRegistrationEmail(services.NewEmailViewData(w, r), unregisteredUser); err != nil {
 								log.Printf("Email address confirmation message was not sent. Cause: %v", err)
 								httpsession.SetErrorMessageID("errorEmailAddressConfirmationNotSent")
 							}
@@ -167,26 +161,4 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 	}
 	log.Println("/admin/user/new: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
-}
-
-func generateUserToken(userID string) (string, time.Time) {
-	expirationTime := time.Now().Add(time.Hour * time.Duration(config.Config.UserTokenValidity))
-	mac := hmac.New(hash.New, []byte(config.Config.Keys.UserToken))
-	mac.Write([]byte(userID))
-	mac.Write([]byte(fmt.Sprintf("%d", expirationTime.Unix())))
-	return base64.URLEncoding.EncodeToString(mac.Sum(nil)), expirationTime
-}
-
-func sendConfirmationEmail(vd services.ViewData, unregisteredUser *document.UnregisteredUser) error {
-	vd.SetViewData("RegistrationURL", unregisteredUser.Link())
-	vd.SetEmailDefaultLocalizedMessages().
-		AddLocalizedMessage("emailConfirmationTitle").
-		AddLocalizedMessage("emailConfirmationPreHeader").
-		AddLocalizedMessage("emailConfirmationMessage1").
-		AddLocalizedMessage("emailConfirmationMessage2").
-		AddLocalizedMessage("emailConfirmationContinueRegistration").
-		AddLocalizedMessage("emailConfirmationLinkWillExpire", config.Config.UserTokenValidity, map[string]interface{}{
-			"nbHours": config.Config.UserTokenValidity,
-		})
-	return services.SendEmail(unregisteredUser.UserID, "", config.Config.Gmail.Bcc, i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tpl", vd)
 }

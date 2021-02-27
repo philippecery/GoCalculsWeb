@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
+	"github.com/philippecery/maths/webapp/util"
 )
 
 // Register handles requests to /register
@@ -29,10 +31,9 @@ func Register(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 			vd.SetToken(userToken.Token)
 			vd.SetDefaultLocalizedMessages().
 				AddLocalizedMessage("registration").
-				AddLocalizedMessage("userid").
-				AddLocalizedMessage("firstName").
-				AddLocalizedMessage("lastName").
 				AddLocalizedMessage("emailAddress").
+				AddLocalizedMessage("name").
+				AddLocalizedMessage("preferredLanguage").
 				AddLocalizedMessage("password").
 				AddLocalizedMessage("passwordConfirm").
 				AddLocalizedMessage("register")
@@ -75,25 +76,22 @@ func validateUserInput(r *http.Request) (*document.RegisteredUser, string, error
 		return nil, "", fmt.Errorf("Token expired")
 	}
 	newUser := document.RegisteredUser{}
-	if r.PostFormValue("userId") == userToken.UserID {
+	var userID string
+	if userID, err = util.ProtectUserID(r.PostFormValue("emailAddress")); err == nil && userID == userToken.UserID {
 		newUser.UserID = userToken.UserID
+		newUser.EmailAddress = userToken.EmailAddress
 		newUser.Role = userToken.Role
 	} else {
 		return nil, "", err
-	}
-	if newUser.EmailAddress, err = services.ValidateEmailAddress(r.PostFormValue("emailAddress")); err != nil {
-		return nil, err.Error(), err
 	}
 	if newUser.Password, err = services.ValidatePassword(r.PostFormValue("password"), r.PostFormValue("passwordConfirm")); err != nil {
 		return nil, err.Error(), err
 	}
 	newUser.PasswordDate = time.Now()
-	if newUser.FirstName, err = services.ValidateName(r.PostFormValue("firstName")); err != nil {
+	if newUser.Name, err = services.ValidateName(r.PostFormValue("name")); err != nil {
 		return nil, err.Error(), err
 	}
-	if newUser.LastName, err = services.ValidateName(r.PostFormValue("lastName")); err != nil {
-		return nil, err.Error(), err
-	}
-	newUser.Status = constant.Enabled
+	newUser.Language = i18n.ValidateLanguage(r.PostFormValue("language"))
+	newUser.Status = user.Enabled
 	return &newUser, "", nil
 }

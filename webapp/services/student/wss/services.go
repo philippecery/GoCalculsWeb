@@ -6,20 +6,20 @@ import (
 	"time"
 
 	"github.com/philippecery/libs/crng"
-	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/constant/homework"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
 )
 
 func (s *socket) operation() error {
 	if session := s.getHomeworkSession(); session != nil {
-		if homeworkType, exists := constant.HomeworkTypes[session.TypeID]; exists {
+		if homeworkType, exists := homework.Types[session.TypeID]; exists {
 			operatorIDs := session.OperatorIDs()
 			if len(operatorIDs) > 0 {
 				fmt.Printf("Remaining operators: %v\n", operatorIDs)
 				rndIdx, _ := crng.GetNumber(len(operatorIDs))
-				nextOperation := &document.Operation{OperatorID: operatorIDs[rndIdx], Status: constant.Todo}
-				var operandRange *constant.OperandRanges
+				nextOperation := &document.Operation{OperatorID: operatorIDs[rndIdx], Status: homework.Todo}
+				var operandRange *homework.OperandRanges
 				switch nextOperation.OperatorID {
 				case 1:
 					operandRange = homeworkType.AdditionRange
@@ -33,7 +33,7 @@ func (s *socket) operation() error {
 				nextOperation.Operand1, _ = crng.GetNumberInRange(operandRange.Operand1.RangeMin, operandRange.Operand1.RangeMax)
 				nextOperation.Operand2, _ = crng.GetNumberInRange(operandRange.Operand2.RangeMin, operandRange.Operand2.RangeMax)
 				s.addOperation(nextOperation)
-				operator := constant.Operators[nextOperation.OperatorID]
+				operator := homework.Operators[nextOperation.OperatorID]
 				return s.emitTextMessage(map[string]interface{}{
 					"response":      "operation",
 					"operationName": s.getLocalizedMessage(operator.I18N),
@@ -65,10 +65,10 @@ func (s *socket) answer() error {
 		percentUpdate := (nbUpdate * 100) / session.Homework.NumberOfOperationsByOperator(operation.OperatorID)
 		var percentAll int
 		if good {
-			operation.Status = constant.Good
+			operation.Status = homework.Good
 			percentAll = (session.NbTotalGood() * 100) / session.Homework.NumberOfOperations()
 		} else {
-			operation.Status = constant.Wrong
+			operation.Status = homework.Wrong
 		}
 		nbTotalRemaining := session.Homework.NumberOfOperations() - session.NbTotalGood()
 		s.saveHomeworkSession(session)
@@ -116,17 +116,17 @@ func (s *socket) toggle() error {
 func (s *socket) end() error {
 	if session := s.getHomeworkSession(); session != nil {
 		session.EndTime = time.Now()
-		session.Status = constant.Cancel
+		session.Status = homework.Cancel
 		var timeout bool
 		var err error
 		if timeout, err = s.getBool("timeout"); err == nil {
 			if timeout {
-				session.Status = constant.Timeout
+				session.Status = homework.Timeout
 			} else {
-				session.Status = constant.Success
+				session.Status = homework.Success
 				for o := len(session.Operations) - 1; o >= 0; o-- {
-					if session.Operations[o].Status == constant.Wrong {
-						session.Status = constant.Failed
+					if session.Operations[o].Status == homework.Wrong {
+						session.Status = homework.Failed
 						break
 					}
 				}
@@ -149,7 +149,7 @@ func (s *socket) results(homeworkType, status, page int) error {
 			session := map[string]interface{}{
 				"sessionID":         homeworkSession.SessionID,
 				"startTime":         homeworkSession.FormattedDateTime(s.getCurrentLanguage()),
-				"type":              constant.HomeworkTypes[homeworkSession.TypeID].Logo,
+				"type":              homework.Types[homeworkSession.TypeID].Logo,
 				"nbAdditions":       homeworkSession.Homework.NbAdditions,
 				"nbSubstractions":   homeworkSession.Homework.NbSubstractions,
 				"nbMultiplications": homeworkSession.Homework.NbMultiplications,

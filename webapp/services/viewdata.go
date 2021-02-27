@@ -18,15 +18,7 @@ func NewViewData(w http.ResponseWriter, r *http.Request) ViewData {
 		vd = make(ViewData)
 		vd["nonce"] = httpsession.GetCSPNonce()
 		vd.SetToken(httpsession.GetCSRFToken())
-		vd["lang"] = i18n.GetSelectedLanguage(r)
-		langs := i18n.GetSupportedLanguages()
-		for lang := range langs {
-			if lang == vd["lang"] {
-				delete(langs, lang)
-				break
-			}
-		}
-		vd["langs"] = langs
+		vd["lang"] = httpsession.GetUserLanguage()
 	} else {
 		log.Printf("User session not found\n")
 	}
@@ -38,7 +30,7 @@ func NewEmailViewData(w http.ResponseWriter, r *http.Request) ViewData {
 	var vd ViewData
 	if httpsession := session.GetSession(w, r); httpsession != nil {
 		vd = make(ViewData)
-		vd["lang"] = i18n.GetSelectedLanguage(r)
+		vd["lang"] = httpsession.GetUserLanguage()
 	} else {
 		log.Printf("User session not found\n")
 	}

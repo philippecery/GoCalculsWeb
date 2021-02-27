@@ -5,15 +5,16 @@ import (
 
 	"github.com/philippecery/libs/crng"
 	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/i18n"
 )
 
 // SetAuthenticatedUser stores the non-sensitive data of the authenticated user in this session.
 func (s *HTTPSession) SetAuthenticatedUser(user *document.User) {
 	s.SetAttribute("user", &UserInformation{
-		UserID:    user.UserID,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Role:      user.Role,
+		UserID:   user.UserID,
+		Name:     user.Name,
+		Language: user.Language,
+		Role:     user.Role,
 	})
 }
 
@@ -24,6 +25,16 @@ func (s *HTTPSession) GetAuthenticatedUser() *UserInformation {
 		return userInfo
 	}
 	return nil
+}
+
+// GetUserLanguage returns the preferred language of the authenticated user.
+// Returns the default language if the user is not authenticated.
+func (s *HTTPSession) GetUserLanguage() string {
+	var language string
+	if user := s.GetAuthenticatedUser(); user != nil {
+		language = user.Language
+	}
+	return i18n.ValidateLanguage(language)
 }
 
 // SetErrorMessageID stores an error message ID in the user session.
@@ -40,8 +51,8 @@ func (s *HTTPSession) GetErrorMessageID() string {
 	return ""
 }
 
-// SetCSRFToken generates a random token and stores it in this session.
-func (s *HTTPSession) SetCSRFToken() string {
+// NewCSRFToken generates a random token and stores it in this session.
+func (s *HTTPSession) NewCSRFToken() string {
 	token, _ := crng.GetBytesBase64(32)
 	s.SetAttribute("csrf", token)
 	return token

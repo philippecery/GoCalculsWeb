@@ -3,34 +3,44 @@ package session
 import (
 	"strings"
 
-	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/constant/user"
 )
 
 // UserInformation contains only the user information we want to keep in the user session
 type UserInformation struct {
-	UserID    string
-	FirstName string
-	LastName  string
-	Role      constant.UserRole
+	UserID   string
+	Name     string
+	Language string
+	Role     user.Role
 }
 
 // IsAdmin returns true if this user's role is Admin
 func (u *UserInformation) IsAdmin() bool {
-	return u.HasRole(constant.Admin)
+	return u.HasRole(user.Admin)
 }
 
 // IsTeacher returns true if this user's role is Teacher
 func (u *UserInformation) IsTeacher() bool {
-	return u.HasRole(constant.Teacher)
+	return u.HasRole(user.Teacher)
 }
 
 // IsStudent returns true if this user's role is Student
 func (u *UserInformation) IsStudent() bool {
-	return u.HasRole(constant.Student)
+	return u.HasRole(user.Student)
+}
+
+// IsParent returns true if this user's role is Admin
+func (u *UserInformation) IsParent() bool {
+	return u.HasRole(user.Parent)
+}
+
+// IsChild returns true if this user's role is Admin
+func (u *UserInformation) IsChild() bool {
+	return u.HasRole(user.Child)
 }
 
 // HasRole returns true if this user has the specified role
-func (u *UserInformation) HasRole(role constant.UserRole) bool {
+func (u *UserInformation) HasRole(role user.Role) bool {
 	return u.Role == role
 }
 

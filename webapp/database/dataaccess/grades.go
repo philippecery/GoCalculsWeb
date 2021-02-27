@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/collection"
 	"github.com/philippecery/maths/webapp/database/document"
 	"go.mongodb.org/mongo-driver/bson"
@@ -90,7 +90,7 @@ func UpdateGrade(grade *document.Grade) error {
 
 // DeleteGrade deletes the Grade document from the Grades collection where the gradeid field is the provided id
 func DeleteGrade(id string) error {
-	if _, err := collection.Users.UpdateMany(context.TODO(), bson.M{"role": constant.Student, "gradeid": id}, bson.M{"$set": bson.M{"gradeid": ""}}); err == nil {
+	if _, err := collection.Users.UpdateMany(context.TODO(), bson.M{"role": user.Student, "gradeid": id}, bson.M{"$set": bson.M{"gradeid": ""}}); err == nil {
 		if _, err := collection.Grades.DeleteOne(context.TODO(), bson.M{"gradeid": id}); err == nil {
 			log.Printf("Grade %s is deleted.", id)
 			cache.remove(id)

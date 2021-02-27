@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/collection"
 	"github.com/philippecery/maths/webapp/database/document"
 	"go.mongodb.org/mongo-driver/bson"
@@ -60,8 +60,8 @@ func UpdateLastConnection(id string) {
 // UpdateFailedAttempts updates the number of failed login attempts for the User document where userid field is the provided id
 func UpdateFailedAttempts(id string, failedAttempts int) {
 	updates := bson.M{"failedattempts": failedAttempts}
-	if failedAttempts > constant.MaxFailedAttempts {
-		updates["status"] = constant.Disabled
+	if failedAttempts > user.MaxFailedAttempts {
+		updates["status"] = user.Disabled
 	}
 	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": id}, bson.M{"$set": updates}); err != nil {
 		log.Printf("Unable to update %s's number of failed attempts. Cause: %v", id, err)
@@ -72,7 +72,7 @@ func UpdateFailedAttempts(id string, failedAttempts int) {
 func GetAllUnregisteredUsers() []*document.User {
 	var err error
 	var cursor *mongo.Cursor
-	if cursor, err = collection.Users.Find(context.TODO(), bson.M{"status": constant.Unregistered}); err != nil {
+	if cursor, err = collection.Users.Find(context.TODO(), bson.M{"status": user.Unregistered}); err != nil {
 		log.Printf("Unable to find User document. Cause: %v", err)
 		return nil
 	}
@@ -88,7 +88,7 @@ func GetAllUnregisteredUsers() []*document.User {
 func GetAllRegisteredUsers() []*document.User {
 	var err error
 	var cursor *mongo.Cursor
-	if cursor, err = collection.Users.Find(context.TODO(), bson.M{"status": bson.M{"$ne": constant.Unregistered}}); err != nil {
+	if cursor, err = collection.Users.Find(context.TODO(), bson.M{"status": bson.M{"$ne": user.Unregistered}}); err != nil {
 		log.Printf("Unable to find User document. Cause: %v", err)
 		return nil
 	}
@@ -101,7 +101,7 @@ func GetAllRegisteredUsers() []*document.User {
 }
 
 // CreateNewUser creates a new User document in the Users collection
-func CreateNewUser(newUser *document.UnregisteredUser) error {
+func CreateNewUser(newUser *document.User) error {
 	if _, err := collection.Users.InsertOne(context.TODO(), newUser); err != nil {
 		return errors.New("Registration token creation failed")
 	}
@@ -129,12 +129,12 @@ func DeleteUser(id string) error {
 
 // ToggleUserStatus retrieves the User document where the userid field is the provided id, then update the status field to Disabled if current status is Enabled, or Enabled otherwise.
 func ToggleUserStatus(id string) error {
-	if user := GetUserByID(id); user != nil {
-		var newStatus constant.UserStatus
-		if user.Status == constant.Enabled {
-			newStatus = constant.Disabled
+	if u := GetUserByID(id); u != nil {
+		var newStatus user.Status
+		if u.Status == user.Enabled {
+			newStatus = user.Disabled
 		} else {
-			newStatus = constant.Enabled
+			newStatus = user.Enabled
 		}
 		if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": id}, bson.M{"$set": bson.M{"status": newStatus}}); err != nil {
 			log.Printf("Unable to update status for user %s. Cause: %v", id, err)
@@ -168,7 +168,7 @@ func RegisterUser(newUser *document.RegisteredUser, token string) error {
 
 // UpdateUserProfile updates the User document where userid field equals the one in the new User document
 func UpdateUserProfile(userProfile *document.User) error {
-	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": userProfile.UserID}, bson.M{"$set": bson.M{"firstname": userProfile.FirstName, "lastname": userProfile.LastName, "emailaddress": userProfile.EmailAddress}}); err != nil {
+	if _, err := collection.Users.UpdateOne(context.TODO(), bson.M{"userid": userProfile.UserID}, bson.M{"$set": bson.M{"name": userProfile.Name, "emailaddress": userProfile.EmailAddress}}); err != nil {
 		log.Printf("Unable to update user %s. Cause: %v", userProfile.UserID, err)
 		return errors.New("User profile update failed")
 	}
