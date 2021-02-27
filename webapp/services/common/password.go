@@ -37,7 +37,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request, httpsession *session
 						messageID = "successPasswordChanged"
 					}
 					response := map[string]interface{}{
-						"Message": i18n.GetLocalizedMessage(i18n.GetSelectedLanguage(r), messageID),
+						"Message": i18n.GetLocalizedMessage(httpsession.GetUserLanguage(), messageID),
 						"Result":  result,
 					}
 					if responseMessage, err := json.Marshal(response); err == nil {

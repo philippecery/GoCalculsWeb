@@ -19,6 +19,7 @@ func SetupRoutes() {
 	handleStatic("img")
 
 	handleFunc("/", noCache(public.Home))
+	handleFunc("/signup", noCache(public.SignUp))
 	handleFunc("/register", noCache(public.Register))
 	handleFunc("/login", noCache(auth.Login))
 	handleFunc("/logout", auth.Logout)

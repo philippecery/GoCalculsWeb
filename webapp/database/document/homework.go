@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/constant/homework"
 	"github.com/philippecery/maths/webapp/i18n"
 )
 
@@ -23,7 +23,7 @@ type HomeworkSession struct {
 	Substractions   *Results
 	Multiplications *Results
 	Divisions       *Results
-	Status          constant.HomeworkSessionStatus
+	Status          homework.SessionStatus
 }
 
 // Results contains the number of good and wrong answers submitted per operator during a session
@@ -37,7 +37,7 @@ type Operation struct {
 	OperatorID int
 	Operand1   int
 	Operand2   int
-	Status     constant.OperationStatus
+	Status     homework.OperationStatus
 	Answer     int
 	Answer2    int
 }

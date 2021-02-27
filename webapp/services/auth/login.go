@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/services"
@@ -20,7 +20,7 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 	if r.Method == "GET" {
 		vd := services.NewViewData(w, r)
 		vd.SetErrorMessage(httpsession.GetErrorMessageID())
-		vd.SetToken(httpsession.SetCSRFToken())
+		vd.SetToken(httpsession.GetCSRFToken())
 		vd.SetDefaultLocalizedMessages().
 			AddLocalizedMessage("login").
 			AddLocalizedMessage("userid").
@@ -33,17 +33,17 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 	if r.Method == "POST" {
 		userID := r.PostFormValue("userId")
 		if r.PostFormValue("token") == httpsession.GetCSRFToken() {
-			if user := VerifyUserIDPassword(userID, r.PostFormValue("password")); user != nil {
+			if u := VerifyUserIDPassword(userID, r.PostFormValue("password")); u != nil {
 				httpsession := session.NewSession(w, r)
-				httpsession.SetAuthenticatedUser(user)
-				httpsession.SetCSRFToken()
+				httpsession.SetAuthenticatedUser(u)
+				httpsession.NewCSRFToken()
 				dataaccess.UpdateLastConnection(userID)
-				switch user.Role {
-				case constant.Admin:
+				switch u.Role {
+				case user.Admin:
 					http.Redirect(w, r, "/admin/user/list", http.StatusFound)
-				case constant.Teacher:
+				case user.Teacher:
 					http.Redirect(w, r, "/teacher/student/list", http.StatusFound)
-				case constant.Student:
+				case user.Student:
 					http.Redirect(w, r, "/student/dashboard", http.StatusFound)
 				default:
 					http.Redirect(w, r, "/logout", http.StatusFound)
@@ -64,17 +64,17 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 // VerifyUserIDPassword returns the user retrieved from database if authentication is successful. Otherwise, returns nil.
 // If authentication failed, increments the number of attempts. If authentication is successful, reset the number of attempts to 0.
 func VerifyUserIDPassword(userID, password string) *document.User {
-	if user := dataaccess.GetUserByID(userID); user != nil {
-		if util.VerifyPassword(password, user.Password) && user.Status == constant.Enabled {
-			user.FailedAttempts = 0
+	if u := dataaccess.GetUserByID(userID); u != nil {
+		if util.VerifyPassword(password, u.Password) && u.Status == user.Enabled {
+			u.FailedAttempts = 0
 		} else {
-			user.FailedAttempts++
+			u.FailedAttempts++
 		}
-		dataaccess.UpdateFailedAttempts(userID, user.FailedAttempts)
-		if user.FailedAttempts == 0 {
-			return user
+		dataaccess.UpdateFailedAttempts(userID, u.FailedAttempts)
+		if u.FailedAttempts == 0 {
+			return u
 		}
-		if user.FailedAttempts == constant.MaxFailedAttempts {
+		if u.FailedAttempts == user.MaxFailedAttempts {
 			// util.SendAccountDisabledEmail()
 		}
 	}

@@ -1,4 +1,4 @@
-package constant
+package homework
 
 // Operator type
 type Operator struct {

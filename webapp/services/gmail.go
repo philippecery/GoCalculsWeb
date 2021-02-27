@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/philippecery/maths/webapp/config"
+	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/i18n"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
@@ -59,4 +61,41 @@ func SendEmail(to, cc, bcc, subject, template string, vd interface{}) error {
 	}
 	log.Fatalf("Error while executing template '%s': %v\n", template, err)
 	return err
+}
+
+func SendValidationEmail(vd ViewData, user *document.User) error {
+	vd.SetViewData("RegistrationURL", user.Link())
+	vd.SetEmailDefaultLocalizedMessages().
+		AddLocalizedMessage("emailConfirmationTitle").
+		AddLocalizedMessage("emailConfirmationPreHeader").
+		AddLocalizedMessage("emailConfirmationMessage1").
+		AddLocalizedMessage("emailConfirmationMessage2").
+		AddLocalizedMessage("emailConfirmationContinueRegistration").
+		AddLocalizedMessage("emailConfirmationLinkWillExpire", config.Config.UserTokenValidity, map[string]interface{}{
+			"nbHours": config.Config.UserTokenValidity,
+		})
+	return SendEmail(user.EmailAddress.Reveal(), "", config.Config.Gmail.Bcc, i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tpl", vd)
+}
+
+func SendRegistrationEmail(vd ViewData, unregisteredUser *document.User) error {
+	vd.SetViewData("RegistrationURL", unregisteredUser.Link())
+	vd.SetEmailDefaultLocalizedMessages().
+		AddLocalizedMessage("emailConfirmationTitle").
+		AddLocalizedMessage("emailConfirmationPreHeader").
+		AddLocalizedMessage("emailConfirmationMessage1").
+		AddLocalizedMessage("emailConfirmationMessage2").
+		AddLocalizedMessage("emailConfirmationContinueRegistration").
+		AddLocalizedMessage("emailConfirmationLinkWillExpire", config.Config.UserTokenValidity, map[string]interface{}{
+			"nbHours": config.Config.UserTokenValidity,
+		})
+	return SendEmail(unregisteredUser.EmailAddress.Reveal(), "", config.Config.Gmail.Bcc, i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tpl", vd)
+}
+
+func SendAlreadyRegisteredEmail(vd ViewData, user *document.User) error {
+	vd.SetEmailDefaultLocalizedMessages().
+		AddLocalizedMessage("emailAlreadyRegisteredTitle").
+		AddLocalizedMessage("emailAlreadyRegisteredPreHeader").
+		AddLocalizedMessage("emailAlreadyRegisteredMessage1").
+		AddLocalizedMessage("emailAlreadyRegisteredMessage2")
+	return SendEmail(user.EmailAddress.Reveal(), "", config.Config.Gmail.Bcc, i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailAlreadyRegisteredSubject"), "alreadyRegisteredEmail.html.tpl", vd)
 }

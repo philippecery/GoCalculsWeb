@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/philippecery/maths/webapp/constant/homework"
 	"github.com/philippecery/maths/webapp/database/document"
 
-	"github.com/philippecery/maths/webapp/constant"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
@@ -47,7 +47,7 @@ func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTT
 					vd.SetUser(user)
 					vd.SetToken(token)
 					vd.SetViewData("TypeID", typeID)
-					vd.SetLocalizedMessage("Type", constant.HomeworkTypes[typeID].I18N)
+					vd.SetLocalizedMessage("Type", homework.Types[typeID].I18N)
 					var homework *document.Homework
 					switch typeID {
 					case 1:
@@ -101,7 +101,7 @@ func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTT
 
 func validateTypeID(typeParam string) int {
 	if typeID, err := strconv.Atoi(typeParam); err == nil {
-		if _, exists := constant.HomeworkTypes[typeID]; exists {
+		if _, exists := homework.Types[typeID]; exists {
 			return typeID
 		}
 	}

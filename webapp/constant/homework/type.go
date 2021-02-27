@@ -1,7 +1,7 @@
-package constant
+package homework
 
-// HomeworkType type
-type HomeworkType struct {
+// Type type
+type Type struct {
 	I18N                string
 	Logo                string
 	AdditionRange       *OperandRanges
@@ -24,10 +24,10 @@ type OperandRange struct {
 	DecMax   int
 }
 
-// HomeworkTypes is the default configuration of operations.
+// Types is the default configuration of operations.
 // Todo: make it configurable
-var HomeworkTypes = map[int]*HomeworkType{
-	1: &HomeworkType{
+var Types = map[int]*Type{
+	1: &Type{
 		I18N: "mentalmath",
 		Logo: "hourglass",
 		AdditionRange: &OperandRanges{
@@ -83,7 +83,7 @@ var HomeworkTypes = map[int]*HomeworkType{
 			},
 		},
 	},
-	2: &HomeworkType{
+	2: &Type{
 		I18N: "columnform",
 		Logo: "pencil",
 		AdditionRange: &OperandRanges{

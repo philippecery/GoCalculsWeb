@@ -242,6 +242,7 @@ github.com/philippecery/libs/hmac v0.0.0-20210111124205-7a0a0a1973c5/go.mod h1:X
 github.com/philippecery/libs/hmac v0.0.0-20210221044214-baae171a2806 h1:bA8Q/qMH1PJfPYz/oKCcAA02flYYxhfmUOGVIbKtzQg=
 github.com/philippecery/libs/hmac v0.0.0-20210221044214-baae171a2806/go.mod h1:XAmGPEWOd5+rkTNVSuuBoCVPVbezeQkZTUnFMG/rRjw=
 github.com/philippecery/maths v0.0.0-20201126145922-47fef070f62b h1:nA/G306xDWzW/hKsn/SxHuwuQr9zn8ZZ8zdIWwbiQHs=
+github.com/philippecery/maths v0.0.0-20210227072817-d9182b00268e h1:2wQn+Oi4gRdFu+eCeAYSSrpvssccr4bkBh8zSCLFWvw=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=

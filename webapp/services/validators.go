@@ -6,11 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/philippecery/maths/webapp/constant"
+	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/util"
 )
-
-var validUserID = regexp.MustCompile("^[a-z]{2,}(\\.?[a-z]{2,})*$")
 
 var validEmailAddress = regexp.MustCompile("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$")
 var validName = regexp.MustCompile("^[A-ZÀ-ÿa-z][-,. 'A-ZÀ-ÿa-z]*$")
@@ -22,17 +20,9 @@ var validPassword = []*regexp.Regexp{
 	regexp.MustCompile("^.*[^0-9a-zA-Z]+.*$"),
 }
 
-// ValidateUserID check the submitted user ID is valid.
-func ValidateUserID(userID string) (string, error) {
-	if len(userID) <= 32 && validUserID.MatchString(userID) {
-		return userID, nil
-	}
-	return "", fmt.Errorf("errorInvalidUserID")
-}
-
 // ValidateRoleID checks the submitted role ID is valid.
 func ValidateRoleID(role string) (int, error) {
-	if roleID, _ := strconv.Atoi(role); roleID > 0 && constant.UserRole(roleID).IsValid() {
+	if roleID, _ := strconv.Atoi(role); roleID > 0 && user.Role(roleID).IsValid() {
 		return roleID, nil
 	}
 	return 0, fmt.Errorf("errorInvalidRoleID")
