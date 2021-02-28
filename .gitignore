@@ -18,4 +18,6 @@
 config.json
 /config/pem/
 mongod.conf
+/scripts/local/
 /testsdata/
+/.github/
