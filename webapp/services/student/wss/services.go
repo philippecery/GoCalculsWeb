@@ -7,6 +7,7 @@ import (
 
 	"github.com/philippecery/libs/crng"
 	"github.com/philippecery/maths/webapp/constant/homework"
+	"github.com/philippecery/maths/webapp/constant/operation"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
 )
@@ -18,7 +19,7 @@ func (s *socket) operation() error {
 			if len(operatorIDs) > 0 {
 				fmt.Printf("Remaining operators: %v\n", operatorIDs)
 				rndIdx, _ := crng.GetNumber(len(operatorIDs))
-				nextOperation := &document.Operation{OperatorID: operatorIDs[rndIdx], Status: homework.Todo}
+				nextOperation := &document.Operation{OperatorID: operatorIDs[rndIdx], Status: operation.Todo}
 				var operandRange *homework.OperandRanges
 				switch nextOperation.OperatorID {
 				case 1:
@@ -54,21 +55,21 @@ func (s *socket) operation() error {
 
 func (s *socket) answer() error {
 	if session := s.getHomeworkSession(); session != nil {
-		operation := session.GetCurrentOperation()
+		o := session.GetCurrentOperation()
 		var answer, answer2 int
 		answer, _ = s.toInt("answer")
 		if session.TypeID == 4 {
 			answer2, _ = s.toInt("answer2")
 		}
-		good := operation.VerifyResult(answer, answer2)
-		nbUpdate := session.NbUpdate(good, operation.OperatorID)
-		percentUpdate := (nbUpdate * 100) / session.Homework.NumberOfOperationsByOperator(operation.OperatorID)
+		good := o.VerifyResult(answer, answer2)
+		nbUpdate := session.NbUpdate(good, o.OperatorID)
+		percentUpdate := (nbUpdate * 100) / session.Homework.NumberOfOperationsByOperator(o.OperatorID)
 		var percentAll int
 		if good {
-			operation.Status = homework.Good
+			o.Status = operation.Good
 			percentAll = (session.NbTotalGood() * 100) / session.Homework.NumberOfOperations()
 		} else {
-			operation.Status = homework.Wrong
+			o.Status = operation.Wrong
 		}
 		nbTotalRemaining := session.Homework.NumberOfOperations() - session.NbTotalGood()
 		s.saveHomeworkSession(session)
@@ -125,7 +126,7 @@ func (s *socket) end() error {
 			} else {
 				session.Status = homework.Success
 				for o := len(session.Operations) - 1; o >= 0; o-- {
-					if session.Operations[o].Status == homework.Wrong {
+					if session.Operations[o].Status == operation.Wrong {
 						session.Status = homework.Failed
 						break
 					}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/philippecery/maths/webapp/constant/homework"
+	"github.com/philippecery/maths/webapp/constant/operation"
 	"github.com/philippecery/maths/webapp/i18n"
 )
 
@@ -37,7 +38,7 @@ type Operation struct {
 	OperatorID int
 	Operand1   int
 	Operand2   int
-	Status     homework.OperationStatus
+	Status     operation.Status
 	Answer     int
 	Answer2    int
 }
