@@ -18,5 +18,6 @@
         "userToken": "<HMAC key used to generate a user token, should be 32 random bytes>",
         "actionToken": "<HMAC key used to generate an action token, should be 32 random bytes>"
     },
-    "userTokenValidity": 48
+    "userTokenValidity": 48,
+    "defaultLanguage": "<default language in format ll-CC, e.g. en-US, fr-FR, fr-CA>"
 }
