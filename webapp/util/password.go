@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	minIterations = 10000
-	maxIterations = 15000 // Must be greater than minIterations and not greater than 65535
+	minIterations = 15000
+	maxIterations = 20000 // Must be greater than minIterations and not greater than 65535
 )
 
 // ProtectPassword returns the Base64-encoded protected password
@@ -26,7 +26,7 @@ func ProtectPassword(password string) string {
 	defer bytes.Clear(&hashedPwd, &salt)
 	iterBytes := make([]byte, 2)
 	binary.BigEndian.PutUint16(iterBytes, uint16(iter))
-	return base64.StdEncoding.EncodeToString(bytes.Concat(salt, iterBytes, hashedPwd))
+	return bytes.Encode(bytes.Concat(salt, iterBytes, hashedPwd))
 }
 
 // VerifyPassword verifies the submitted password against the actual one
