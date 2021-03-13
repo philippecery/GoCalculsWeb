@@ -3,10 +3,10 @@ package util
 import (
 	"crypto/hmac"
 	hash "crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"time"
 
+	"github.com/philippecery/libs/bytes"
 	"github.com/philippecery/maths/webapp/config"
 )
 
@@ -15,5 +15,5 @@ func GenerateUserToken(userID string) (string, time.Time) {
 	mac := hmac.New(hash.New, []byte(config.Config.Keys.UserToken))
 	mac.Write([]byte(userID))
 	mac.Write([]byte(fmt.Sprintf("%d", expirationTime.Unix())))
-	return base64.URLEncoding.EncodeToString(mac.Sum(nil)), expirationTime
+	return bytes.Encode(mac.Sum(nil)), expirationTime
 }
