@@ -59,6 +59,6 @@ func Start() error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Starting server, listening on port %d\n", config.Config.Port)
+	log.Printf("server: listening on port %d\n", config.Config.Port)
 	return server.ListenAndServeTLS("", "")
 }

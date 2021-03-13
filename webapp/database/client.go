@@ -25,7 +25,7 @@ func Connect() error {
 	).ApplyURI(config.Config.DB.URL)
 	if client, err = mongo.Connect(context.TODO(), clientOptions); err == nil {
 		if err = client.Ping(context.TODO(), nil); err == nil {
-			log.Println("Connected to MongoDB!")
+			log.Println("database: connected")
 			collection.Register(client.Database("maths"))
 		}
 	}
@@ -36,7 +36,7 @@ func Connect() error {
 func Disconnect() error {
 	err := client.Disconnect(context.TODO())
 	if err == nil {
-		log.Println("Connection to MongoDB closed.")
+		log.Println("database: connection closed.")
 	}
 	return err
 }
