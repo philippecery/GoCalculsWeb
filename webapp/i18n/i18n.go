@@ -2,10 +2,20 @@ package i18n
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/philippecery/maths/webapp/config"
 	"golang.org/x/text/language"
 )
+
+const (
+	messageFolder = "i18n/messages/"
+)
+
+var supportedLanguages = []string{"en-US", "fr-FR"}
+var languages = make(map[string]string)
+var defaultLanguage string
 
 var bundle *i18n.Bundle
 var localizers map[string]*i18n.Localizer
@@ -14,14 +24,17 @@ func init() {
 	bundle = i18n.NewBundle(language.AmericanEnglish)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 	localizers = make(map[string]*i18n.Localizer)
-	loadMessages("i18n/messages.en-US.json", "en-US")
-	loadMessages("i18n/messages.fr-FR.json", "fr-FR")
-	initSupportedLanguages()
+	for _, lang := range supportedLanguages {
+		loadMessageFile(lang)
+	}
+	defaultLanguage = ValidateLanguage(config.Config.DefaultLanguage)
 }
 
-func loadMessages(path, lang string) {
-	bundle.MustLoadMessageFile(path)
+func loadMessageFile(lang string) {
+	bundle.MustLoadMessageFile(messageFolder + lang + ".json")
+	log.Printf("i18n: language %s loaded\n", lang)
 	localizers[lang] = i18n.NewLocalizer(bundle, lang)
+	languages[lang] = GetLocalizedMessage(lang, "language")
 }
 
 // GetLocalizedMessage returns the message messageID in language lang
@@ -38,4 +51,13 @@ func GetLocalizedMessage(lang, messageID string, data ...interface{}) string {
 		PluralCount:  pluralCount,
 		TemplateData: templateData,
 	})
+}
+
+// ValidateLanguage returns the provided language, if supported.
+// If the provided language is not supported, returns the default language.
+func ValidateLanguage(language string) string {
+	if _, exists := languages[language]; exists {
+		return language
+	}
+	return defaultLanguage
 }

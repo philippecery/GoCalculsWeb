@@ -43,6 +43,8 @@
     "login": "Se connecter",
     "userid": "Identifiant",
     "password": "Mot de passe",
+    "noaccount": "Pas encore de compte?",
+    "signup": "S'inscrire",
 
     "registeredUsers": "Utilisateurs inscrits",
     "unregisteredUsers": "Utilisateurs non inscrits",
@@ -137,12 +139,12 @@
     "emailSignature": "L'équipe admin de Maths.",
     "emailFooter": "Maths par Philippe D. Céry",
 
-    "emailConfirmationTitle": "Confirmation de l'adresse mail.",
-    "emailConfirmationPreHeader": "Veuillez cliquer sur le lien ci-dessous pour terminer votre inscription.",
-    "emailConfirmationMessage1": "Vous avez reçu ce message parceque votre adresse mail a été utilisée pour s'inscrire sur l'application Maths.",
-    "emailConfirmationMessage2": "Pour poursuivre votre inscription, veuillez cliquer sur le lien ci-dessous.",
-    "emailConfirmationContinueRegistration": "Terminer votre inscription...",
-    "emailConfirmationLinkWillExpire": {
+    "emailSignUpTitle": "Confirmation de l'adresse mail.",
+    "emailSignUpPreHeader": "Veuillez cliquer sur le lien ci-dessous pour terminer votre inscription.",
+    "emailSignUpMessage1": "Vous avez reçu ce message parceque votre adresse mail a été utilisée pour s'inscrire sur l'application Maths.",
+    "emailSignUpMessage2": "Pour poursuivre votre inscription, veuillez cliquer sur le lien ci-dessous.",
+    "emailSignUpContinueRegistration": "Terminer votre inscription...",
+    "emailSignUpLinkWillExpire": {
         "one": "(Ce lien expirera dans {{ .nbHours }} heure)",
         "other": "(Ce lien expirera dans {{ .nbHours }} heures)"
     },

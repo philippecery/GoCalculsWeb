@@ -43,6 +43,8 @@
     "login": "Login",
     "userid": "User ID",
     "password": "Password",
+    "noaccount": "Don't have an account?",
+    "signup": "Sign up",
 
     "registeredUsers": "Registered Users",
     "unregisteredUsers": "Unregistered Users",
@@ -137,12 +139,12 @@
     "emailSignature": "The Maths admin team.",
     "emailFooter": "Maths by Philippe D. Céry",
 
-    "emailConfirmationTitle": "Email address confirmation.",
-    "emailConfirmationPreHeader": "Please click on the link below to complete your registration.",
-    "emailConfirmationMessage1": "You receive this email because your email address was used to register on the Maths application.",
-    "emailConfirmationMessage2": "To proceed with your registration, please click on the link below.",
-    "emailConfirmationContinueRegistration": "Complete registration...",
-    "emailConfirmationLinkWillExpire": {
+    "emailSignUpTitle": "Email address confirmation.",
+    "emailSignUpPreHeader": "Please click on the link below to complete your registration.",
+    "emailSignUpMessage1": "You receive this email because your email address was used to register on the Maths application.",
+    "emailSignUpMessage2": "To proceed with your registration, please click on the link below.",
+    "emailSignUpContinueRegistration": "Complete registration...",
+    "emailSignUpLinkWillExpire": {
         "one": "(This link will expire in {{ .nbHours }} hour)",
         "other": "(This link will expire in {{ .nbHours }} hours)"
     },
