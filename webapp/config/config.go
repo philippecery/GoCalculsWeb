@@ -13,7 +13,7 @@ type configStruct struct {
 	SSL               *sslConfigStruct
 	DB                *dbConfigStruct
 	Keys              *keysConfigStruct
-	Gmail             *gmailConfigStruct
+	Email             *emailConfigStruct
 	UserTokenValidity int
 	DefaultLanguage   string
 }
@@ -38,9 +38,11 @@ type keysConfigStruct struct {
 	ActionToken string
 }
 
-type gmailConfigStruct struct {
-	Oauth2 *oauth2ConfigStruct
-	Bcc    string
+type emailConfigStruct struct {
+	Provider string
+	Oauth2   *oauth2ConfigStruct
+	SMTP     *smtpConfigStruct
+	Bcc      string
 }
 
 type oauth2ConfigStruct struct {
@@ -48,6 +50,13 @@ type oauth2ConfigStruct struct {
 	ClientSecret string
 	AccessToken  string
 	RefreshToken string
+}
+
+type smtpConfigStruct struct {
+	UserID   string
+	Password string
+	Host     string
+	Address  string
 }
 
 // Config is loaded at application startup from provided JSON configuration file

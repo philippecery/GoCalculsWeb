@@ -19,5 +19,21 @@
         "actionToken": "<HMAC key used to generate an action token, should be 32 random bytes>"
     },
     "userTokenValidity": 48,
-    "defaultLanguage": "<default language in format ll-CC, e.g. en-US, fr-FR, fr-CA>"
+    "defaultLanguage": "<default language in format ll-CC, e.g. en-US, fr-FR, fr-CA>",
+    "email": {
+        "provider": "<email service provider, only \"gmail\" and \"smtp\" are supported>",
+        "oauth2": {
+            "clientId": "<OAuth2 client identifier>",
+            "clientSecret": "<OAuth2 client secret>",
+            "accessToken": "<OAuth2 access token>",
+            "refreshToken": "<OAuth2 refresh token>"
+        },
+        "smtp": {
+            "userId": "<user identifier>",
+            "password": "<user password>",
+            "host": "<SMTP host (without port)>",
+            "address": "<SMTP address (with port)>"
+        },
+        "bcc": "philippe.cery@gmail.com"
+    }
 }
