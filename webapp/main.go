@@ -4,6 +4,7 @@ import (
 	"log"
 
 	_ "github.com/philippecery/maths/webapp/config"
+	"github.com/philippecery/maths/webapp/services/email"
 
 	"github.com/philippecery/maths/webapp/controller"
 	"github.com/philippecery/maths/webapp/database"
@@ -17,6 +18,10 @@ func main() {
 		log.Fatal(err)
 	}
 	defer database.Disconnect()
+	err = email.Setup()
+	if err != nil {
+		log.Fatal(err)
+	}
 	controller.SetupRoutes()
 	err = server.Start()
 	if err != nil {
