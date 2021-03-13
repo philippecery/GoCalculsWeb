@@ -24,7 +24,9 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 		vd.SetDefaultLocalizedMessages().
 			AddLocalizedMessage("login").
 			AddLocalizedMessage("userid").
-			AddLocalizedMessage("password")
+			AddLocalizedMessage("password").
+			AddLocalizedMessage("noaccount").
+			AddLocalizedMessage("signup")
 		if err := services.Templates.ExecuteTemplate(w, "login.html.tpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'login': %v\n", err)
 		}
