@@ -9,7 +9,7 @@ import (
 )
 
 // Results handles requests to /student/results
-// Only GET requests are allowed. The user must be authenticated and have the Student role to access the home page.
+// Only GET requests are allowed. The user must be authenticated and have the Student role to access this page.
 func Results(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if token := httpsession.NewCSWHToken(); token != "" {
 		if r.Method == "GET" {
