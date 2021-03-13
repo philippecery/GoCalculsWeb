@@ -6,9 +6,11 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/philippecery/maths/webapp/config"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
 	"github.com/philippecery/maths/webapp/i18n"
+	"github.com/philippecery/maths/webapp/services/email"
 
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
@@ -83,14 +85,30 @@ func validateProfileFormUserInput(w http.ResponseWriter, r *http.Request) (*docu
 	var emailAddress string
 	userProfile := &document.User{UserID: r.PostFormValue("userId")}
 	if emailAddress, err = services.ValidateEmailAddress(r.PostFormValue("emailAddress")); err == nil {
-		if err = services.SendValidationEmail(services.NewEmailViewData(w, r), userProfile); err != nil {
+		// TODO: check email address does not exist yet
+		if err = sendChangeUserIDEmail(services.NewEmailViewData(w, r), userProfile); err != nil {
 			log.Printf("Email address confirmation message was not sent. Cause: %v", err)
 			return nil, fmt.Errorf("errorGenericMessage")
 		}
-		userProfile.EmailAddressTmp = document.PII(emailAddress)
-		if userProfile.Name, err = services.ValidateName(r.PostFormValue("name")); err == nil {
-			return userProfile, nil
+		if userProfile.EmailAddressTmp, err = document.Protect(emailAddress); err == nil {
+			if userProfile.Name, err = services.ValidateName(r.PostFormValue("name")); err == nil {
+				return userProfile, nil
+			}
 		}
 	}
 	return nil, err
+}
+
+func sendChangeUserIDEmail(vd services.ViewData, user *document.User) error {
+	vd.SetViewData("URL", user.Link())
+	vd.SetEmailDefaultLocalizedMessages().
+		AddLocalizedMessage("emailChangeUserIDTitle").
+		AddLocalizedMessage("emailChangeUserIDPreHeader").
+		AddLocalizedMessage("emailChangeUserIDMessage1").
+		AddLocalizedMessage("emailChangeUserIDMessage2").
+		AddLocalizedMessage("emailChangeUserIDValidateEmailAddress").
+		AddLocalizedMessage("emailChangeUserIDLinkWillExpire", config.Config.UserTokenValidity, map[string]interface{}{
+			"nbHours": config.Config.UserTokenValidity,
+		})
+	return email.Send(user.EmailAddress.Reveal(), "", i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tpl", vd)
 }

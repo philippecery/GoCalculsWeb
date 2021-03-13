@@ -6,10 +6,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/philippecery/maths/webapp/config"
 	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/services"
+	"github.com/philippecery/maths/webapp/services/email"
 	"github.com/philippecery/maths/webapp/session"
 	"github.com/philippecery/maths/webapp/util"
 )
@@ -133,7 +136,7 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 						token, expirationTime := util.GenerateUserToken(userID)
 						unregisteredUser := &document.User{UserID: userID, Token: token, Expires: expirationTime, Role: user.Role(roleID), Status: user.Unregistered}
 						if err = dataaccess.CreateNewUser(unregisteredUser); err == nil {
-							if err = services.SendRegistrationEmail(services.NewEmailViewData(w, r), unregisteredUser); err != nil {
+							if err = sendSignUpEmail(services.NewEmailViewData(w, r), unregisteredUser); err != nil {
 								log.Printf("Email address confirmation message was not sent. Cause: %v", err)
 								httpsession.SetErrorMessageID("errorEmailAddressConfirmationNotSent")
 							}
@@ -161,4 +164,18 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 	}
 	log.Println("/admin/user/new: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
+}
+
+func sendSignUpEmail(vd services.ViewData, unregisteredUser *document.User) error {
+	vd.SetViewData("URL", unregisteredUser.Link())
+	vd.SetEmailDefaultLocalizedMessages().
+		AddLocalizedMessage("emailSignUpTitle").
+		AddLocalizedMessage("emailSignUpPreHeader").
+		AddLocalizedMessage("emailSignUpMessage1").
+		AddLocalizedMessage("emailSignUpMessage2").
+		AddLocalizedMessage("emailSignUpContinueRegistration").
+		AddLocalizedMessage("emailSignUpLinkWillExpire", config.Config.UserTokenValidity, map[string]interface{}{
+			"nbHours": config.Config.UserTokenValidity,
+		})
+	return email.Send(unregisteredUser.EmailAddress.Reveal(), "", i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tpl", vd)
 }
