@@ -1,0 +1,9 @@
+[mysqld]
+tls_version = TLSv1.3
+ssl_cert = /etc/mysql/tls/server.crt
+ssl_key = /etc/mysql/tls/server.key
+require_secure_transport = on
+
+plugin_load = ed25519=auth_ed25519
+secure_auth = on
+old_passwords = off

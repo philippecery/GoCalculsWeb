@@ -19,40 +19,19 @@ fi
 
 printf "\n\n### Keystore ###\n"
 printf "\n   Generate new certification chain, root to leaf? [Y/N]"
-read pem
-if [ "$pem" == "Y" ]; then
-    ( cd ./keystore; sh ./generateRootCAKeys.sh )
-    if [ $? -ne 0 ]; then
-        exit 1
-    fi
-    ( cd ./keystore; sh ./generateServerCAKeys.sh )
-    if [ $? -ne 0 ]; then
-        exit 1
-    fi
-    ( cd ./keystore; sh ./generateServerKeys.sh )
+read all
+if [ "$all" == "Y" ]; then
+    ( cd ./keystore; sh ./generateAllKeys.sh )
     if [ $? -ne 0 ]; then
         exit 1
     fi
 else
-    printf "\n   Generate new Maths certification chain, issuer and leaf? [Y/N]"
-    read pem
-    if [ "$pem" == "Y" ]; then
-        ( cd ./keystore; sh ./generateServerCAKeys.sh )
-        if [ $? -ne 0 ]; then
-            exit 1
-        fi
-        ( cd ./keystore; sh ./generateServerKeys.sh )
-        if [ $? -ne 0 ]; then
-            exit 1
-        fi
-    else
-        printf "\n   Generate new Maths certificate? [Y/N]"
-        read pem
-        if [ "$pem" == "Y" ]; then
-            ( cd ./keystore; sh ./generateServerKeys.sh )
-            if [ $? -ne 0 ]; then
-                exit 1
-            fi
-        fi
+    sh ./setupService.sh database
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+    sh ./setupService.sh webapp
+    if [ $? -ne 0 ]; then
+        exit 1
     fi
 fi

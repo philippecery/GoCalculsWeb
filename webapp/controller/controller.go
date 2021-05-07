@@ -36,7 +36,7 @@ func SetupRoutes() {
 	handleFunc("/teacher/grade/save", noCache(accessControl(teacher.GradeSave)))
 	handleFunc("/teacher/grade/students", noCache(accessControl(teacher.GradeStudents)))
 	handleFunc("/teacher/grade/unassign", accessControl(teacher.GradeUnassign))
-	handleFunc("/teacher/grade/delete", accessControl(teacher.GradeDelete))
+	// handleFunc("/teacher/grade/delete", accessControl(teacher.GradeDelete))
 	handleFunc("/teacher/student/list", noCache(accessControl(teacher.StudentList)))
 	handleFunc("/teacher/student/grade", noCache(accessControl(teacher.StudentGrade)))
 	handleFunc("/teacher/student/assign", accessControl(teacher.GradeAssign))

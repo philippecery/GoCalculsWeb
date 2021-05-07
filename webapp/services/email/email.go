@@ -9,7 +9,7 @@ import (
 	"github.com/philippecery/maths/webapp/services/email/providers"
 
 	"github.com/philippecery/maths/webapp/config"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/services"
 )
@@ -21,10 +21,10 @@ func Setup() error {
 	var err error
 	if config.Config.Email != nil {
 		switch config.Config.Email.Provider {
-		case "gmail":
-			emailService, err = providers.Gmail()
 		case "smtp":
-			emailService, err = providers.SMTP()
+			if config.Config.Email.SMTP != nil {
+				emailService, err = providers.SMTP()
+			}
 		default:
 			return fmt.Errorf("email: Email provider not supported: %s", config.Config.Email.Provider)
 		}
@@ -46,7 +46,7 @@ func Send(to, cc, subject, template string, vd interface{}) error {
 }
 
 // SendAlreadyRegisteredEmail sends an email to the owner of an already registered email address
-func SendAlreadyRegisteredEmail(vd services.ViewData, user *document.User) error {
+func SendAlreadyRegisteredEmail(vd services.ViewData, user *model.User) error {
 	vd.SetEmailDefaultLocalizedMessages().
 		AddLocalizedMessage("emailAlreadyRegisteredTitle").
 		AddLocalizedMessage("emailAlreadyRegisteredPreHeader").

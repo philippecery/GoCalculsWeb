@@ -7,8 +7,7 @@
 			<thead>
 				<tr>
 					<th>{{ .i18n_userid }}</th>
-					<th>{{ .i18n_firstName }}</th>
-					<th>{{ .i18n_lastName }}</th> 
+					<th>{{ .i18n_fullName }}</th>
 					<th>{{ .i18n_emailAddress }}</th>
 					<th>{{ .i18n_role }}</th>
 					<th>{{ .i18n_lastConnection }}</th>
@@ -24,8 +23,7 @@
 				{{ range .RegisteredUsers }}
 				<tr>
 					<td>{{ .UserID }}</td>
-					<td>{{ .FirstName }}</td>
-					<td>{{ .LastName }}</td>
+					<td>{{ .FullName }}</td>
 					<td>{{ .EmailAddress }}</td>
 					<td>{{ .Role }}</td>
 					<td>{{ .LastConnection }}</td>

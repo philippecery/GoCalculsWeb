@@ -10,7 +10,7 @@ import (
 type configStruct struct {
 	Port              int
 	Hostname          string
-	SSL               *sslConfigStruct
+	TLS               *tlsConfigStruct
 	DB                *dbConfigStruct
 	Keys              *keysConfigStruct
 	Email             *emailConfigStruct
@@ -18,17 +18,19 @@ type configStruct struct {
 	DefaultLanguage   string
 }
 
-type sslConfigStruct struct {
-	Keystore string
+type dbConfigStruct struct {
+	Name     string
+	UserName string
 	Password string
+	Host     string
+	Port     int
+	TLS      *tlsConfigStruct
 }
 
-type dbConfigStruct struct {
-	URL           string
-	AuthSource    string
-	AuthMechanism string
-	UserName      string
-	Password      string
+type tlsConfigStruct struct {
+	Truststore string
+	Keystore   string
+	Password   string
 }
 
 type keysConfigStruct struct {
@@ -40,16 +42,9 @@ type keysConfigStruct struct {
 
 type emailConfigStruct struct {
 	Provider string
-	Oauth2   *oauth2ConfigStruct
-	SMTP     *smtpConfigStruct
-	Bcc      string
-}
-
-type oauth2ConfigStruct struct {
-	ClientID     string
-	ClientSecret string
-	AccessToken  string
-	RefreshToken string
+	// Oauth2   *gmail.GmailConfigStruct
+	SMTP *smtpConfigStruct
+	Bcc  string
 }
 
 type smtpConfigStruct struct {

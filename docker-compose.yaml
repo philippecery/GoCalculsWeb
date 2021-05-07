@@ -1,0 +1,39 @@
+services:
+    # maths-webserver:
+    #     image: httpd:alpine
+    #     restart: always
+    #     volumes:
+    #         - ./config/web/tls/:/usr/local/apache2/conf/
+    #     networks:
+    #         - maths-webserver-webapp-network
+    #     ports:
+    #         - 443:443
+
+    maths-webapp:
+        image: maths-webapp:latest
+        restart: on-failure
+        volumes:
+            - ./config/config.json:/config/config.json
+            - ./config/tls/webapp/server.pem:/tls/server.pem
+            - ./config/tls/database/cacerts.pem:/tls/database.pem
+        networks:
+            - maths-webserver-webapp-network
+            - maths-webapp-database-network
+        ports:
+            - 443:8043
+
+    maths-database:
+        image: maths-database:latest
+        restart: on-failure
+        volumes:
+            - ./database/data:/var/lib/mysql
+            - ./config/maths.cnf:/etc/mysql/conf.d/maths.cnf
+            - ./config/tls/database/server.key:/etc/mysql/tls/server.key
+            - ./config/tls/database/server.crt:/etc/mysql/tls/server.crt
+        networks:
+            - maths-webapp-database-network
+
+networks:
+    maths-webapp-database-network:
+
+    maths-webserver-webapp-network:

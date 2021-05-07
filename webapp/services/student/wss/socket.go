@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/i18n"
 )
 
 type socket struct {
 	message           map[string]interface{}
 	homeworkSessionID string
+	operationCount    int
 	language          string
 	userID            string
 	conn              *websocket.Conn
@@ -72,20 +72,16 @@ func (s *socket) getCurrentLanguage() string {
 	return s.language
 }
 
-func (s *socket) addOperation(currentOperation *document.Operation) {
-	if session := s.getHomeworkSession(); session != nil {
-		session.Operations = append(session.Operations, currentOperation)
-		s.saveHomeworkSession(session)
-	}
+func (s *socket) addOperation(currentOperation *model.Operation) {
+	dataaccess.AddOperation(s.homeworkSessionID, currentOperation)
 }
 
-func (s *socket) getHomeworkSession() *document.HomeworkSession {
+func (s *socket) saveAnswer(currentOperation *model.Operation) {
+	dataaccess.SaveAnswer(s.homeworkSessionID, currentOperation.OperationID, currentOperation.Answer, currentOperation.Answer2, currentOperation.Status)
+}
+
+func (s *socket) getHomeworkSession() *model.HomeworkSession {
 	return dataaccess.GetSessionByID(s.homeworkSessionID)
-}
-
-func (s *socket) saveHomeworkSession(homeworkSession *document.HomeworkSession) {
-	homeworkSession.EndTime = time.Now()
-	dataaccess.UpdateHomeworkSession(homeworkSession)
 }
 
 func (s *socket) getLocalizedMessage(messageID string, data ...interface{}) string {

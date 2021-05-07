@@ -3,12 +3,15 @@ package public
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
+
+	"github.com/philippecery/maths/webapp/constant/team"
 
 	"github.com/philippecery/maths/webapp/config"
 	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/services/email"
@@ -38,8 +41,13 @@ func SignUp(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSes
 	if r.Method == "POST" {
 		if r.PostFormValue("token") == httpsession.GetCSRFToken() {
 			var err error
-			var emailAddress, userID string
-			var protectedEmailAddress *document.PII
+			var newTeam *model.Team
+			var emailAddress string
+			if newTeam, emailAddress, err = validateSignupUserInput(r); err == nil {
+
+			}
+			var userID string
+			var protectedEmailAddress *model.PII
 			if emailAddress, err = services.ValidateEmailAddress(strings.ToLower(r.PostFormValue("emailAddress"))); err == nil {
 				if userID, err = util.ProtectUserID(emailAddress); err == nil {
 					if existingUser := dataaccess.GetUserByID(userID); existingUser != nil {
@@ -48,9 +56,9 @@ func SignUp(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSes
 						}
 					} else {
 						token, expirationTime := util.GenerateUserToken(userID)
-						if protectedEmailAddress, err = document.Protect(emailAddress); err == nil {
-							newUser := &document.User{UserID: userID, EmailAddress: protectedEmailAddress, Token: token, Expires: expirationTime, Role: user.Parent, Status: user.Unregistered}
-							if err = dataaccess.CreateNewUser(newUser); err == nil {
+						if protectedEmailAddress, err = model.Protect(emailAddress); err == nil {
+							newUser := &model.User{UserID: userID, EmailAddress: protectedEmailAddress, Token: token, Expires: expirationTime, Role: user.ParentOrTeacher, Status: user.Unregistered}
+							if err = dataaccess.CreateNewTeam(newTeam, newUser); err == nil {
 								if err = sendSignUpEmail(services.NewEmailViewData(w, r), newUser); err != nil {
 									log.Printf("Unable to send registration email to new user. Cause: %v", err)
 								}
@@ -88,7 +96,7 @@ func SignUp(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSes
 	http.Redirect(w, r, "/signup", http.StatusFound)
 }
 
-func sendSignUpEmail(vd services.ViewData, unregisteredUser *document.User) error {
+func sendSignUpEmail(vd services.ViewData, unregisteredUser *model.User) error {
 	vd.SetViewData("URL", unregisteredUser.Link())
 	vd.SetEmailDefaultLocalizedMessages().
 		AddLocalizedMessage("emailSignUpTitle").
@@ -100,4 +108,22 @@ func sendSignUpEmail(vd services.ViewData, unregisteredUser *document.User) erro
 			"nbHours": config.Config.UserTokenValidity,
 		})
 	return email.Send(unregisteredUser.EmailAddress.Reveal(), "", i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailSignUpSubject"), "signup.email.html.tmpl", vd)
+}
+
+func validateSignupUserInput(r *http.Request) (*model.Team, string, error) {
+	var err error
+	var emailAddress string
+	newTeam := &model.Team{}
+	if typeID, _ := strconv.Atoi(r.PostFormValue("type")); typeID > 0 && team.Type(typeID).IsValid() {
+		newTeam.Type = team.Type(typeID)
+		newTeam.Name = r.PostFormValue("name")
+		if len(newTeam.Name) >= 3 && len(newTeam.Name) <= 50 {
+			if emailAddress, err = services.ValidateEmailAddress(strings.ToLower(r.PostFormValue("emailAddress"))); err == nil {
+				newTeam.Language = i18n.ValidateLanguage(r.PostFormValue("lang"))
+				newTeam.TeamID = util.GenerateUUID()
+				return newTeam, emailAddress, nil
+			}
+		}
+	}
+	return nil, "", err
 }

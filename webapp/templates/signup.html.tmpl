@@ -7,9 +7,31 @@
         <form id="signupForm" method="POST" action="/signup" class="form-horizontal">
             <input type="hidden" name="token" value="{{ .Token }}"/>
             <div class="form-group">
+                <label for="type" class="col-sm-2 control-label">{{ .i18n_teamType }}</label>
+                <div class="col-sm-3">
+                    <input type="radio" class="form-control" id="0" name="type" required/><label for="1">{{ .i18n_teamFamily }}</label><br/>
+                    <input type="radio" class="form-control" id="1" name="type" required/><label for="2">{{ .i18n_teamSchool }}</label><br/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">{{ .i18n_teamName }}</label>
+                <div class="col-sm-3">
+                    <input type="text" maxlength="50" class="form-control" id="name" name="name" required/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="lang" class="col-sm-2 control-label">{{ .i18n_teamPreferredLanguage }}</label>
+                <div class="col-sm-3">
+                    {{ range $key, $value := .langs }}
+                    <input type="radio" class="form-control" id="{{ $key }}" name="lang" required/><label for="lang"><img src="/img/{{ $key }}.svg" alt="{{ $value }}"></label>&nbsp;&nbsp;
+                    {{ end }}
+                </div>
+            </div>
+            <hr/>
+            <div class="form-group">
                 <label for="emailAddress" class="col-sm-2 control-label">{{ .i18n_emailAddress }}</label>
                 <div class="col-sm-3">
-                    <input type="email" autocomplete="email" pattern="^(?=^.{6,254}$)[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" class="form-control" id="emailAddress" name="emailAddress"/>
+                    <input type="email" autocomplete="email" pattern="^(?=^.{6,254}$)[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" class="form-control" id="emailAddress" name="emailAddress" required/>
                 </div>
             </div>
             <div class="form-group">

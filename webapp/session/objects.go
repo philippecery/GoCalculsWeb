@@ -2,16 +2,19 @@ package session
 
 import (
 	"strings"
+	"time"
 
 	"github.com/philippecery/maths/webapp/constant/user"
 )
 
 // UserInformation contains only the user information we want to keep in the user session
 type UserInformation struct {
-	UserID   string
-	Name     string
-	Language string
-	Role     user.Role
+	UserID         string
+	Name           string
+	Language       string
+	Role           user.Role
+	LastConnection time.Time
+	TeamID          string
 }
 
 // IsAdmin returns true if this user's role is Admin
@@ -21,22 +24,22 @@ func (u *UserInformation) IsAdmin() bool {
 
 // IsTeacher returns true if this user's role is Teacher
 func (u *UserInformation) IsTeacher() bool {
-	return u.HasRole(user.Teacher)
+	return u.HasRole(user.ParentOrTeacher)
 }
 
 // IsStudent returns true if this user's role is Student
 func (u *UserInformation) IsStudent() bool {
-	return u.HasRole(user.Student)
+	return u.HasRole(user.ChildOrStudent)
 }
 
 // IsParent returns true if this user's role is Admin
 func (u *UserInformation) IsParent() bool {
-	return u.HasRole(user.Parent)
+	return u.HasRole(user.ParentOrTeacher)
 }
 
 // IsChild returns true if this user's role is Admin
 func (u *UserInformation) IsChild() bool {
-	return u.HasRole(user.Child)
+	return u.HasRole(user.ChildOrStudent)
 }
 
 // HasRole returns true if this user has the specified role

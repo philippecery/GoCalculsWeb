@@ -13,11 +13,11 @@ import (
 
 func main() {
 	var err error
-	err = database.Connect()
+	err = database.Open()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer database.Disconnect()
+	defer database.Close()
 	err = email.Setup()
 	if err != nil {
 		log.Fatal(err)

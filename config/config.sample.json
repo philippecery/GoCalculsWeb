@@ -1,16 +1,21 @@
 {
     "hostname": "<domain for CSP>",
     "port": 443,
-    "ssl": {
+    "tls": {
         "keystore": "<PEM bundle of certificate and PKCS#8 password-protected private key>",
         "password": "<private key password>"
     },
     "db": {
-        "url": "<mongodb database uri>",
-        "authMechanism": "SCRAM-SHA-256",
-        "authSource": "<mongodb auth source>",
-        "username": "<mongodb username>",
-        "password": "<mongodb password>"
+        "name": "<db name>",
+        "host": "<host name>",
+        "port": 3306,
+        "username": "<db user>",
+        "password": "<db user password>",
+        "tls": {
+            "truststore": "<PEM bundle of trusted CA certificates>",
+            "keystore": "<PEM bundle of certificate and PKCS#8 password-protected private key (if mutual authentication)>",
+            "password": "<private key password (if mutual authentication)>"
+        }
     },
     "keys": {
         "userId": "<HMAC key used to protect the userId, should be 32 random bytes>",

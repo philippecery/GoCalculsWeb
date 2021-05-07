@@ -8,7 +8,7 @@ import (
 
 	"github.com/philippecery/maths/webapp/config"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/services/email"
 
@@ -19,14 +19,14 @@ import (
 // Profile handles requests to /user/profile
 // Only GET and POST requests are allowed. The user must be authenticated to access this page.
 //  - a GET request will return the UserProfile in JSON format.
-//  - a POST request will update the User document in database if the submitted data are valid.
+//  - a POST request will update the User model in database if the submitted data are valid.
 func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if userProfile := dataaccess.GetUserProfileByID(user.UserID); userProfile != nil {
 		if token := httpsession.GetCSRFToken(); token != "" {
 			if r.Method == "GET" {
 				response := map[string]interface{}{
 					"UserProfile":    userProfile,
-					"LastConnection": i18n.FormatDateTime(userProfile.LastConnection, httpsession.GetUserLanguage()),
+					"LastConnection": i18n.FormatDateTime(user.LastConnection, httpsession.GetUserLanguage()),
 				}
 				if responseMessage, err := json.Marshal(response); err == nil {
 					if _, err = w.Write(responseMessage); err == nil {
@@ -80,18 +80,18 @@ func Profile(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 
-func validateProfileFormUserInput(w http.ResponseWriter, r *http.Request) (*document.User, error) {
+func validateProfileFormUserInput(w http.ResponseWriter, r *http.Request) (*model.User, error) {
 	var err error
 	var emailAddress string
-	userProfile := &document.User{UserID: r.PostFormValue("userId")}
+	userProfile := &model.User{UserID: r.PostFormValue("userId")}
 	if emailAddress, err = services.ValidateEmailAddress(r.PostFormValue("emailAddress")); err == nil {
 		// TODO: check email address does not exist yet
 		if err = sendChangeUserIDEmail(services.NewEmailViewData(w, r), userProfile); err != nil {
 			log.Printf("Email address confirmation message was not sent. Cause: %v", err)
 			return nil, fmt.Errorf("errorGenericMessage")
 		}
-		if userProfile.EmailAddressTmp, err = document.Protect(emailAddress); err == nil {
-			if userProfile.Name, err = services.ValidateName(r.PostFormValue("name")); err == nil {
+		if userProfile.EmailAddressTmp, err = model.Protect(emailAddress); err == nil {
+			if userProfile.FullName, err = services.ValidateName(r.PostFormValue("fullName")); err == nil {
 				return userProfile, nil
 			}
 		}
@@ -99,7 +99,7 @@ func validateProfileFormUserInput(w http.ResponseWriter, r *http.Request) (*docu
 	return nil, err
 }
 
-func sendChangeUserIDEmail(vd services.ViewData, user *document.User) error {
+func sendChangeUserIDEmail(vd services.ViewData, user *model.User) error {
 	vd.SetViewData("URL", user.Link())
 	vd.SetEmailDefaultLocalizedMessages().
 		AddLocalizedMessage("emailChangeUserIDTitle").

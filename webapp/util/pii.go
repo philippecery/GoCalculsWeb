@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 
 	"github.com/philippecery/libs/bytes"
 	"github.com/philippecery/libs/cipher"
@@ -13,7 +14,7 @@ import (
 func ProtectUserID(userID string) (string, error) {
 	macKey, err := base64.StdEncoding.DecodeString(config.Config.Keys.UserID)
 	if err == nil {
-		return bytes.Encode(hmac.Generate(&macKey, []byte(userID))), nil
+		return hex.EncodeToString(hmac.Generate(&macKey, []byte(userID))), nil
 	}
 	return "", err
 }
@@ -25,8 +26,9 @@ func ProtectPII(pii string) (string, error) {
 	piiBytes := []byte(pii)
 	piiKey, err = base64.StdEncoding.DecodeString(config.Config.Keys.PII)
 	if err == nil {
-		ciphertext, err = cipher.Encrypt(&piiKey, &piiBytes)
-		return bytes.Encode(ciphertext), nil
+		if ciphertext, err = cipher.Encrypt(&piiKey, &piiBytes); err == nil {
+			return bytes.Encode(ciphertext), nil
+		}
 	}
 	return "", err
 }

@@ -2,103 +2,138 @@ package dataaccess
 
 import (
 	"context"
-	"errors"
+	"database/sql"
 	"log"
 
-	"github.com/philippecery/maths/webapp/constant/user"
-	"github.com/philippecery/maths/webapp/database/collection"
-	"github.com/philippecery/maths/webapp/database/document"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/philippecery/maths/webapp/database"
+	"github.com/philippecery/maths/webapp/database/model"
 )
 
-type gradeCache map[string]*document.Grade
+const queryGetGradesByOwnerID = "SELECT g.GradeID, g.GradeName, g.GradeDescription FROM Grades g WHERE g.OwnerID = ?"
 
-var cache = make(gradeCache)
-
-func (c *gradeCache) put(grade *document.Grade) {
-	cache[grade.GradeID] = grade
-}
-
-func (c *gradeCache) remove(id string) {
-	delete(cache, id)
-}
-
-func (c *gradeCache) get(id string) *document.Grade {
-	if grade, found := cache[id]; found {
-		return grade
-	}
-	return nil
-}
-
-// GetAllGrades returns all the Grade documents in the Grades collection
-func GetAllGrades() []*document.Grade {
-	var err error
-	var cursor *mongo.Cursor
-	if cursor, err = collection.Grades.Find(context.TODO(), bson.M{}); err != nil {
-		log.Printf("Unable to find Grade documents. Cause: %v", err)
-		return nil
-	}
-	defer cursor.Close(context.TODO())
-	var grades []*document.Grade
-	for cursor.Next(context.TODO()) {
-		grade := new(document.Grade)
-		if err = cursor.Decode(grade); err != nil {
-			log.Printf("Unable to decode Grade document. Cause: %v", err)
-			return nil
+// GetGradesByOwnerID returns all the Grade documents in the Grades collection
+func GetGradesByOwnerID(ownerID string) []*model.Grade {
+	var grades []*model.Grade
+	if rows, err := database.Connection.QueryContext(context.TODO(), queryGetGradesByOwnerID, ownerID); err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			grade := new(model.Grade)
+			if err = rows.Scan(grade.GradeID, grade.Name, grade.Description); err == nil {
+				grades = append(grades, grade)
+			}
 		}
-		cache.put(grade)
-		grades = append(grades, grade)
 	}
 	return grades
 }
 
-// GetGradeByID returns the Grade document from the Grades collection where gradeid field is the provided id
-func GetGradeByID(id string) *document.Grade {
-	var grade *document.Grade
-	if grade = cache.get(id); grade == nil {
-		grade = new(document.Grade)
-		if err := collection.Grades.FindOne(context.TODO(), bson.M{"gradeid": id}).Decode(grade); err != nil {
-			log.Printf("Unable to find Grade with id %s. Cause: %v", id, err)
-			return nil
-		}
-		cache.put(grade)
+const queryGetGradeByStudentID = `
+SELECT
+	g.GradeID, g.GradeName, g.GradeDescription
+FROM Students s
+	INNER JOIN Grades g ON s.GradeID = g.GradeID
+WHERE s.UserID = ?
+`
+
+// GetGradeByStudentID returns the User model from the Users collection where userid field is the provided id and the role is Student
+func GetGradeByStudentID(userID string) *model.Grade {
+	grade := new(model.Grade)
+	err := database.Connection.QueryRowContext(context.TODO(), queryGetGradeByStudentID, userID).Scan(grade.GradeID, grade.Name, grade.Description)
+	switch {
+	case err == sql.ErrNoRows:
+		log.Printf("database: student %s doesn't exist or does not have a grade assigned", userID)
+	case err != nil:
+		log.Printf("database: unable to find student %s. Cause: %v", userID, err)
+		return nil
 	}
+	grade.Homeworks = GetHomeworksByGradeID(grade.GradeID)
 	return grade
 }
 
-// CreateNewGrade creates a new Grade document in the Grades collection
-func CreateNewGrade(newGrade *document.Grade) error {
-	if _, err := collection.Grades.InsertOne(context.TODO(), newGrade); err != nil {
-		return errors.New("Grade creation failed")
-	}
-	cache.put(newGrade)
-	log.Printf("Grade %s created.", newGrade.GradeID)
-	return nil
-}
+const queryGetGradesByTeamID = `
+SELECT
+	g.GradeID, g.GradeName, g.GradeDescription
+FROM Grade g
+	INNER JOIN Students s ON s.GradeID = g.GradeID
+	INNER JOIN Users u ON s.UserID = u.UserID
+WHERE u.TeamID = ?
+`
 
-// UpdateGrade retrieves and replaces the Grade document where gradeid field equals the one in the new Grade document
-func UpdateGrade(grade *document.Grade) error {
-	if _, err := collection.Grades.ReplaceOne(context.TODO(), bson.M{"gradeid": grade.GradeID}, grade); err != nil {
-		log.Printf("Unable to replace grade %s. Cause: %v", grade.GradeID, err)
-		return errors.New("Grade update failed")
-	}
-	cache.put(grade)
-	log.Printf("Grade %s is update", grade.GradeID)
-	return nil
-}
-
-// DeleteGrade deletes the Grade document from the Grades collection where the gradeid field is the provided id
-func DeleteGrade(id string) error {
-	if _, err := collection.Users.UpdateMany(context.TODO(), bson.M{"role": user.Student, "gradeid": id}, bson.M{"$set": bson.M{"gradeid": ""}}); err == nil {
-		if _, err := collection.Grades.DeleteOne(context.TODO(), bson.M{"gradeid": id}); err == nil {
-			log.Printf("Grade %s is deleted.", id)
-			cache.remove(id)
-			return nil
+// GetGradesByTeamID returns the User model from the Users collection where userid field is the provided id and the role is Student
+func GetGradesByTeamID(teamID string) []*model.Grade {
+	var grades []*model.Grade
+	if rows, err := database.Connection.QueryContext(context.TODO(), queryGetGradesByTeamID, teamID); err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			grade := new(model.Grade)
+			if err = rows.Scan(grade.GradeID, grade.Name, grade.Description); err == nil {
+				grades = append(grades, grade)
+			}
 		}
-		log.Printf("Unable to delete grade %s. Cause: %v", id, err)
-	} else {
-		log.Printf("Unable to unassign grade %s to students. Cause: %v", id, err)
 	}
-	return errors.New("Grade deletion failed")
+	return grades
+}
+
+const queryGetGradeByID = "SELECT g.GradeID, g.GradeName, g.GradeDescription FROM Grades g WHERE g.GradeID = ?"
+
+// GetGradeByID returns the Grade model from the Grades collection where gradeid field is the provided id
+func GetGradeByID(gradeID string) *model.Grade {
+	grade := new(model.Grade)
+	err := database.Connection.QueryRowContext(context.TODO(), queryGetGradeByID, gradeID).Scan(grade.GradeID, grade.Name, grade.Description)
+	switch {
+	case err == sql.ErrNoRows:
+		log.Printf("database: grade %s doesn't exist", gradeID)
+	case err != nil:
+		log.Printf("database: unable to find grade %s. Cause: %v", gradeID, err)
+		return nil
+	}
+	grade.Homeworks = GetHomeworksByGradeID(gradeID)
+	return grade
+}
+
+const queryCreateNewGrade = "INSERT INTO Grades (GradeID, OwnerID, GradeName, GradeDescription) VALUES (?, ?, ?, ?)"
+
+// CreateNewGrade creates a new Grade model in the Grades collection
+func CreateNewGrade(newGrade *model.Grade) error {
+	var err error
+	if newGrade != nil {
+		_, err = database.Connection.ExecContext(context.TODO(), queryCreateNewGrade, newGrade.GradeID, newGrade.OwnerID, newGrade.Name, newGrade.Description)
+	}
+	return err
+}
+
+const queryUpdateGrade = "UPDATE Grades SET GradeName = ?, GradeDescription = ? WHERE GradeID = ?"
+
+// UpdateGrade retrieves and replaces the Grade model where gradeid field equals the one in the new Grade model
+func UpdateGrade(grade *model.Grade) error {
+	var err error
+	if grade != nil {
+		_, err = database.Connection.ExecContext(context.TODO(), queryUpdateGrade, grade.Name, grade.Description, grade.GradeID)
+	}
+	return err
+}
+
+const queryHasAccessToGrade = `
+SELECT
+	COUNT(*)
+FROM Students s
+WHERE s.UserID = ? AND s.GradeID = ?
+`
+
+func HasAccessToGrade(userID, gradeID string) bool {
+	var hasAccess int
+	database.Connection.QueryRowContext(context.TODO(), queryHasAccessToGrade, userID, gradeID).Scan(hasAccess)
+	return hasAccess == 1
+}
+
+const queryIsGradeOwner = `
+SELECT
+	COUNT(*)
+FROM Grade g
+WHERE g.OwnerID = ? AND g.GradeID = ?
+`
+
+func IsGradeOwner(userID, gradeID string) bool {
+	var hasAccess int
+	database.Connection.QueryRowContext(context.TODO(), queryIsGradeOwner, userID, gradeID).Scan(hasAccess)
+	return hasAccess == 1
 }

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
 )
@@ -17,7 +17,7 @@ func StudentList(w http.ResponseWriter, r *http.Request, httpsession *session.HT
 	if r.Method == "GET" {
 		vd := services.NewViewData(w, r)
 		vd.SetUser(user)
-		vd.SetViewData("Students", dataaccess.GetAllStudents())
+		vd.SetViewData("Students", dataaccess.GetStudentsByTeamID(user.TeamID))
 		vd.SetDefaultLocalizedMessages().
 			AddLocalizedMessage("students").
 			AddLocalizedMessage("grades").
@@ -39,9 +39,8 @@ func StudentList(w http.ResponseWriter, r *http.Request, httpsession *session.HT
 }
 
 // StudentGrade handles requests to /teacher/student/grade
-// Only GET and POST requests are allowed. The user must have role Teacher to access this page.
-//  - a GET request will display the Student Grade page. If an error message is available in the session, it will be displayed.
-//  - a POST request will assign the selected grade to the student if the submitted data are valid.
+// Only GET requests are allowed. The user must have role Teacher to access this page.
+// Displays the Student Grade page. If an error message is available in the session, it will be displayed.
 func StudentGrade(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if token := httpsession.GetCSRFToken(); token != "" {
 		if r.Method == "GET" {
@@ -51,7 +50,7 @@ func StudentGrade(w http.ResponseWriter, r *http.Request, httpsession *session.H
 					vd := services.NewViewData(w, r)
 					vd.SetUser(user)
 					vd.SetViewData("Student", student)
-					vd.SetViewData("Grades", dataaccess.GetAllGrades())
+					vd.SetViewData("Grades", dataaccess.GetGradesByTeamID(user.TeamID))
 					vd.SetDefaultLocalizedMessages().
 						AddLocalizedMessage("students").
 						AddLocalizedMessage("grades").
@@ -73,11 +72,7 @@ func StudentGrade(w http.ResponseWriter, r *http.Request, httpsession *session.H
 				log.Printf("/teacher/student/grade: Invalid user ID in URL\n")
 			}
 		} else {
-			if r.Method == "POST" {
-
-			} else {
-				log.Printf("/teacher/student/grade: Invalid method %s\n", r.Method)
-			}
+			log.Printf("/teacher/student/grade: Invalid method %s\n", r.Method)
 		}
 	} else {
 		log.Println("/teacher/student/grade: CSRF token not found in session")
@@ -95,7 +90,7 @@ func GradeAssign(w http.ResponseWriter, r *http.Request, httpsession *session.HT
 			gradeID := r.URL.Query()["gradeid"][0]
 			userID := r.URL.Query()["userid"][0]
 			actionToken := r.URL.Query()["rnd"][0]
-			if gradeID != "" && userID != "" && actionToken != "" && document.VerifyGradeActionToken(actionToken, gradeID) {
+			if gradeID != "" && userID != "" && actionToken != "" && model.VerifyGradeActionToken(actionToken, gradeID) {
 				if err := dataaccess.AssignGradeForStudent(gradeID, userID); err != nil {
 					httpsession.SetErrorMessageID(err.Error())
 				}

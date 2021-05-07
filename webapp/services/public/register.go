@@ -8,7 +8,7 @@ import (
 
 	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
@@ -66,7 +66,7 @@ func Register(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 	}
 }
 
-func validateUserInput(r *http.Request) (*document.RegisteredUser, string, error) {
+func validateUserInput(r *http.Request) (*model.RegisteredUser, string, error) {
 	var err error
 	userToken := dataaccess.GetUserByToken(r.PostFormValue("token"))
 	if userToken == nil {
@@ -75,7 +75,7 @@ func validateUserInput(r *http.Request) (*document.RegisteredUser, string, error
 	if userToken.Expires.Before(time.Now()) {
 		return nil, "", fmt.Errorf("Token expired")
 	}
-	newUser := document.RegisteredUser{}
+	newUser := model.RegisteredUser{}
 	var userID string
 	if userID, err = util.ProtectUserID(r.PostFormValue("emailAddress")); err == nil && userID == userToken.UserID {
 		newUser.UserID = userToken.UserID
@@ -88,7 +88,7 @@ func validateUserInput(r *http.Request) (*document.RegisteredUser, string, error
 		return nil, err.Error(), err
 	}
 	newUser.PasswordDate = time.Now()
-	if newUser.Name, err = services.ValidateName(r.PostFormValue("name")); err != nil {
+	if newUser.FullName, err = services.ValidateName(r.PostFormValue("name")); err != nil {
 		return nil, err.Error(), err
 	}
 	newUser.Language = i18n.ValidateLanguage(r.PostFormValue("language"))

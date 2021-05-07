@@ -7,9 +7,10 @@ import (
 	"strings"
 
 	"github.com/philippecery/maths/webapp/config"
+	"github.com/philippecery/maths/webapp/constant/team"
 	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/services/email"
@@ -84,7 +85,7 @@ func executeAction(w http.ResponseWriter, r *http.Request, httpsession *session.
 		if len(r.URL.Query()["userid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
 			userID := r.URL.Query()["userid"][0]
 			actionToken := r.URL.Query()["rnd"][0]
-			if userID != "" && actionToken != "" && document.VerifyUserActionToken(actionToken, userID) {
+			if userID != "" && actionToken != "" && model.VerifyUserActionToken(actionToken, userID) {
 				var err error
 				if err = action(); err != nil {
 					httpsession.SetErrorMessageID(err.Error())
@@ -130,19 +131,30 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 			if r.PostFormValue("token") == token {
 				var err error
 				var roleID int
-				var userID string
+				var emailAddress, userID string
+				var protectedEmailAddress *model.PII
 				if roleID, err = services.ValidateRoleID(r.PostFormValue("role")); err == nil {
-					if userID, err = services.ValidateEmailAddress(strings.ToLower(r.PostFormValue("emailAddress"))); userID != "" && dataaccess.IsUserIDAvailable(userID) {
-						token, expirationTime := util.GenerateUserToken(userID)
-						unregisteredUser := &document.User{UserID: userID, Token: token, Expires: expirationTime, Role: user.Role(roleID), Status: user.Unregistered}
-						if err = dataaccess.CreateNewUser(unregisteredUser); err == nil {
-							if err = sendSignUpEmail(services.NewEmailViewData(w, r), unregisteredUser); err != nil {
-								log.Printf("Email address confirmation message was not sent. Cause: %v", err)
-								httpsession.SetErrorMessageID("errorEmailAddressConfirmationNotSent")
+					if emailAddress, err = services.ValidateEmailAddress(strings.ToLower(r.PostFormValue("emailAddress"))); userID != "" && dataaccess.IsUserIDAvailable(userID) {
+						if userID, err = util.ProtectUserID(emailAddress); err == nil {
+							token, expirationTime := util.GenerateUserToken(userID)
+							if protectedEmailAddress, err = model.Protect(emailAddress); err == nil {
+								unregisteredUser := &model.User{UserID: userID, EmailAddress: protectedEmailAddress, Token: token, Expires: expirationTime, Role: user.Role(roleID), Status: user.Unregistered}
+								if err = dataaccess.CreateNewUser(userInfo.TeamID, unregisteredUser, team.Normal); err == nil {
+									if err = sendSignUpEmail(services.NewEmailViewData(w, r), unregisteredUser); err != nil {
+										log.Printf("Email address confirmation message was not sent. Cause: %v", err)
+										httpsession.SetErrorMessageID("errorEmailAddressConfirmationNotSent")
+									}
+								} else {
+									log.Printf("User creation failed. Cause: %v", err)
+									httpsession.SetErrorMessageID("errorUserCreationFailed")
+								}
+							} else {
+								log.Printf("/signup: Error while protecting email address: %v", err)
+								httpsession.SetErrorMessageID("errorGenericMessage")
 							}
 						} else {
-							log.Printf("User creation failed. Cause: %v", err)
-							httpsession.SetErrorMessageID("errorUserCreationFailed")
+							log.Printf("/signup: Error while protecting userid: %v", err)
+							httpsession.SetErrorMessageID("errorGenericMessage")
 						}
 						http.Redirect(w, r, "/admin/user/list", http.StatusFound)
 						return
@@ -166,7 +178,7 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 
-func sendSignUpEmail(vd services.ViewData, unregisteredUser *document.User) error {
+func sendSignUpEmail(vd services.ViewData, unregisteredUser *model.User) error {
 	vd.SetViewData("URL", unregisteredUser.Link())
 	vd.SetEmailDefaultLocalizedMessages().
 		AddLocalizedMessage("emailSignUpTitle").

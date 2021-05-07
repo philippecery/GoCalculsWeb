@@ -9,17 +9,18 @@ import (
 	"github.com/philippecery/maths/webapp/constant/homework"
 	"github.com/philippecery/maths/webapp/constant/operation"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 )
 
 func (s *socket) operation() error {
 	if session := s.getHomeworkSession(); session != nil {
-		if homeworkType, exists := homework.Types[session.TypeID]; exists {
+		if homeworkType, exists := homework.Types[session.Homework.Type]; exists {
 			operatorIDs := session.OperatorIDs()
 			if len(operatorIDs) > 0 {
 				fmt.Printf("Remaining operators: %v\n", operatorIDs)
 				rndIdx, _ := crng.GetNumber(len(operatorIDs))
-				nextOperation := &document.Operation{OperatorID: operatorIDs[rndIdx], Status: operation.Todo}
+				s.operationCount = s.operationCount + 1
+				nextOperation := &model.Operation{OperationID: s.operationCount, OperatorID: operatorIDs[rndIdx], Status: operation.Todo}
 				var operandRange *homework.OperandRanges
 				switch nextOperation.OperatorID {
 				case 1:
@@ -58,7 +59,7 @@ func (s *socket) answer() error {
 		o := session.GetCurrentOperation()
 		var answer, answer2 int
 		answer, _ = s.toInt("answer")
-		if session.TypeID == 4 {
+		if o.OperatorID == 4 {
 			answer2, _ = s.toInt("answer2")
 		}
 		good := o.VerifyResult(answer, answer2)
@@ -72,7 +73,7 @@ func (s *socket) answer() error {
 			o.Status = operation.Wrong
 		}
 		nbTotalRemaining := session.Homework.NumberOfOperations() - session.NbTotalGood()
-		s.saveHomeworkSession(session)
+		s.saveAnswer(o)
 		return s.emitTextMessage(map[string]interface{}{
 			"response":         "answer",
 			"good":             good,
@@ -133,7 +134,7 @@ func (s *socket) end() error {
 				}
 			}
 		}
-		dataaccess.UpdateHomeworkSession(session)
+		dataaccess.EndHomeworkSession(session.SessionID, session.EndTime, session.Status)
 		s.summary(session)
 		return nil
 	}
@@ -150,7 +151,7 @@ func (s *socket) results(homeworkType, status, page int) error {
 			session := map[string]interface{}{
 				"sessionID":         homeworkSession.SessionID,
 				"startTime":         homeworkSession.FormattedDateTime(s.getCurrentLanguage()),
-				"type":              homework.Types[homeworkSession.TypeID].Logo,
+				"type":              homeworkSession.Homework.Type.Logo(),
 				"nbAdditions":       homeworkSession.Homework.NbAdditions,
 				"nbSubstractions":   homeworkSession.Homework.NbSubstractions,
 				"nbMultiplications": homeworkSession.Homework.NbMultiplications,
@@ -174,7 +175,7 @@ func (s *socket) details(sessionID string) error {
 	return s.emitErrorMessage("errorGenericMessage")
 }
 
-func (s *socket) summary(session *document.HomeworkSession) {
+func (s *socket) summary(session *model.HomeworkSession) {
 	if nbTotal := session.Homework.NbAdditions; nbTotal > 0 {
 		if err := s.emitTextMessage(map[string]interface{}{
 			"response":      "summary",

@@ -16,7 +16,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 		vd := services.NewViewData(w, r)
 		vd.SetUser(user)
 		vd.SetErrorMessage(httpsession.GetErrorMessageID())
-		vd.SetViewData("Grade", dataaccess.GetStudentByID(user.UserID).Grade)
+		vd.SetViewData("Grade", dataaccess.GetGradeByStudentID(user.UserID))
 		vd.SetDefaultLocalizedMessages().
 			AddLocalizedMessage("mentalmath").
 			AddLocalizedMessage("columnform").

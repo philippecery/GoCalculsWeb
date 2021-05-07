@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
-
-	"github.com/google/uuid"
 
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
+	"github.com/philippecery/maths/webapp/util"
 )
 
 // GradeList handles requests to /teacher/grade/list
@@ -21,7 +19,7 @@ func GradeList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 		vd := services.NewViewData(w, r)
 		vd.SetUser(user)
 		vd.SetErrorMessage(httpsession.GetErrorMessageID())
-		vd.SetViewData("Grades", dataaccess.GetAllGrades())
+		vd.SetViewData("Grades", dataaccess.GetGradesByTeamID(user.TeamID))
 		vd.SetDefaultLocalizedMessages().
 			AddLocalizedMessage("students").
 			AddLocalizedMessage("grades").
@@ -57,7 +55,7 @@ func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.
 					vd.SetUser(user)
 					vd.SetErrorMessage(httpsession.GetErrorMessageID())
 					vd.SetViewData("Grade", grade)
-					vd.SetViewData("Students", dataaccess.GetAllStudents())
+					vd.SetViewData("Students", dataaccess.GetStudentsByTeamID(user.TeamID))
 					vd.SetDefaultLocalizedMessages().
 						AddLocalizedMessage("students").
 						AddLocalizedMessage("grades").
@@ -135,22 +133,7 @@ func GradeNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 				AddLocalizedMessage("cancel")
 			vd.SetLocalizedMessage("gradeFormTitle", "newGrade")
 			vd.SetViewData("Operation", "New")
-			vd.SetViewData("Grade", &document.Grade{
-				MentalMath: &document.Homework{
-					NbAdditions:       10,
-					NbSubstractions:   10,
-					NbMultiplications: 10,
-					NbDivisions:       10,
-					Time:              5,
-				},
-				ColumnForm: &document.Homework{
-					NbAdditions:       5,
-					NbSubstractions:   5,
-					NbMultiplications: 5,
-					NbDivisions:       5,
-					Time:              30,
-				},
-			})
+			vd.SetViewData("Grade", &model.Grade{})
 			if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
 				log.Fatalf("/teacher/grade/new: Error while executing template 'gradeForm': %v\n", err)
 			}
@@ -227,13 +210,6 @@ func GradeEdit(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 						AddLocalizedMessage("grades").
 						AddLocalizedMessage("gradeName").
 						AddLocalizedMessage("gradeDescription").
-						AddLocalizedMessage("mentalmath").
-						AddLocalizedMessage("columnform").
-						AddLocalizedMessage("nbAdditions").
-						AddLocalizedMessage("nbSubstractions").
-						AddLocalizedMessage("nbMultiplications").
-						AddLocalizedMessage("nbDivisions").
-						AddLocalizedMessage("timeInMinutes").
 						AddLocalizedMessage("save").
 						AddLocalizedMessage("cancel")
 					vd.SetLocalizedMessage("gradeFormTitle", "editGrade")
@@ -265,29 +241,15 @@ func GradeSave(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 	if token := httpsession.GetCSRFToken(); token != "" {
 		if r.Method == "POST" {
 			if r.PostFormValue("token") == token {
-				if parsedNumbers, err := validateUserInput(r); err == nil {
-					grade := &document.Grade{
+				if err := validateGradeUserInput(r); err == nil {
+					grade := &model.Grade{
 						Name:        r.PostFormValue("name"),
 						Description: r.PostFormValue("description"),
-						MentalMath: &document.Homework{
-							NbAdditions:       parsedNumbers["mm_nbAdditions"],
-							NbSubstractions:   parsedNumbers["mm_nbSubstractions"],
-							NbMultiplications: parsedNumbers["mm_nbMultiplications"],
-							NbDivisions:       parsedNumbers["mm_nbDivisions"],
-							Time:              parsedNumbers["mm_time"],
-						},
-						ColumnForm: &document.Homework{
-							NbAdditions:       parsedNumbers["cf_nbAdditions"],
-							NbSubstractions:   parsedNumbers["cf_nbSubstractions"],
-							NbMultiplications: parsedNumbers["cf_nbMultiplications"],
-							NbDivisions:       parsedNumbers["cf_nbDivisions"],
-							Time:              parsedNumbers["cf_time"],
-						},
 					}
 					operation := r.PostFormValue("operation")
 					switch operation {
 					case "New", "Copy":
-						grade.GradeID = uuid.New().String()
+						grade.GradeID = util.GenerateUUID()
 						if err := dataaccess.CreateNewGrade(grade); err != nil {
 							log.Printf("Grade creation failed. Cause: %v", err)
 							httpsession.SetErrorMessageID("errorGradeCreationFailed")
@@ -318,32 +280,6 @@ func GradeSave(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 
-// GradeDelete handles requests to /teacher/grade/delete
-// Only GET requests are allowed. The user must have role Teacher to access this page.
-// Deletes the selected grade if the token is valid
-func GradeDelete(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
-	if r.Method == "GET" {
-		if len(r.URL.Query()["gradeid"]) == 1 && len(r.URL.Query()["rnd"]) == 1 {
-			gradeID := r.URL.Query()["gradeid"][0]
-			actionToken := r.URL.Query()["rnd"][0]
-			if gradeID != "" && actionToken != "" && document.VerifyGradeActionToken(actionToken, gradeID) {
-				if err := dataaccess.DeleteGrade(r.URL.Query()["gradeid"][0]); err != nil {
-					httpsession.SetErrorMessageID(err.Error())
-				}
-				http.Redirect(w, r, "/teacher/grade/list", http.StatusFound)
-				return
-			}
-			log.Println("/teacher/grade/delete: Invalid gradeID or token")
-		} else {
-			log.Println("/teacher/grade/delete: Missing gradeID or token")
-		}
-	} else {
-		log.Printf("/teacher/grade/delete: Invalid method %s\n", r.Method)
-	}
-	log.Println("/teacher/grade/delete: Redirecting to Login page")
-	http.Redirect(w, r, "/login", http.StatusFound)
-}
-
 // GradeUnassign handles requests to /teacher/grade/unassign
 // Only GET requests are allowed. The user must have role Teacher to access this page.
 // Resets the grade id for the selected student if the token is valid
@@ -353,7 +289,7 @@ func GradeUnassign(w http.ResponseWriter, r *http.Request, httpsession *session.
 			gradeID := r.URL.Query()["gradeid"][0]
 			userID := r.URL.Query()["userid"][0]
 			actionToken := r.URL.Query()["rnd"][0]
-			if gradeID != "" && userID != "" && actionToken != "" && document.VerifyStudentActionToken(actionToken, userID, gradeID) {
+			if gradeID != "" && userID != "" && actionToken != "" && model.VerifyStudentActionToken(actionToken, userID, gradeID) {
 				if err := dataaccess.UnassignGradeForStudent(gradeID, userID); err != nil {
 					httpsession.SetErrorMessageID(err.Error())
 				}
@@ -371,37 +307,9 @@ func GradeUnassign(w http.ResponseWriter, r *http.Request, httpsession *session.
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
-type validateNumber struct {
-	field string
-	min   int
-	max   int
-	step  int
-}
-
-var numbersToValidate = []*validateNumber{
-	&validateNumber{field: "mm_nbAdditions", min: 0, max: 100, step: 10},
-	&validateNumber{field: "mm_nbSubstractions", min: 0, max: 100, step: 10},
-	&validateNumber{field: "mm_nbMultiplications", min: 0, max: 100, step: 10},
-	&validateNumber{field: "mm_nbDivisions", min: 0, max: 100, step: 10},
-	&validateNumber{field: "mm_time", min: 1, max: 10, step: 1},
-	&validateNumber{field: "cf_nbAdditions", min: 0, max: 10, step: 1},
-	&validateNumber{field: "cf_nbSubstractions", min: 0, max: 10, step: 1},
-	&validateNumber{field: "cf_nbMultiplications", min: 0, max: 10, step: 1},
-	&validateNumber{field: "cf_nbDivisions", min: 0, max: 10, step: 1},
-	&validateNumber{field: "cf_time", min: 5, max: 60, step: 5},
-}
-
-func validateUserInput(r *http.Request) (map[string]int, error) {
+func validateGradeUserInput(r *http.Request) error {
 	if name := r.PostFormValue("name"); len(name) == 0 || len(name) > 32 {
-		return nil, fmt.Errorf("Invalid name")
+		return fmt.Errorf("Invalid name")
 	}
-	numbers := make(map[string]int)
-	for _, number := range numbersToValidate {
-		if value, err := strconv.Atoi(r.PostFormValue(number.field)); err == nil && value >= number.min && value <= number.max && value%number.step == 0 {
-			numbers[number.field] = value
-		} else {
-			return nil, fmt.Errorf("Invalid number for field %s: %v", number.field, value)
-		}
-	}
-	return numbers, nil
+	return nil
 }

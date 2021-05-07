@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/i18n"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/services/auth"
@@ -16,7 +16,7 @@ import (
 
 // ChangePassword handles requests to /user/changePassword
 // Only POST requests are allowed. The user must be authenticated to access this page.
-// A POST request will update the User document in database if the submitted data are valid.
+// A POST request will update the User model in database if the submitted data are valid.
 func ChangePassword(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if userProfile := dataaccess.GetUserProfileByID(user.UserID); userProfile != nil {
 		if token := httpsession.GetCSRFToken(); token != "" {
@@ -61,9 +61,9 @@ func ChangePassword(w http.ResponseWriter, r *http.Request, httpsession *session
 	http.Redirect(w, r, "/logout", http.StatusFound)
 }
 
-func validateChangePasswordFormUserInput(userID string, r *http.Request) (*document.User, error) {
+func validateChangePasswordFormUserInput(userID string, r *http.Request) (*model.User, error) {
 	var err error
-	userPassword := &document.User{UserID: userID}
+	userPassword := &model.User{UserID: userID}
 	if auth.VerifyUserIDPassword(userID, r.PostFormValue("password")) != nil {
 		if r.PostFormValue("password") != r.PostFormValue("newPassword") {
 			if userPassword.Password, err = services.ValidatePassword(r.PostFormValue("newPassword"), r.PostFormValue("newPasswordConfirm")); err == nil {

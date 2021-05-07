@@ -4,17 +4,18 @@ import (
 	"strings"
 
 	"github.com/philippecery/libs/crng"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/i18n"
 )
 
 // SetAuthenticatedUser stores the non-sensitive data of the authenticated user in this session.
-func (s *HTTPSession) SetAuthenticatedUser(user *document.User) {
+func (s *HTTPSession) SetAuthenticatedUser(user *model.User) {
 	s.SetAttribute("user", &UserInformation{
-		UserID:   user.UserID,
-		Name:     user.Name,
-		Language: user.Language,
-		Role:     user.Role,
+		UserID:         user.UserID,
+		Name:           user.FullName,
+		Language:       user.Language,
+		Role:           user.Role,
+		LastConnection: user.LastConnection,
 	})
 }
 

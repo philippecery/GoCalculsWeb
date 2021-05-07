@@ -16,8 +16,12 @@
 
 # tests stuff not to commit
 config.json
-/config/pem/
+*.pem
+*.key
+*.crt
+docker-build.sh
 mongod.conf
 /scripts/local/
 /testsdata/
 /.github/
+/database/data/

@@ -6,7 +6,8 @@ import (
 	"strconv"
 
 	"github.com/philippecery/maths/webapp/constant/homework"
-	"github.com/philippecery/maths/webapp/database/document"
+
+	"github.com/philippecery/maths/webapp/database/model"
 
 	"github.com/philippecery/maths/webapp/database/dataaccess"
 	"github.com/philippecery/maths/webapp/services"
@@ -41,54 +42,50 @@ func init() {
 func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSession, user *session.UserInformation) {
 	if token := httpsession.NewCSWHToken(); token != "" {
 		if r.Method == "GET" {
-			if typeID := validateTypeID(r.FormValue("type")); typeID > 0 {
-				if grade := dataaccess.GetStudentByID(user.UserID).Grade; grade != nil {
-					vd := services.NewViewData(w, r)
-					vd.SetUser(user)
-					vd.SetToken(token)
-					vd.SetViewData("TypeID", typeID)
-					vd.SetLocalizedMessage("Type", homework.Types[typeID].I18N)
-					var homework *document.Homework
-					switch typeID {
-					case 1:
-						homework = grade.MentalMath
-					case 2:
-						homework = grade.ColumnForm
-					}
-					if homework.NumberOfOperations() > 0 {
-						vd.SetViewData("Homework", homework)
-						vd.SetViewData("Keyboards", keyboards)
-						vd.SetDefaultLocalizedMessages().
-							AddLocalizedMessage("check").
-							AddLocalizedMessage("continue").
-							AddLocalizedMessage("restart").
-							AddLocalizedMessage("results").
-							AddLocalizedMessage("retry").
-							AddLocalizedMessage("quit").
-							AddLocalizedMessage("remainder").
-							AddLocalizedMessage("close").
-							AddLocalizedMessage("timeout").
-							AddLocalizedMessage("success").
-							AddLocalizedMessage("failure").
-							AddLocalizedMessage("errDisabled")
-						homeworkSession := document.NewHomeworkSession(user.UserID, typeID, *homework)
-						dataaccess.NewHomeworkSession(homeworkSession)
-						httpsession.SetAttribute("HomeworkSessionID", homeworkSession.SessionID)
-						httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
-						if err := services.Templates.ExecuteTemplate(w, "operations.html.tpl", vd); err != nil {
-							log.Fatalf("Error while executing template 'operations': %v\n", err)
+			if len(r.URL.Query()["homework"]) == 1 {
+				homeworkID := r.URL.Query()["homework"][0]
+				if dataaccess.HasAccessToHomework(user.UserID, homeworkID) {
+					if homework := dataaccess.GetHomeworkByIDAndStatus(homeworkID, homework.Online); homework != nil {
+						vd := services.NewViewData(w, r)
+						vd.SetUser(user)
+						vd.SetToken(token)
+						vd.SetLocalizedMessage("Type", homework.Type.I18N())
+						if homework.NumberOfOperations() > 0 {
+							vd.SetViewData("Homework", homework)
+							vd.SetViewData("Keyboards", keyboards)
+							vd.SetDefaultLocalizedMessages().
+								AddLocalizedMessage("check").
+								AddLocalizedMessage("continue").
+								AddLocalizedMessage("restart").
+								AddLocalizedMessage("results").
+								AddLocalizedMessage("retry").
+								AddLocalizedMessage("quit").
+								AddLocalizedMessage("remainder").
+								AddLocalizedMessage("close").
+								AddLocalizedMessage("timeout").
+								AddLocalizedMessage("success").
+								AddLocalizedMessage("failure").
+								AddLocalizedMessage("errDisabled")
+							homeworkSession := model.NewHomeworkSession(user.UserID, *homework)
+							dataaccess.NewHomeworkSession(homeworkSession)
+							httpsession.SetAttribute("HomeworkSessionID", homeworkSession.SessionID)
+							httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
+							if err := services.Templates.ExecuteTemplate(w, "operations.html.tpl", vd); err != nil {
+								log.Fatalf("Error while executing template 'operations': %v\n", err)
+							}
+							return
 						}
-						return
+						log.Printf("/student/operations: Homework %s has no operations\n", homeworkID)
+					} else {
+						log.Printf("/student/operations: Homework %s is not online\n", homeworkID)
 					}
-					log.Printf("/student/operations: Student %s has no operations of type %d assigned\n", user.UserID, typeID)
-					httpsession.SetErrorMessageID("errorNoHomeworkOfType" + r.FormValue("type"))
 				} else {
-					log.Printf("/student/operations: Student %s is not assign a grade\n", user.UserID)
+					log.Printf("/student/operations: User %s does not have access to homework %s\n", user.UserID, homeworkID)
 				}
 				http.Redirect(w, r, "/student/dashboard", http.StatusFound)
 				return
 			}
-			log.Printf("/student/operations: Invalid homework type %s\n", r.FormValue("type"))
+			log.Printf("/student/operations: Invalid number of parameters. Expected 1, got %d\n", len(r.URL.Query()["homework"]))
 		} else {
 			log.Printf("/student/operations: Invalid method %s\n", r.Method)
 		}
@@ -97,13 +94,4 @@ func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTT
 	}
 	log.Println("/student/operations: Redirecting to Login page")
 	http.Redirect(w, r, "/logout", http.StatusFound)
-}
-
-func validateTypeID(typeParam string) int {
-	if typeID, err := strconv.Atoi(typeParam); err == nil {
-		if _, exists := homework.Types[typeID]; exists {
-			return typeID
-		}
-	}
-	return 0
 }

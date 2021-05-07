@@ -6,7 +6,7 @@ import (
 
 	"github.com/philippecery/maths/webapp/constant/user"
 	"github.com/philippecery/maths/webapp/database/dataaccess"
-	"github.com/philippecery/maths/webapp/database/document"
+	"github.com/philippecery/maths/webapp/database/model"
 	"github.com/philippecery/maths/webapp/services"
 	"github.com/philippecery/maths/webapp/session"
 	"github.com/philippecery/maths/webapp/util"
@@ -43,9 +43,9 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 				switch u.Role {
 				case user.Admin:
 					http.Redirect(w, r, "/admin/user/list", http.StatusFound)
-				case user.Teacher:
+				case user.ParentOrTeacher:
 					http.Redirect(w, r, "/teacher/student/list", http.StatusFound)
-				case user.Student:
+				case user.ChildOrStudent:
 					http.Redirect(w, r, "/student/dashboard", http.StatusFound)
 				default:
 					http.Redirect(w, r, "/logout", http.StatusFound)
@@ -65,7 +65,7 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 
 // VerifyUserIDPassword returns the user retrieved from database if authentication is successful. Otherwise, returns nil.
 // If authentication failed, increments the number of attempts. If authentication is successful, reset the number of attempts to 0.
-func VerifyUserIDPassword(userID, password string) *document.User {
+func VerifyUserIDPassword(userID, password string) *model.User {
 	if u := dataaccess.GetUserByID(userID); u != nil {
 		if util.VerifyPassword(password, u.Password) && u.Status == user.Enabled {
 			u.FailedAttempts = 0

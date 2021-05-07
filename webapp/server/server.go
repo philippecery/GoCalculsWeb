@@ -8,27 +8,18 @@ import (
 	"net/http"
 
 	"github.com/philippecery/maths/webapp/config"
+	"github.com/philippecery/maths/webapp/util"
 )
 
 func create() (*http.Server, error) {
-	if config.Config.SSL == nil {
-		return nil, errors.New("Missing SSL configuration")
+	if config.Config.TLS == nil {
+		return nil, errors.New("server: missing TLS configuration")
 	}
-	if config.Config.SSL.Password == "" {
-		return nil, errors.New("Missing private key password")
+	if config.Config.TLS.Password == "" {
+		return nil, errors.New("server: missing private key password")
 	}
-	var serverKeyPass = []byte(config.Config.SSL.Password)
-	kp, err := loadKeyPair(config.Config.SSL.Keystore, &serverKeyPass)
-	if err != nil {
-		return nil, err
-	}
-	if kp.Certificate == nil {
-		return nil, errors.New("No certificate found")
-	}
-	if kp.PrivateKey == nil {
-		return nil, errors.New("No private key found")
-	}
-	keyPair, err := tls.X509KeyPair(kp.Certificate, kp.PrivateKey)
+	var serverKeyPass = []byte(config.Config.TLS.Password)
+	keyPair, err := util.X509KeyPair(config.Config.TLS.Keystore, &serverKeyPass)
 	if err != nil {
 		return nil, err
 	}

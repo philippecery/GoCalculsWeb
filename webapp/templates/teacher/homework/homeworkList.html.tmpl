@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="{{ .lang }}">
+	{{ template "header.html" . }}
+	{{ template "teacher.navbar.html" . }}
+    <div class="col-sm-12 text-center"><h2><span class="glyphicon glyphicon-tasks"></span>&nbsp;<span>{{ .i18n_grades }}</span></h2></div>
+	<div class="col-sm-12">
+		{{ .i18n_gradeName }}: {{ .Grade.Name }}
+		{{ .i18n_gradeDescription }}: {{ .Grade.Description }}
+		<table id="homeworks" class="table table-striped">
+			<thead>
+				<tr>
+					<th><span class="glyphicon glyphicon-hourglass"></span> / <span class="glyphicon glyphicon-pencil"></span></th>
+					<th>+</th>
+					<th>-</th>
+					<th>*</th>
+					<th>/</th>
+					<th><span class="glyphicon glyphicon-time"></span></th>
+					{{/* <th></th> */}}
+					{{/* <th></th> */}}
+					<th></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody id="gradesData">
+				{{/* {{ $i18n_manageStudents := .i18n_manageStudents }} */}}
+				{{/* {{ $i18n_editHomework := .i18n_editHomework }} */}}
+				{{ $i18n_copyHomework := .i18n_copyHomework }}
+				{{ $i18n_deleteHomework := .i18n_deleteHomework }}
+				{{ range .Grade.Homeworks }}
+				<tr>
+					<td><span class="glyphicon glyphicon-{{ .Type.Logo }}"></span></td>
+					<td>{{ .NbAdditions }}</td>
+					<td>{{ .NbSubstractions }}</td>
+					<td>{{ .NbMultiplications }}</td>
+					<td>{{ .NbDivisions }}</td>
+					<td>{{ .Time }}</td>
+					{{/* <td class="text-center"><a href="/teacher/homework/students?homeworkid={{ .HomeworkID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_manageStudents }}"><span class="glyphicon glyphicon-education"></span></a></td> */}}
+					{{/* <td class="text-center"><a href="/teacher/homework/edit?homeworkid={{ .HomeworkID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_editHomework }}"><span class="glyphicon glyphicon-edit"></span></a></td> */}}
+					<td class="text-center"><a href="/teacher/homework/copy?homeworkid={{ .HomeworkID }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_copyHomework }}"><span class="glyphicon glyphicon-copy"></span></a></td>
+					<td class="text-center"><a href="/teacher/homework/delete?homeworkid={{ .HomeworkID }}&rnd={{ .ActionToken }}" data-toggle="tooltip" data-placement="top" title="{{ $i18n_deleteHomework }}"><span class="glyphicon glyphicon-trash"></span></a></td>
+				</tr>
+				{{ end }}
+			</tbody>
+		</table>
+	</div>
+	<div class="text-center col-sm-12">
+		<a class="btn btn-lg btn-success btn-block" href="/teacher/homework/new?gradeid={{ .Grade.GradeID }}" role="button">
+			<span class="glyphicon glyphicon-plus"></span>&nbsp;<span>{{ .i18n_addHomework }}</span>
+		</a>
+	</div>
+	{{ template "footer.html" . }}
+</html>

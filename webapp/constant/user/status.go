@@ -24,5 +24,5 @@ func (s Status) String() string {
 
 // IsValid returns true if this status is valid
 func (s Status) IsValid() bool {
-	return s >= 0 && int(s) < len(statuses)
+	return int(s) < len(statuses)
 }

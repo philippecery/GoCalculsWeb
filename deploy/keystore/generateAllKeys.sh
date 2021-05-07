@@ -1,14 +1,14 @@
 #!/bin/bash
 
 OPENSSL_CMD=openssl
-TARGET_PATH=../pem
+TARGET_PATH=../../config/tls
 
 printf "Enter the Root CA private key password:"
 read -s password
 if [ ${#password} -ge 8 ]; then
     printf "\nEnter the Root CA private key password again:"
     read -s confirmPassword
-    if [ "$password" = "$confirmPassword" ]; then
+    if [ "$password" == "$confirmPassword" ]; then
         $OPENSSL_CMD genrsa 2048 | $OPENSSL_CMD pkcs8 -topk8 -out $TARGET_PATH/CA_root.key -passout pass:$password -v2 aes256
         if [ $? -ne 0 ]; then
             cd ..
@@ -19,6 +19,16 @@ if [ ${#password} -ge 8 ]; then
         if [ $? -ne 0 ]; then
             cd ..
             echo "[ERROR] CA Root cert generation failed"
+            exit 1
+        fi
+
+        sh ./generateAllServiceKeys.sh database
+        if [ $? -ne 0 ]; then
+            exit 1
+        fi
+
+        sh ./generateAllServiceKeys.sh webapp
+        if [ $? -ne 0 ]; then
             exit 1
         fi
     else

@@ -1,7 +1,15 @@
 package homework
 
 // Type type
-type Type struct {
+type Type uint
+
+const (
+	MentalMath Type = iota + 1
+	ColumnForm
+)
+
+// TypeDetails type
+type TypeDetails struct {
 	I18N                string
 	Logo                string
 	AdditionRange       *OperandRanges
@@ -24,10 +32,18 @@ type OperandRange struct {
 	DecMax   int
 }
 
+func (t Type) Logo() string {
+	return Types[t].Logo
+}
+
+func (t Type) I18N() string {
+	return Types[t].I18N
+}
+
 // Types is the default configuration of operations.
 // Todo: make it configurable
-var Types = map[int]*Type{
-	1: &Type{
+var Types = map[Type]*TypeDetails{
+	MentalMath: &TypeDetails{
 		I18N: "mentalmath",
 		Logo: "hourglass",
 		AdditionRange: &OperandRanges{
@@ -83,7 +99,7 @@ var Types = map[int]*Type{
 			},
 		},
 	},
-	2: &Type{
+	ColumnForm: &TypeDetails{
 		I18N: "columnform",
 		Logo: "pencil",
 		AdditionRange: &OperandRanges{

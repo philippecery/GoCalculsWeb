@@ -5,15 +5,13 @@ type Role uint8
 
 // List of roles
 const (
-	Child Role = iota
-	Student
-	Parent
-	Teacher
+	ChildOrStudent Role = iota
+	ParentOrTeacher
 	Principal
 	Admin
 )
 
-var roles = []string{"User", "Student", "Parent", "Teacher", "Principal", "Admin"}
+var roles = []string{"Child/Student", "Parent/Teacher", "Principal", "Admin"}
 
 func (r Role) String() string {
 	if r.IsValid() {
@@ -24,5 +22,5 @@ func (r Role) String() string {
 
 // IsValid returns true if this role is valid
 func (r Role) IsValid() bool {
-	return r >= 0 && int(r) < len(roles)
+	return int(r) < len(roles)
 }

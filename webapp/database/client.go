@@ -1,42 +1,82 @@
 package database
 
 import (
-	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"database/sql"
+	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/go-sql-driver/mysql"
 
 	"github.com/philippecery/maths/webapp/config"
-	"github.com/philippecery/maths/webapp/database/collection"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/philippecery/maths/webapp/util"
 )
 
-var client *mongo.Client
+var Connection *sql.DB
 
-// Connect creates the mongodb client and connects to the mongodb server
-func Connect() error {
+var parametersMap = map[string]string{
+	"tls":                     "app2db",
+	"allowAllFiles":           "false",
+	"allowCleartextPasswords": "false",
+	"allowNativePasswords":    "false",
+	"allowOldPasswords":       "false",
+	"multiStatements":         "false",
+}
+
+func dataSource() string {
+	parameters := []string{}
+	for k, v := range parametersMap {
+		parameters = append(parameters, k+"="+v)
+	}
+	return fmt.Sprintf("%s:%s@(%s:%s)/%s?%s", config.Config.DB.UserName, config.Config.DB.Password, config.Config.DB.Host, strconv.Itoa(config.Config.DB.Port), config.Config.DB.Name, strings.Join(parameters, "&"))
+}
+
+func Open() error {
 	var err error
-	clientOptions := options.Client().SetAuth(
-		options.Credential{
-			AuthMechanism: config.Config.DB.AuthMechanism,
-			AuthSource:    config.Config.DB.AuthSource,
-			Username:      config.Config.DB.UserName,
-			Password:      config.Config.DB.Password,
-		},
-	).ApplyURI(config.Config.DB.URL)
-	if client, err = mongo.Connect(context.TODO(), clientOptions); err == nil {
-		if err = client.Ping(context.TODO(), nil); err == nil {
-			log.Println("database: connected")
-			collection.Register(client.Database("maths"))
+	if config.Config.DB.TLS.Truststore != "" {
+		var pem []byte
+		rootCertPool := x509.NewCertPool()
+		if pem, err = ioutil.ReadFile(config.Config.DB.TLS.Truststore); err == nil {
+			if rootCertPool.AppendCertsFromPEM(pem) {
+				tlsConfig := &tls.Config{
+					RootCAs: rootCertPool,
+				}
+				if config.Config.DB.TLS.Keystore != "" {
+					if config.Config.DB.TLS.Password != "" {
+						var clientKeyPass = []byte(config.Config.DB.TLS.Password)
+						var keyPair tls.Certificate
+						if keyPair, err = util.X509KeyPair(config.Config.DB.TLS.Keystore, &clientKeyPass); err == nil {
+							tlsConfig.Certificates = []tls.Certificate{keyPair}
+						}
+					} else {
+						err = errors.New("database: missing private key password")
+					}
+				}
+				if err == nil {
+					mysql.RegisterTLSConfig(parametersMap["tls"], tlsConfig)
+					if Connection, err = sql.Open("mysql", dataSource()); err == nil {
+						if err = Connection.Ping(); err == nil {
+							Connection.SetConnMaxLifetime(time.Minute * 3)
+							Connection.SetMaxOpenConns(10)
+							Connection.SetMaxIdleConns(10)
+							log.Printf("database: connected")
+						}
+					}
+				}
+			}
 		}
+	} else {
+		err = errors.New("database: missing TLS truststore")
 	}
 	return err
 }
 
-// Disconnect disconnects the client from the server
-func Disconnect() error {
-	err := client.Disconnect(context.TODO())
-	if err == nil {
-		log.Println("database: connection closed.")
-	}
-	return err
+func Close() error {
+	return Connection.Close()
 }

@@ -1,4 +1,4 @@
-package document
+package model
 
 import (
 	"encoding/base64"
@@ -9,6 +9,7 @@ import (
 	"github.com/philippecery/libs/bytes"
 	"github.com/philippecery/libs/cipher"
 	"github.com/philippecery/maths/webapp/config"
+	"github.com/philippecery/maths/webapp/constant/team"
 	"github.com/philippecery/maths/webapp/constant/user"
 )
 
@@ -17,12 +18,20 @@ type PII struct {
 	cipher string
 }
 
-// User document
+type Team struct {
+	TeamID   string
+	Type     team.Type
+	Name     string
+	Language string
+	Status   team.Status
+}
+
+// User model
 type User struct {
 	UserID          string
 	Password        string
 	PasswordDate    time.Time
-	Name            string
+	FullName        string
 	Language        string
 	EmailAddress    *PII
 	EmailAddressTmp *PII
@@ -31,26 +40,27 @@ type User struct {
 	LastConnection  time.Time
 	Token           string
 	Expires         time.Time
-	GradeID         string
 	FailedAttempts  int
+	Teams           []*Team
 }
 
-// UserProfile document
+// UserProfile model
 type UserProfile struct {
 	UserID         string
 	EmailAddress   *PII
-	Name           string
+	FullName       string
 	Language       string
 	LastConnection time.Time
+	Teams          []*Team
 }
 
-// RegisteredUser document
-// Replaces existing User document when user registers
+// RegisteredUser model
+// Replaces existing User model when user registers
 type RegisteredUser struct {
 	UserID         string
 	EmailAddress   *PII
 	Password       string
-	Name           string
+	FullName       string
 	Language       string
 	Role           user.Role
 	Status         user.Status
@@ -58,13 +68,12 @@ type RegisteredUser struct {
 	PasswordDate   time.Time
 }
 
-// Student document
-// Updates an existing User document
+// Student model
+// Updates an existing User model
 type Student struct {
 	UserID   string
-	Name     string
+	FullName string
 	Language string
-	GradeID  string
 	Grade    *Grade
 }
 
@@ -85,12 +94,22 @@ func (u *User) IsAdmin() bool {
 
 // IsTeacher return true is this user's role is Teacher
 func (u *User) IsTeacher() bool {
-	return u.Role == user.Teacher
+	return u.Role == user.ParentOrTeacher
+}
+
+// IsParent return true is this user's role is Teacher
+func (u *User) IsParent() bool {
+	return u.Role == user.ParentOrTeacher
 }
 
 // IsStudent return true is this user's role is Student
 func (u *User) IsStudent() bool {
-	return u.Role == user.Student
+	return u.Role == user.ChildOrStudent
+}
+
+// IsChild return true is this user's role is Student
+func (u *User) IsChild() bool {
+	return u.Role == user.ChildOrStudent
 }
 
 // IsUnregistered return true is this user's status is Unregistered
@@ -115,7 +134,7 @@ func VerifyUserActionToken(actionToken string, userID string) bool {
 
 // ActionToken generates and returns a unique ID to pass as a query parameter for CSRF protection.
 func (s *Student) ActionToken() string {
-	return actionToken(s.UserID, s.GradeID)
+	return actionToken(s.UserID, s.Grade.GradeID)
 }
 
 // VerifyStudentActionToken verifies the provided action token is valid for the provided student and grade.
@@ -141,7 +160,7 @@ func (p *PII) Reveal() string {
 	if err == nil {
 		protectedPIIBytes, err = bytes.Decode(string(p.cipher))
 		if err == nil {
-			piiBytes, err = cipher.Decrypt(&piiKey, protectedPIIBytes)
+			piiBytes, _ = cipher.Decrypt(&piiKey, protectedPIIBytes)
 			defer bytes.Clear(&piiBytes)
 			return string(piiBytes)
 		}

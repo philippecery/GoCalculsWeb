@@ -1,21 +1,20 @@
-package document
+package model
 
-// Grade document
-type Grade struct {
-	GradeID     string
-	Name        string
-	Description string
-	MentalMath  *Homework
-	ColumnForm  *Homework
-}
+import (
+	"github.com/philippecery/maths/webapp/constant/homework"
+)
 
-// Homework sub-document
+// Homework sub-model
 type Homework struct {
+	HomeworkID        string
+	Name              string
+	Type              homework.Type
 	NbAdditions       int
 	NbSubstractions   int
 	NbMultiplications int
 	NbDivisions       int
 	Time              int
+	Status            homework.Status
 }
 
 // NumberOfOperations returns the total number of operations for this homework
@@ -40,11 +39,11 @@ func (h *Homework) NumberOfOperationsByOperator(operatorID int) int {
 }
 
 // ActionToken generates and returns a unique ID to pass as a query parameter for CSRF protection.
-func (g *Grade) ActionToken() string {
-	return actionToken(g.GradeID)
+func (h *Homework) ActionToken() string {
+	return actionToken(h.HomeworkID)
 }
 
-// VerifyGradeActionToken verifies the provided action token is valid for the provided grade.
-func VerifyGradeActionToken(actionToken string, gradeID string) bool {
-	return verifyActionToken(actionToken, gradeID)
+// VerifyHomeworkActionToken verifies the provided action token is valid for the provided grade.
+func VerifyHomeworkActionToken(actionToken string, homeworkID string) bool {
+	return verifyActionToken(actionToken, homeworkID)
 }
