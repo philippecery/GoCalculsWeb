@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"log"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -20,21 +19,22 @@ import (
 
 var Connection *sql.DB
 
-var parametersMap = map[string]string{
-	"tls":                     "app2db",
-	"allowAllFiles":           "false",
-	"allowCleartextPasswords": "false",
-	"allowNativePasswords":    "false",
-	"allowOldPasswords":       "false",
-	"multiStatements":         "false",
-}
+const tlsName = "app2db"
 
 func dataSource() string {
-	parameters := []string{}
-	for k, v := range parametersMap {
-		parameters = append(parameters, k+"="+v)
-	}
-	return fmt.Sprintf("%s:%s@(%s:%s)/%s?%s", config.Config.DB.UserName, config.Config.DB.Password, config.Config.DB.Host, strconv.Itoa(config.Config.DB.Port), config.Config.DB.Name, strings.Join(parameters, "&"))
+	dsnConfig := mysql.NewConfig()
+	dsnConfig.User = config.Config.DB.UserName
+	dsnConfig.Passwd = config.Config.DB.Password
+	dsnConfig.Addr = fmt.Sprintf("%s:%s", config.Config.DB.Host, strconv.Itoa(config.Config.DB.Port))
+	dsnConfig.DBName = config.Config.DB.Name
+	dsnConfig.TLSConfig = tlsName
+	dsnConfig.ParseTime = true
+	dsnConfig.AllowAllFiles = false
+	dsnConfig.AllowCleartextPasswords = false
+	dsnConfig.AllowNativePasswords = true
+	dsnConfig.AllowOldPasswords = false
+	dsnConfig.MultiStatements = false
+	return dsnConfig.FormatDSN()
 }
 
 func Open() error {
@@ -59,7 +59,7 @@ func Open() error {
 					}
 				}
 				if err == nil {
-					mysql.RegisterTLSConfig(parametersMap["tls"], tlsConfig)
+					mysql.RegisterTLSConfig(tlsName, tlsConfig)
 					if Connection, err = sql.Open("mysql", dataSource()); err == nil {
 						if err = Connection.Ping(); err == nil {
 							Connection.SetConnMaxLifetime(time.Minute * 3)
