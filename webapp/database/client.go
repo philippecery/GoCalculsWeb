@@ -25,6 +25,7 @@ func dataSource() string {
 	dsnConfig := mysql.NewConfig()
 	dsnConfig.User = config.Config.DB.UserName
 	dsnConfig.Passwd = config.Config.DB.Password
+	dsnConfig.Net = "tcp"
 	dsnConfig.Addr = fmt.Sprintf("%s:%s", config.Config.DB.Host, strconv.Itoa(config.Config.DB.Port))
 	dsnConfig.DBName = config.Config.DB.Name
 	dsnConfig.TLSConfig = tlsName
@@ -45,7 +46,8 @@ func Open() error {
 		if pem, err = ioutil.ReadFile(config.Config.DB.TLS.Truststore); err == nil {
 			if rootCertPool.AppendCertsFromPEM(pem) {
 				tlsConfig := &tls.Config{
-					RootCAs: rootCertPool,
+					RootCAs:    rootCertPool,
+					MinVersion: tls.VersionTLS13,
 				}
 				if config.Config.DB.TLS.Keystore != "" {
 					if config.Config.DB.TLS.Password != "" {
