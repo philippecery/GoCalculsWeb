@@ -9,16 +9,7 @@ RUN mkdir /user && \
     echo 'nobody:x:65534:65534:nobody:/:' > /user/passwd && \
     echo 'nobody:x:65534' > /user/group
 
-RUN printf "\
-    machine github.com\n\
-    login ${GITHUB_USER}\n\
-    password ${GITHUB_ACCESS_TOKEN}\n\
-    \n\
-    machine api.github.com\n\
-    login ${GITHUB_USER}\n\
-    password ${GITHUB_ACCESS_TOKEN}\n"\
-    >> /root/.netrc
-
+COPY .netrc /root/
 RUN chmod 600 /root/.netrc
 
 WORKDIR /src
