@@ -22,7 +22,7 @@ services:
             tier2-network:
             tier3-network:
         ports:
-            - 443:8043
+            - 8043:8043
 
     test-dbclient:
         image: mariadb:10.5
