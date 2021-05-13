@@ -44,7 +44,7 @@ func UserList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 			AddLocalizedMessage("expires").
 			AddLocalizedMessage("copyRegistrationLink").
 			AddLocalizedMessage("addUser")
-		if err := services.Templates.ExecuteTemplate(w, "userList.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "userList.html.tmpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'userList': %v\n", err)
 		}
 		return
@@ -122,7 +122,7 @@ func UserNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSe
 				AddLocalizedMessage("student").
 				AddLocalizedMessage("save").
 				AddLocalizedMessage("cancel")
-			if err := services.Templates.ExecuteTemplate(w, "userNew.html.tpl", vd); err != nil {
+			if err := services.Templates.ExecuteTemplate(w, "userNew.html.tmpl", vd); err != nil {
 				log.Fatalf("Error while executing template 'userNew': %v\n", err)
 			}
 			return
@@ -189,5 +189,5 @@ func sendSignUpEmail(vd services.ViewData, unregisteredUser *model.User) error {
 		AddLocalizedMessage("emailSignUpLinkWillExpire", config.Config.UserTokenValidity, map[string]interface{}{
 			"nbHours": config.Config.UserTokenValidity,
 		})
-	return email.Send(unregisteredUser.EmailAddress.Reveal(), "", i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tpl", vd)
+	return email.Send(unregisteredUser.EmailAddress.Reveal(), "", i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tmpl", vd)
 }

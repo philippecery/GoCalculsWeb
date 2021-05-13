@@ -33,7 +33,7 @@ func SignUp(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSes
 			AddLocalizedMessage("emailAddress").
 			AddLocalizedMessage("save").
 			AddLocalizedMessage("cancel")
-		if err := services.Templates.ExecuteTemplate(w, "signup.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "signup.html.tmpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'signup': %v\n", err)
 		}
 		return
@@ -72,7 +72,7 @@ func SignUp(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSes
 						}
 					}
 					if err == nil {
-						if err = services.Templates.ExecuteTemplate(w, "signupConfirmation.html.tpl", nil); err != nil {
+						if err = services.Templates.ExecuteTemplate(w, "signupConfirmation.html.tmpl", nil); err != nil {
 							log.Printf("Error while executing template 'signupConfirmation': %v\n", err)
 						}
 						return

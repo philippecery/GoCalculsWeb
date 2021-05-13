@@ -31,7 +31,7 @@ func GradeList(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 			AddLocalizedMessage("copyGrade").
 			AddLocalizedMessage("deleteGrade").
 			AddLocalizedMessage("addGrade")
-		if err := services.Templates.ExecuteTemplate(w, "gradeList.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "gradeList.html.tmpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'gradeList': %v\n", err)
 		}
 		return
@@ -69,7 +69,7 @@ func GradeStudents(w http.ResponseWriter, r *http.Request, httpsession *session.
 						AddLocalizedMessage("unassignGrade").
 						AddLocalizedMessage("save").
 						AddLocalizedMessage("cancel")
-					if err := services.Templates.ExecuteTemplate(w, "gradeStudents.html.tpl", vd); err != nil {
+					if err := services.Templates.ExecuteTemplate(w, "gradeStudents.html.tmpl", vd); err != nil {
 						log.Fatalf("Error while executing template 'gradeStudents': %v\n", err)
 					}
 					return
@@ -134,7 +134,7 @@ func GradeNew(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 			vd.SetLocalizedMessage("gradeFormTitle", "newGrade")
 			vd.SetViewData("Operation", "New")
 			vd.SetViewData("Grade", &model.Grade{})
-			if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
+			if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tmpl", vd); err != nil {
 				log.Fatalf("/teacher/grade/new: Error while executing template 'gradeForm': %v\n", err)
 			}
 			return
@@ -175,7 +175,7 @@ func GradeCopy(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 					vd.SetLocalizedMessage("gradeFormTitle", "copyGrade")
 					vd.SetViewData("Operation", "Copy")
 					vd.SetViewData("Grade", grade)
-					if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
+					if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tmpl", vd); err != nil {
 						log.Fatalf("/teacher/grade/copy: Error while executing template 'gradeForm': %v\n", err)
 					}
 					return
@@ -215,7 +215,7 @@ func GradeEdit(w http.ResponseWriter, r *http.Request, httpsession *session.HTTP
 					vd.SetLocalizedMessage("gradeFormTitle", "editGrade")
 					vd.SetViewData("Operation", "Edit")
 					vd.SetViewData("Grade", grade)
-					if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tpl", vd); err != nil {
+					if err := services.Templates.ExecuteTemplate(w, "gradeForm.html.tmpl", vd); err != nil {
 						log.Fatalf("/teacher/grade/edit: Error while executing template 'gradeForm': %v\n", err)
 					}
 					return

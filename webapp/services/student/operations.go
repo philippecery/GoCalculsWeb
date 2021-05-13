@@ -70,7 +70,7 @@ func Operations(w http.ResponseWriter, r *http.Request, httpsession *session.HTT
 							dataaccess.NewHomeworkSession(homeworkSession)
 							httpsession.SetAttribute("HomeworkSessionID", homeworkSession.SessionID)
 							httpsession.SetAttribute("Lang", vd.GetCurrentLanguage())
-							if err := services.Templates.ExecuteTemplate(w, "operations.html.tpl", vd); err != nil {
+							if err := services.Templates.ExecuteTemplate(w, "operations.html.tmpl", vd); err != nil {
 								log.Fatalf("Error while executing template 'operations': %v\n", err)
 							}
 							return

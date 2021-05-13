@@ -17,7 +17,7 @@ func Home(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSessi
 			AddLocalizedMessage("introduction").
 			AddLocalizedMessage("learnMore").
 			AddLocalizedMessage("getStarted")
-		if err := services.Templates.ExecuteTemplate(w, "home.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "home.html.tmpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'home': %v\n", err)
 		}
 		return

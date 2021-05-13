@@ -52,5 +52,5 @@ func SendAlreadyRegisteredEmail(vd services.ViewData, user *model.User) error {
 		AddLocalizedMessage("emailAlreadyRegisteredPreHeader").
 		AddLocalizedMessage("emailAlreadyRegisteredMessage1").
 		AddLocalizedMessage("emailAlreadyRegisteredMessage2")
-	return Send(user.EmailAddress.Reveal(), "", i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailAlreadyRegisteredSubject"), "alreadyRegisteredEmail.html.tpl", vd)
+	return Send(user.EmailAddress.Reveal(), "", i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailAlreadyRegisteredSubject"), "alreadyRegisteredEmail.html.tmpl", vd)
 }

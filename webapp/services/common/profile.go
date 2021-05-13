@@ -110,5 +110,5 @@ func sendChangeUserIDEmail(vd services.ViewData, user *model.User) error {
 		AddLocalizedMessage("emailChangeUserIDLinkWillExpire", config.Config.UserTokenValidity, map[string]interface{}{
 			"nbHours": config.Config.UserTokenValidity,
 		})
-	return email.Send(user.EmailAddress.Reveal(), "", i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tpl", vd)
+	return email.Send(user.EmailAddress.Reveal(), "", i18n.GetLocalizedMessage(vd.GetCurrentLanguage(), "emailConfirmationSubject"), "confirmationEmail.html.tmpl", vd)
 }

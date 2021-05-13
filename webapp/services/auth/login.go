@@ -27,7 +27,7 @@ func Login(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPSess
 			AddLocalizedMessage("password").
 			AddLocalizedMessage("noaccount").
 			AddLocalizedMessage("signup")
-		if err := services.Templates.ExecuteTemplate(w, "login.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "login.html.tmpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'login': %v\n", err)
 		}
 		return

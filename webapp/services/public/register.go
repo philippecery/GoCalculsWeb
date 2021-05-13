@@ -37,7 +37,7 @@ func Register(w http.ResponseWriter, r *http.Request, httpsession *session.HTTPS
 				AddLocalizedMessage("password").
 				AddLocalizedMessage("passwordConfirm").
 				AddLocalizedMessage("register")
-			if err := services.Templates.ExecuteTemplate(w, "registration.html.tpl", vd); err != nil {
+			if err := services.Templates.ExecuteTemplate(w, "registration.html.tmpl", vd); err != nil {
 				log.Fatalf("Error while executing template 'registration': %v\n", err)
 			}
 			return

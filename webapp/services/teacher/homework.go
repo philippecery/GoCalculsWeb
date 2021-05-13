@@ -33,7 +33,7 @@ func HomeworkList(w http.ResponseWriter, r *http.Request, httpsession *session.H
 			AddLocalizedMessage("copyHomework").
 			AddLocalizedMessage("deleteHomework").
 			AddLocalizedMessage("addHomework")
-		if err := services.Templates.ExecuteTemplate(w, "homeworkList.html.tpl", vd); err != nil {
+		if err := services.Templates.ExecuteTemplate(w, "homeworkList.html.tmpl", vd); err != nil {
 			log.Fatalf("Error while executing template 'homeworkList': %v\n", err)
 		}
 		return
@@ -71,7 +71,7 @@ func HomeworkNew(w http.ResponseWriter, r *http.Request, httpsession *session.HT
 					vd.SetViewData("Operation", "New")
 					vd.SetViewData("Homework", &model.Homework{})
 					vd.SetViewData("GradeID", gradeID)
-					if err := services.Templates.ExecuteTemplate(w, "homeworkForm.html.tpl", vd); err != nil {
+					if err := services.Templates.ExecuteTemplate(w, "homeworkForm.html.tmpl", vd); err != nil {
 						log.Fatalf("/teacher/homework/new: Error while executing template 'homeworkForm': %v\n", err)
 					}
 					return
@@ -117,7 +117,7 @@ func HomeworkCopy(w http.ResponseWriter, r *http.Request, httpsession *session.H
 					vd.SetViewData("Operation", "Copy")
 					vd.SetViewData("Homework", homework)
 					vd.SetViewData("GradeID", gradeID)
-					if err := services.Templates.ExecuteTemplate(w, "homeworkForm.html.tpl", vd); err != nil {
+					if err := services.Templates.ExecuteTemplate(w, "homeworkForm.html.tmpl", vd); err != nil {
 						log.Fatalf("/teacher/homework/copy: Error while executing template 'homeworkForm': %v\n", err)
 					}
 					return
