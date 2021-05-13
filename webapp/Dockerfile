@@ -45,7 +45,6 @@ COPY --from=builder /config /config
 COPY --from=builder /tls /tls
 
 COPY --from=builder /user/group /user/passwd /etc/
-
 USER nobody:nobody
 
 EXPOSE 8043
