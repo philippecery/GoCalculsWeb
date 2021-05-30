@@ -24,17 +24,6 @@ services:
         ports:
             - 8043:8043
 
-    test-dbclient:
-        image: mariadb:10.5
-        restart: on-failure
-        networks:
-            tier2-network:
-            tier3-network:
-        volumes:
-            - ./config/tls/database/cacerts.pem:/tls/database.pem:ro
-        environment:
-            - MYSQL_ROOT_PASSWORD=password
-
     maths-database:
         image: maths-database:latest
         restart: on-failure
