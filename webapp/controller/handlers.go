@@ -8,8 +8,10 @@ import (
 	"github.com/philippecery/maths/webapp/session"
 )
 
+const staticRoot = "static/"
+
 func handleStatic(path string) {
-	http.Handle("/"+path+"/", http.StripPrefix("/"+path+"/", http.FileServer(http.Dir("./static/"+path))))
+	http.Handle("/"+path+"/", http.StripPrefix("/"+path+"/", http.FileServer(http.Dir(config.AppRoot+staticRoot+path))))
 }
 
 func handleFunc(pattern string, h func(http.ResponseWriter, *http.Request, *session.HTTPSession)) {

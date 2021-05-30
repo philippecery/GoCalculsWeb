@@ -54,6 +54,8 @@ type smtpConfigStruct struct {
 	Address  string
 }
 
+var AppRoot string
+
 // Config is loaded at application startup from provided JSON configuration file
 var Config configStruct
 

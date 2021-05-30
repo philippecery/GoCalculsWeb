@@ -31,7 +31,7 @@ func init() {
 }
 
 func loadMessageFile(lang string) {
-	bundle.MustLoadMessageFile(messageFolder + lang + ".json")
+	bundle.MustLoadMessageFile(config.AppRoot + messageFolder + lang + ".json")
 	log.Printf("i18n: language %s loaded\n", lang)
 	localizers[lang] = i18n.NewLocalizer(bundle, lang)
 	languages[lang] = GetLocalizedMessage(lang, "language")

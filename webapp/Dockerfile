@@ -22,7 +22,7 @@ COPY . .
 RUN mkdir /config
 RUN mkdir /tls
 
-RUN CGO_ENABLED=0 go build -installsuffix 'static' -o /bin/maths-webapp .
+RUN CGO_ENABLED=0 go build -tags docker -installsuffix 'static' -o /bin/maths-webapp .
 
 
 FROM scratch
