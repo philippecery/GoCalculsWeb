@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/philippecery/libs/email"
 )
 
 type configStruct struct {
@@ -42,16 +44,8 @@ type keysConfigStruct struct {
 
 type emailConfigStruct struct {
 	Provider string
-	// Oauth2   *gmail.GmailConfigStruct
-	SMTP *smtpConfigStruct
-	Bcc  string
-}
-
-type smtpConfigStruct struct {
-	UserID   string
-	Password string
-	Host     string
-	Address  string
+	Config   *email.ConfigStruct
+	Bcc      string
 }
 
 var AppRoot string

@@ -18,10 +18,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer database.Close()
-	err = email.Setup()
-	if err != nil {
-		log.Fatal(err)
-	}
+	email.Setup()
 	controller.SetupRoutes()
 	err = server.Start()
 	if err != nil {
